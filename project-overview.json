@@ -1,0 +1,901 @@
+{
+  "project": {
+    "name": "Ultimate Gym System",
+    "version": "1.0.0",
+    "type": "Full-Stack Web Application",
+    "stack": {
+      "backend": "Node.js + Express.js + MongoDB + Socket.io",
+      "frontend": "Next.js 16 + React 19 + Redux Toolkit + TypeScript + Tailwind CSS",
+      "realtime": "Socket.io 4.7.2",
+      "database": "MongoDB 8.0 via Mongoose 7.5.0"
+    },
+    "ports": {
+      "frontend": 3000,
+      "backend": 5000,
+      "mongodb": 27018
+    },
+    "urls": {
+      "frontend": "http://localhost:3000",
+      "api": "http://localhost:5000/api"
+    }
+  },
+
+  "backend": {
+    "entry": "backend/server.js",
+    "env_file": "backend/.env",
+
+    "environment_variables": {
+      "MONGODB_URI": "mongodb://127.0.0.1:27018/gymdb",
+      "JWT_SECRET": "required — JWT signing secret",
+      "JWT_REFRESH_SECRET": "required — refresh token secret",
+      "JWT_EXPIRE": "15m",
+      "JWT_REFRESH_EXPIRE": "7d",
+      "PORT": "5000",
+      "NODE_ENV": "development",
+      "CLIENT_URL": "http://localhost:3000",
+      "MOBILE_URL": "http://localhost:8080",
+      "EMAIL_HOST": "smtp.gmail.com",
+      "EMAIL_PORT": "587",
+      "EMAIL_USER": "optional",
+      "EMAIL_PASS": "optional",
+      "EMAIL_FROM": "noreply@gymapp.com",
+      "CLOUDINARY_CLOUD_NAME": "optional",
+      "CLOUDINARY_API_KEY": "optional",
+      "CLOUDINARY_API_SECRET": "optional",
+      "SOCKET_PORT": "5001"
+    },
+
+    "security": {
+      "rate_limit": "100 requests per 15 minutes",
+      "headers": "Helmet.js security headers",
+      "cors": ["http://localhost:3000", "http://localhost:8080"],
+      "password_hashing": "bcryptjs (salt rounds: 12)",
+      "auth": "JWT Bearer tokens with refresh token rotation"
+    },
+
+    "models": {
+      "User": {
+        "file": "backend/models/User.js",
+        "collection": "users",
+        "fields": {
+          "name": { "type": "String", "required": true, "maxlength": 50 },
+          "email": { "type": "String", "required": true, "unique": true, "lowercase": true },
+          "password": { "type": "String", "required": true, "minlength": 6, "select": false },
+          "role": { "type": "String", "enum": ["client", "coach", "admin"], "default": "client" },
+          "avatar": { "type": "String", "default": null },
+          "phone": { "type": "String" },
+          "dateOfBirth": { "type": "Date" },
+          "gender": { "type": "String", "enum": ["male", "female", "other"] },
+          "height": { "type": "Number", "min": 50, "max": 300, "unit": "cm" },
+          "weight": { "type": "Number", "min": 20, "max": 500, "unit": "kg" },
+          "fitnessGoals": { "type": "Array", "enum": ["weight_loss", "muscle_gain", "endurance", "flexibility", "general_fitness"] },
+          "experienceLevel": { "type": "String", "enum": ["beginner", "intermediate", "advanced"], "default": "beginner" },
+          "isEmailVerified": { "type": "Boolean", "default": false },
+          "emailVerificationToken": { "type": "String" },
+          "emailVerificationExpires": { "type": "Date" },
+          "passwordResetToken": { "type": "String" },
+          "passwordResetExpires": { "type": "Date" },
+          "refreshTokens": { "type": "Array", "items": { "token": "String", "createdAt": "Date" } },
+          "isActive": { "type": "Boolean", "default": true },
+          "isOnline": { "type": "Boolean", "default": false },
+          "lastSeen": { "type": "Date" },
+          "lastLogin": { "type": "Date" },
+          "specialization": { "type": "Array", "enum": ["strength_training", "cardio", "yoga", "pilates", "crossfit", "bodybuilding", "sports_training"], "coach_only": true },
+          "certifications": { "type": "Array", "items": { "name": "String", "issuer": "String", "date": "Date", "expiryDate": "Date" }, "coach_only": true },
+          "bio": { "type": "String", "maxlength": 500, "coach_only": true },
+          "hourlyRate": { "type": "Number", "min": 0, "coach_only": true },
+          "isApproved": { "type": "Boolean", "default": false, "coach_only": true },
+          "rating": { "type": "Number", "min": 0, "max": 5, "default": 0 },
+          "reviewCount": { "type": "Number", "default": 0 }
+        },
+        "instance_methods": ["comparePassword()", "generateAuthToken()", "generateRefreshToken()", "addRefreshToken(token)", "removeRefreshToken(token)"],
+        "static_methods": ["findByEmail(email)"],
+        "indexes": ["email", "role", "isApproved"]
+      },
+
+      "WorkoutPlan": {
+        "file": "backend/models/WorkoutPlan.js",
+        "collection": "workoutplans",
+        "fields": {
+          "title": { "type": "String", "required": true },
+          "titleAr": { "type": "String", "arabic": true },
+          "titleKu": { "type": "String", "kurdish": true },
+          "description": { "type": "String" },
+          "descriptionAr": { "type": "String" },
+          "descriptionKu": { "type": "String" },
+          "createdBy": { "type": "ObjectId", "ref": "User", "required": true },
+          "assignedTo": { "type": "ObjectId", "ref": "User" },
+          "isTemplate": { "type": "Boolean", "default": false },
+          "isPublic": { "type": "Boolean", "default": false },
+          "difficulty": { "type": "String", "enum": ["beginner", "intermediate", "advanced"] },
+          "category": { "type": "String" },
+          "duration": { "type": "Number", "unit": "weeks" },
+          "frequency": { "type": "Number", "unit": "days_per_week" },
+          "goals": { "type": "Array" },
+          "targetAudience": { "experienceLevel": "String", "ageRange": { "min": "Number", "max": "Number" }, "gender": "String" },
+          "workouts": {
+            "type": "Array",
+            "items": {
+              "day": "Number",
+              "name": "String",
+              "description": "String",
+              "estimatedDuration": "Number",
+              "exercises": { "exercise": "ObjectId(Exercise)", "sets": "Number", "reps": "String", "weight": "String", "restTime": "Number", "notes": "String" },
+              "warmUp": "String",
+              "coolDown": "String"
+            }
+          },
+          "nutrition": { "calories": "Number", "protein": "Number", "carbs": "Number", "fats": "Number", "guidelines": "String" },
+          "progressTracking": { "type": "Object" },
+          "tags": { "type": "Array" },
+          "isActive": { "type": "Boolean", "default": true },
+          "rating": { "average": "Number", "count": "Number" },
+          "startDate": { "type": "Date" },
+          "endDate": { "type": "Date" },
+          "status": { "type": "String", "enum": ["active", "completed", "paused", "cancelled"] }
+        },
+        "virtuals": ["totalWorkouts", "estimatedCompletionDate"],
+        "static_methods": ["findTemplates()", "findByUser(userId)"]
+      },
+
+      "Exercise": {
+        "file": "backend/models/Exercise.js",
+        "collection": "exercises",
+        "fields": {
+          "name": { "type": "String", "required": true },
+          "nameAr": { "type": "String" },
+          "nameKu": { "type": "String" },
+          "description": { "type": "String" },
+          "descriptionAr": { "type": "String" },
+          "descriptionKu": { "type": "String" },
+          "category": { "type": "String", "enum": ["strength", "cardio", "flexibility", "balance", "sports", "functional"] },
+          "muscleGroups": { "type": "Array" },
+          "equipment": { "type": "Array" },
+          "difficulty": { "type": "String", "enum": ["beginner", "intermediate", "advanced"] },
+          "instructions": { "type": "Array", "items": { "step": "Number", "instruction": "String" } },
+          "images": { "type": "Array", "items": { "url": "String", "alt": "String", "isPrimary": "Boolean" } },
+          "videos": { "type": "Array", "items": { "url": "String", "title": "String", "duration": "Number", "thumbnail": "String" } },
+          "caloriesBurned": { "type": "Number", "unit": "per_minute" },
+          "duration": { "type": "Number", "unit": "minutes" },
+          "sets": { "recommended": "Number", "range": { "min": "Number", "max": "Number" } },
+          "reps": { "recommended": "Number", "range": { "min": "Number", "max": "Number" } },
+          "restTime": { "type": "Number", "unit": "seconds" },
+          "tips": { "type": "Array" },
+          "precautions": { "type": "Array" },
+          "createdBy": { "type": "ObjectId", "ref": "User" },
+          "isApproved": { "type": "Boolean", "default": false },
+          "isActive": { "type": "Boolean", "default": true },
+          "tags": { "type": "Array" },
+          "rating": { "average": "Number", "count": "Number" }
+        },
+        "virtuals": ["primaryImage", "primaryVideo"],
+        "static_methods": ["findByMuscleGroup(group)", "findByCategory(category)"]
+      },
+
+      "Course": {
+        "file": "backend/models/Course.js",
+        "collection": "courses",
+        "fields": {
+          "title": { "type": "String", "required": true },
+          "titleAr": { "type": "String" },
+          "titleKu": { "type": "String" },
+          "description": { "type": "String" },
+          "descriptionAr": { "type": "String" },
+          "descriptionKu": { "type": "String" },
+          "instructor": { "type": "ObjectId", "ref": "User", "required": true },
+          "category": { "type": "String", "enum": ["fitness", "nutrition", "yoga", "meditation", "strength", "cardio", "flexibility", "sports"] },
+          "level": { "type": "String", "enum": ["beginner", "intermediate", "advanced", "all_levels"] },
+          "duration": { "type": "Number", "unit": "weeks" },
+          "sessionsPerWeek": { "type": "Number" },
+          "price": { "type": "Number", "default": 0 },
+          "currency": { "type": "String", "default": "USD" },
+          "thumbnail": { "type": "String" },
+          "trailerVideo": { "type": "String" },
+          "content": {
+            "type": "Array",
+            "items": {
+              "week": "Number",
+              "title": "String",
+              "description": "String",
+              "videoUrl": "String",
+              "duration": "Number",
+              "materials": "Array",
+              "exercises": "Array(ObjectId:Exercise)",
+              "isPreview": "Boolean"
+            }
+          },
+          "prerequisites": { "type": "Array" },
+          "learningObjectives": { "type": "Array" },
+          "tags": { "type": "Array" },
+          "enrolledStudents": {
+            "type": "Array",
+            "items": {
+              "student": "ObjectId(User)",
+              "enrolledAt": "Date",
+              "progress": "Number(0-100)",
+              "completedAt": "Date",
+              "certificateIssued": "Boolean"
+            }
+          },
+          "maxStudents": { "type": "Number" },
+          "isPublished": { "type": "Boolean", "default": false },
+          "isActive": { "type": "Boolean", "default": true },
+          "rating": { "average": "Number", "count": "Number" },
+          "reviews": { "type": "Array" },
+          "startDate": { "type": "Date" },
+          "endDate": { "type": "Date" },
+          "language": { "type": "String", "enum": ["en", "ar", "ku"] }
+        },
+        "virtuals": ["enrollmentCount", "completionRate"],
+        "static_methods": ["findPublished()", "findByInstructor(instructorId)"]
+      },
+
+      "Tip": {
+        "file": "backend/models/Tip.js",
+        "collection": "tips",
+        "fields": {
+          "title": { "type": "String", "required": true },
+          "titleAr": { "type": "String" },
+          "titleKu": { "type": "String" },
+          "content": { "type": "String", "required": true },
+          "contentAr": { "type": "String" },
+          "contentKu": { "type": "String" },
+          "category": { "type": "String", "enum": ["nutrition", "training", "recovery", "motivation", "equipment", "technique", "lifestyle", "supplements"] },
+          "type": { "type": "String", "enum": ["tip", "hack", "guide", "article"] },
+          "author": { "type": "ObjectId", "ref": "User", "required": true },
+          "tags": { "type": "Array" },
+          "images": { "type": "Array" },
+          "videos": { "type": "Array" },
+          "featured": { "type": "Boolean", "default": false },
+          "isPublished": { "type": "Boolean", "default": false },
+          "isActive": { "type": "Boolean", "default": true },
+          "publishedAt": { "type": "Date" },
+          "views": { "type": "Number", "default": 0 },
+          "likes": { "type": "Array", "items": { "user": "ObjectId(User)", "likedAt": "Date" } },
+          "comments": { "type": "Array", "items": { "user": "ObjectId(User)", "content": "String", "createdAt": "Date" } },
+          "relatedExercises": { "type": "Array(ObjectId:Exercise)" },
+          "relatedCourses": { "type": "Array(ObjectId:Course)" },
+          "seo": { "metaTitle": "String", "metaDescription": "String", "keywords": "Array" },
+          "language": { "type": "String", "enum": ["en", "ar", "ku"] }
+        },
+        "virtuals": ["likeCount", "commentCount"],
+        "static_methods": ["findPublished()", "findPopular()", "findByCategory(category)"]
+      },
+
+      "Progress": {
+        "file": "backend/models/Progress.js",
+        "collection": "progresses",
+        "fields": {
+          "user": { "type": "ObjectId", "ref": "User", "required": true },
+          "workoutPlan": { "type": "ObjectId", "ref": "WorkoutPlan" },
+          "course": { "type": "ObjectId", "ref": "Course" },
+          "type": { "type": "String", "enum": ["workout_completion", "exercise_progress", "body_measurement", "weight", "course_progress", "goal_achievement"] },
+          "workoutData": {
+            "workoutId": "String",
+            "workoutName": "String",
+            "exercises": "Array",
+            "duration": "Number(minutes)",
+            "caloriesBurned": "Number",
+            "difficulty": "String",
+            "notes": "String"
+          },
+          "measurements": {
+            "weight": "Number(kg)",
+            "bodyFat": "Number(%)",
+            "muscleMass": "Number(kg)",
+            "bmi": "Number",
+            "chest": "Number(cm)",
+            "waist": "Number(cm)",
+            "hips": "Number(cm)",
+            "biceps": "Number(cm)",
+            "thighs": "Number(cm)",
+            "neck": "Number(cm)",
+            "shoulders": "Number(cm)",
+            "forearms": "Number(cm)"
+          },
+          "courseData": {
+            "week": "Number",
+            "contentId": "String",
+            "completed": "Boolean",
+            "timeSpent": "Number(minutes)",
+            "quizScore": "Number",
+            "notes": "String"
+          },
+          "goalData": {
+            "goalType": "String",
+            "targetValue": "Number",
+            "currentValue": "Number",
+            "unit": "String",
+            "deadline": "Date",
+            "achieved": "Boolean"
+          },
+          "metrics": {
+            "heartRate": "Number(bpm)",
+            "sleep": "Number(hours)",
+            "energy": "Number(1-10)",
+            "stress": "Number(1-10)",
+            "mood": "Number(1-10)"
+          },
+          "photos": { "type": "Array", "items": { "url": "String", "type": "String", "date": "Date" } },
+          "notes": { "type": "String" },
+          "coachFeedback": { "coach": "ObjectId(User)", "feedback": "String", "rating": "Number(1-5)", "givenAt": "Date" },
+          "isPublic": { "type": "Boolean", "default": false },
+          "tags": { "type": "Array" }
+        },
+        "virtuals": ["workoutCompletionPercentage", "calculatedBMI"],
+        "static_methods": ["findByUserAndDateRange(userId, start, end)", "findLatestMeasurements(userId)", "findWorkoutProgress(userId)", "calculateProgressStats(userId)"]
+      },
+
+      "Message": {
+        "file": "backend/models/Message.js",
+        "collection": "messages",
+        "fields": {
+          "conversationId": { "type": "ObjectId", "ref": "Conversation", "required": true },
+          "sender": { "type": "ObjectId", "ref": "User", "required": true },
+          "receiver": { "type": "ObjectId", "ref": "User" },
+          "content": { "type": "String", "required": true, "maxlength": 1000 },
+          "messageType": { "type": "String", "enum": ["text", "image", "video", "file"], "default": "text" },
+          "attachments": { "type": "Array", "items": { "type": "String(enum)", "url": "String", "filename": "String", "size": "Number", "mimeType": "String" } },
+          "isRead": { "type": "Boolean", "default": false },
+          "readAt": { "type": "Date" },
+          "isDelivered": { "type": "Boolean", "default": false },
+          "deliveredAt": { "type": "Date" },
+          "isDeleted": { "type": "Boolean", "default": false },
+          "deletedAt": { "type": "Date" },
+          "replyTo": { "type": "ObjectId", "ref": "Message" },
+          "threadId": { "type": "String" },
+          "metadata": { "workoutPlan": "ObjectId(WorkoutPlan)", "exercise": "ObjectId(Exercise)", "course": "ObjectId(Course)", "progress": "ObjectId(Progress)" }
+        },
+        "indexes": ["conversationId+createdAt", "sender+createdAt", "receiver+createdAt", "threadId", "isRead"],
+        "static_methods": ["findConversation(user1Id, user2Id, limit)", "findUnreadForUser(userId)", "markAsRead(messageIds, userId)", "getConversationsForUser(userId)"]
+      },
+
+      "Conversation": {
+        "file": "backend/models/Conversation.js",
+        "collection": "conversations",
+        "fields": {
+          "isGroup": { "type": "Boolean", "default": false },
+          "groupName": { "type": "String", "required_if": "isGroup=true" },
+          "groupPhoto": { "type": "String" },
+          "groupAdmin": { "type": "ObjectId", "ref": "User", "required_if": "isGroup=true" },
+          "members": { "type": "Array(ObjectId:User)", "required": true },
+          "lastMessage": { "type": "ObjectId", "ref": "Message" },
+          "lastMessageText": { "type": "String" },
+          "lastMessageSender": { "type": "ObjectId", "ref": "User" },
+          "unreadCounts": { "type": "Array", "items": { "userId": "ObjectId(User)", "unreadCount": "Number" } },
+          "mutedBy": { "type": "Array(ObjectId:User)" },
+          "archivedBy": { "type": "Array(ObjectId:User)" },
+          "metadata": { "workoutPlan": "ObjectId(WorkoutPlan)", "course": "ObjectId(Course)" }
+        },
+        "virtuals": ["displayName"],
+        "instance_methods": ["addUnreadCount(userId, count)", "resetUnreadCount(userId)", "toggleMute(userId)"],
+        "static_methods": ["findOrCreateDirect(userId1, userId2)", "findUserConversations(userId, limit, skip)"]
+      },
+
+      "Notification": {
+        "file": "backend/models/Notification.js",
+        "collection": "notifications",
+        "fields": {
+          "recipient": { "type": "ObjectId", "ref": "User", "required": true },
+          "sender": { "type": "ObjectId", "ref": "User" },
+          "type": { "type": "String", "required": true, "enum": ["workout_assigned", "workout_completed", "exercise_added", "course_enrolled", "course_completed", "progress_milestone", "coach_feedback", "message_received", "system_announcement", "payment_received", "coach_approved", "tip_published", "reminder"] },
+          "title": { "type": "String", "required": true, "maxlength": 100 },
+          "message": { "type": "String", "required": true, "maxlength": 500 },
+          "data": {
+            "workoutPlan": "ObjectId(WorkoutPlan)",
+            "exercise": "ObjectId(Exercise)",
+            "course": "ObjectId(Course)",
+            "progress": "ObjectId(Progress)",
+            "message": "ObjectId(Message)",
+            "tip": "ObjectId(Tip)",
+            "amount": "Number",
+            "customData": "Mixed"
+          },
+          "isRead": { "type": "Boolean", "default": false },
+          "readAt": { "type": "Date" },
+          "priority": { "type": "String", "enum": ["low", "medium", "high", "urgent"], "default": "medium" },
+          "category": { "type": "String", "required": true, "enum": ["workout", "progress", "social", "system", "payment", "reminder"] },
+          "actionUrl": { "type": "String" },
+          "expiresAt": { "type": "Date", "note": "TTL index — auto-deleted after expiry" },
+          "isActive": { "type": "Boolean", "default": true }
+        },
+        "virtuals": ["timeAgo"],
+        "indexes": ["recipient+createdAt", "recipient+isRead", "type", "category", "expiresAt(TTL)"],
+        "static_methods": ["findUnreadForUser(userId, limit)", "markAsRead(notificationIds, userId)", "createWorkoutNotification(...)", "createProgressNotification(...)", "createSystemNotification(...)", "createReminder(...)", "getStatsForUser(userId)"]
+      }
+    },
+
+    "routes": {
+      "auth": {
+        "prefix": "/api/auth",
+        "file": "backend/routes/auth.js",
+        "endpoints": [
+          { "method": "POST", "path": "/register", "auth": false, "desc": "Register new user", "body": ["name", "email", "password", "role"] },
+          { "method": "POST", "path": "/login", "auth": false, "desc": "Login user", "body": ["email", "password"], "returns": ["accessToken", "refreshToken", "user"] },
+          { "method": "POST", "path": "/logout", "auth": true, "desc": "Logout and clear refresh token" },
+          { "method": "POST", "path": "/refresh", "auth": false, "desc": "Refresh access token", "body": ["refreshToken"], "returns": ["accessToken"] },
+          { "method": "POST", "path": "/forgot-password", "auth": false, "desc": "Send password reset email", "body": ["email"] },
+          { "method": "POST", "path": "/reset-password/:token", "auth": false, "desc": "Reset password", "body": ["password"] },
+          { "method": "POST", "path": "/verify-email/:token", "auth": false, "desc": "Verify email address" },
+          { "method": "POST", "path": "/change-password", "auth": true, "desc": "Change password", "body": ["currentPassword", "newPassword"] },
+          { "method": "GET",  "path": "/me", "auth": true, "desc": "Get current authenticated user" }
+        ]
+      },
+
+      "users": {
+        "prefix": "/api/users",
+        "file": "backend/routes/users.js",
+        "endpoints": [
+          { "method": "GET",    "path": "/",              "auth": true,  "role": "admin", "desc": "Get all users" },
+          { "method": "GET",    "path": "/coaches",        "auth": false, "desc": "Get approved coaches" },
+          { "method": "GET",    "path": "/:id",            "auth": true,  "desc": "Get user profile by ID" },
+          { "method": "PUT",    "path": "/:id",            "auth": true,  "desc": "Update user profile" },
+          { "method": "PUT",    "path": "/:id/avatar",     "auth": true,  "desc": "Upload user avatar (Cloudinary)" },
+          { "method": "PUT",    "path": "/:id/status",     "auth": true,  "role": "admin", "desc": "Activate/deactivate user" },
+          { "method": "PUT",    "path": "/:id/approve",    "auth": true,  "role": "admin", "desc": "Approve/reject coach" },
+          { "method": "DELETE", "path": "/:id",            "auth": true,  "role": "admin", "desc": "Deactivate user" },
+          { "method": "GET",    "path": "/:id/clients",    "auth": true,  "role": "coach", "desc": "Get coach's clients" }
+        ]
+      },
+
+      "workouts": {
+        "prefix": "/api/workouts",
+        "file": "backend/routes/workouts.js",
+        "endpoints": [
+          { "method": "GET",  "path": "/",              "auth": true,  "desc": "Get workout plans (filtered by role)" },
+          { "method": "GET",  "path": "/templates",     "auth": false, "desc": "Get public workout templates" },
+          { "method": "GET",  "path": "/:id",           "auth": true,  "desc": "Get workout plan details" },
+          { "method": "POST", "path": "/",              "auth": true,  "role": "coach", "desc": "Create workout plan" },
+          { "method": "PUT",  "path": "/:id",           "auth": true,  "desc": "Update workout plan" },
+          { "method": "POST", "path": "/:id/assign",    "auth": true,  "role": "coach", "desc": "Assign workout to client" },
+          { "method": "PUT",  "path": "/:id/progress",  "auth": true,  "desc": "Update workout progress" },
+          { "method": "DELETE","path": "/:id",          "auth": true,  "desc": "Soft delete workout plan" },
+          { "method": "GET",  "path": "/:id/progress",  "auth": true,  "desc": "Get workout progress" }
+        ]
+      },
+
+      "exercises": {
+        "prefix": "/api/exercises",
+        "file": "backend/routes/exercises.js",
+        "endpoints": [
+          { "method": "GET",  "path": "/",                 "auth": false, "desc": "Get exercises (paginated, filtered)" },
+          { "method": "GET",  "path": "/categories",       "auth": false, "desc": "Get exercise categories" },
+          { "method": "GET",  "path": "/muscle-groups",    "auth": false, "desc": "Get all muscle groups" },
+          { "method": "GET",  "path": "/:id",              "auth": false, "desc": "Get exercise details" },
+          { "method": "POST", "path": "/",                 "auth": true,  "role": "coach", "desc": "Create exercise" },
+          { "method": "PUT",  "path": "/:id",              "auth": true,  "desc": "Update exercise" },
+          { "method": "POST", "path": "/:id/images",       "auth": true,  "desc": "Upload exercise images (Cloudinary)" },
+          { "method": "POST", "path": "/:id/videos",       "auth": true,  "desc": "Upload exercise videos (Cloudinary)" },
+          { "method": "PUT",  "path": "/:id/approve",      "auth": true,  "role": "admin", "desc": "Approve exercise" },
+          { "method": "DELETE","path": "/:id",             "auth": true,  "desc": "Delete exercise" },
+          { "method": "GET",  "path": "/:id/similar",      "auth": false, "desc": "Get similar exercises" }
+        ]
+      },
+
+      "courses": {
+        "prefix": "/api/courses",
+        "file": "backend/routes/courses.js",
+        "endpoints": [
+          { "method": "GET",  "path": "/",                              "auth": false, "desc": "Get courses (paginated, filtered)" },
+          { "method": "GET",  "path": "/categories",                    "auth": false, "desc": "Get course categories" },
+          { "method": "GET",  "path": "/:id",                           "auth": false, "desc": "Get course details" },
+          { "method": "POST", "path": "/",                              "auth": true,  "role": "coach", "desc": "Create course" },
+          { "method": "PUT",  "path": "/:id",                           "auth": true,  "desc": "Update course" },
+          { "method": "POST", "path": "/:id/thumbnail",                 "auth": true,  "desc": "Upload course thumbnail" },
+          { "method": "POST", "path": "/:id/enroll",                    "auth": true,  "role": "client", "desc": "Enroll in course" },
+          { "method": "PUT",  "path": "/:id/progress",                  "auth": true,  "desc": "Update course progress" },
+          { "method": "GET",  "path": "/:id/my-progress",               "auth": true,  "desc": "Get my course progress" },
+          { "method": "PUT",  "path": "/:id/publish",                   "auth": true,  "role": "coach", "desc": "Publish/unpublish course" },
+          { "method": "DELETE","path": "/:id",                          "auth": true,  "desc": "Delete course" },
+          { "method": "GET",  "path": "/instructor/:instructorId",       "auth": false, "desc": "Get instructor's courses" }
+        ]
+      },
+
+      "tips": {
+        "prefix": "/api/tips",
+        "file": "backend/routes/tips.js",
+        "endpoints": [
+          { "method": "GET",  "path": "/",                  "auth": false, "desc": "Get tips (paginated, filtered)" },
+          { "method": "GET",  "path": "/categories",        "auth": false, "desc": "Get tip categories" },
+          { "method": "GET",  "path": "/:id",               "auth": false, "desc": "Get tip details" },
+          { "method": "POST", "path": "/",                  "auth": true,  "role": "coach", "desc": "Create tip" },
+          { "method": "PUT",  "path": "/:id",               "auth": true,  "desc": "Update tip" },
+          { "method": "POST", "path": "/:id/media",         "auth": true,  "desc": "Upload tip media" },
+          { "method": "POST", "path": "/:id/like",          "auth": true,  "desc": "Like / unlike tip" },
+          { "method": "POST", "path": "/:id/bookmark",      "auth": true,  "desc": "Bookmark tip" },
+          { "method": "GET",  "path": "/:id/comments",      "auth": false, "desc": "Get tip comments" },
+          { "method": "POST", "path": "/:id/comments",      "auth": true,  "desc": "Add comment to tip" },
+          { "method": "PUT",  "path": "/:id/publish",       "auth": true,  "role": "coach", "desc": "Publish / unpublish tip" },
+          { "method": "DELETE","path": "/:id",              "auth": true,  "desc": "Delete tip" },
+          { "method": "GET",  "path": "/author/:authorId",  "auth": false, "desc": "Get author's tips" }
+        ]
+      },
+
+      "progress": {
+        "prefix": "/api/progress",
+        "file": "backend/routes/progress.js",
+        "endpoints": [
+          { "method": "GET",  "path": "/",                    "auth": true, "desc": "Get user progress entries (paginated)" },
+          { "method": "GET",  "path": "/:id",                 "auth": true, "desc": "Get progress entry by ID" },
+          { "method": "POST", "path": "/",                    "auth": true, "desc": "Create new progress entry" },
+          { "method": "PUT",  "path": "/:id",                 "auth": true, "desc": "Update progress entry" },
+          { "method": "POST", "path": "/:id/photos",          "auth": true, "desc": "Upload progress photos" },
+          { "method": "POST", "path": "/:id/measurements",    "auth": true, "role": "coach", "desc": "Add coach measurements" },
+          { "method": "GET",  "path": "/stats/overview",      "auth": true, "desc": "Get progress statistics overview" },
+          { "method": "GET",  "path": "/stats/chart",         "auth": true, "desc": "Get chart-ready progress data" },
+          { "method": "DELETE","path": "/:id",                "auth": true, "desc": "Delete progress entry" }
+        ]
+      },
+
+      "chat": {
+        "prefix": "/api/chat",
+        "file": "backend/routes/chat.js",
+        "endpoints": [
+          { "method": "GET",  "path": "/conversations",                         "auth": true, "desc": "Get user's conversations" },
+          { "method": "GET",  "path": "/messages/:userId",                      "auth": true, "desc": "Get direct messages with user" },
+          { "method": "POST", "path": "/messages",                              "auth": true, "desc": "Send a message" },
+          { "method": "PUT",  "path": "/messages/:id/read",                     "auth": true, "desc": "Mark message as read" },
+          { "method": "GET",  "path": "/unread-count",                          "auth": true, "desc": "Get unread message count" },
+          { "method": "DELETE","path": "/messages/:id",                         "auth": true, "desc": "Soft delete message (isDeleted=true)" },
+          { "method": "GET",  "path": "/online-users",                          "auth": true, "desc": "Get online users" },
+          { "method": "POST", "path": "/mark-all-read/:userId",                 "auth": true, "desc": "Mark all messages from user as read" },
+          { "method": "GET",  "path": "/conversation/list",                     "auth": true, "desc": "Get conversations list with last message" },
+          { "method": "GET",  "path": "/conversation/:conversationId/messages", "auth": true, "desc": "Get conversation messages (paginated)" },
+          { "method": "POST", "path": "/conversation/create-direct",            "auth": true, "desc": "Create or find direct conversation" },
+          { "method": "POST", "path": "/conversation/create-group",             "auth": true, "desc": "Create group conversation" },
+          { "method": "PUT",  "path": "/conversation/:conversationId/mark-read","auth": true, "desc": "Mark conversation as read" },
+          { "method": "PUT",  "path": "/conversation/:conversationId/mute",     "auth": true, "desc": "Toggle mute conversation" },
+          { "method": "DELETE","path": "/conversation/:conversationId",         "auth": true, "desc": "Leave/delete conversation" }
+        ]
+      },
+
+      "notifications": {
+        "prefix": "/api/notifications",
+        "file": "backend/routes/notifications.js",
+        "endpoints": [
+          { "method": "GET",  "path": "/",                          "auth": true, "desc": "Get notifications (paginated)", "query": ["page", "limit", "isRead", "type"] },
+          { "method": "GET",  "path": "/:id",                       "auth": true, "desc": "Get notification by ID" },
+          { "method": "POST", "path": "/",                          "auth": true, "role": "coach|admin", "desc": "Create notification", "body": ["recipient", "type", "title", "message", "category", "priority", "relatedWorkoutPlan", "relatedCourse", "actionUrl"] },
+          { "method": "PUT",  "path": "/:id/read",                  "auth": true, "desc": "Mark notification as read" },
+          { "method": "POST", "path": "/mark-all-read",             "auth": true, "desc": "Mark all notifications as read" },
+          { "method": "GET",  "path": "/unread-count",              "auth": true, "desc": "Get unread notification count" },
+          { "method": "DELETE","path": "/:id",                      "auth": true, "desc": "Delete notification" },
+          { "method": "POST", "path": "/bulk-delete",               "auth": true, "desc": "Delete multiple notifications", "body": ["notificationIds"] },
+          { "method": "POST", "path": "/send-workout-reminder",     "auth": true, "role": "coach|admin", "desc": "Send workout reminder to client", "body": ["clientId", "workoutPlanId"] },
+          { "method": "POST", "path": "/send-progress-update",      "auth": true, "role": "coach|admin", "desc": "Send progress update to client", "body": ["clientId", "message"] },
+          { "method": "POST", "path": "/send-system-announcement",  "auth": true, "role": "admin", "desc": "Broadcast system announcement", "body": ["title", "message", "targetRoles"] }
+        ]
+      },
+
+      "admin": {
+        "prefix": "/api/admin",
+        "file": "backend/routes/admin.js",
+        "role_required": "admin",
+        "endpoints": [
+          { "method": "GET", "path": "/dashboard/stats",         "desc": "Dashboard KPI statistics" },
+          { "method": "GET", "path": "/users",                   "desc": "Get all users with filters" },
+          { "method": "PUT", "path": "/users/:id/approve",       "desc": "Approve or reject user (coach)" },
+          { "method": "PUT", "path": "/users/:id/role",          "desc": "Change user role" },
+          { "method": "PUT", "path": "/users/:id/status",        "desc": "Activate or deactivate user" },
+          { "method": "GET", "path": "/content",                 "desc": "Get all platform content" },
+          { "method": "PUT", "path": "/content/:type/:id/publish","desc": "Publish content by type and ID" },
+          { "method": "DELETE","path":"/content/:type/:id",      "desc": "Delete content by type and ID" },
+          { "method": "GET", "path": "/analytics",               "desc": "General analytics" },
+          { "method": "GET", "path": "/analytics/users",         "desc": "User growth analytics" },
+          { "method": "GET", "path": "/analytics/courses",       "desc": "Course analytics" },
+          { "method": "GET", "path": "/analytics/tips",          "desc": "Tips analytics" },
+          { "method": "GET", "path": "/analytics/workouts",      "desc": "Workout analytics" },
+          { "method": "GET", "path": "/analytics/revenue",       "desc": "Revenue analytics" },
+          { "method": "POST","path": "/system-announcement",     "desc": "Send system-wide announcement" }
+        ]
+      }
+    },
+
+    "middlewares": {
+      "auth.js": {
+        "protect": "Verify JWT — blocks unauthenticated requests",
+        "authorize": "authorize(...roles) — allow only specified roles",
+        "requireApproval": "Block unapproved coaches",
+        "optionalAuth": "Attach user if token present, skip if not"
+      },
+      "validation.js": {
+        "validateRegister": "name, email, password, role",
+        "validateLogin": "email, password",
+        "validateForgotPassword": "email",
+        "validateResetPassword": "password",
+        "validateChangePassword": "currentPassword, newPassword",
+        "validateExercise": "name, category, muscleGroups, difficulty",
+        "validateWorkoutPlan": "title, difficulty, duration, frequency",
+        "validateCourse": "title, category, level, duration",
+        "validateProgressEntry": "type, workoutData or measurements",
+        "validateMessage": "content (required), messageType",
+        "validateTip": "title, content, category, type",
+        "validateObjectId": "req.params.id must be valid MongoDB ObjectId",
+        "validatePagination": "page (>=1), limit (1-100)"
+      },
+      "upload.js": "Multer file upload middleware for images and videos"
+    },
+
+    "services": {
+      "socket.js": {
+        "file": "backend/services/socket.js",
+        "socket_events_server_listens": {
+          "user_online": "Broadcast online status to all",
+          "send_message": "Create Message, emit to receiver, create notification",
+          "typing_start": "Emit typing_started to receiver",
+          "typing_stop": "Emit typing_stopped to receiver",
+          "mark_messages_read": "Mark messages as read, notify sender",
+          "workout_progress_update": "Notify coach when client updates progress",
+          "join_workout_session": "Join socket room for live workout",
+          "leave_workout_session": "Leave socket room",
+          "send_notification": "Create & emit real-time notification",
+          "mark_notification_read": "Mark single notification as read",
+          "mark_all_notifications_read": "Mark all user notifications as read",
+          "join_conversation": "Join conversation socket room",
+          "leave_conversation": "Leave conversation socket room",
+          "send_conversation_message": "Create message in conversation, notify members",
+          "typing_start_conversation": "Broadcast typing in conversation room",
+          "typing_stop_conversation": "Broadcast stopped typing in conversation room",
+          "mark_conversation_read": "Reset unread count for conversation",
+          "disconnect": "Remove from activeUsers, broadcast offline status"
+        },
+        "socket_events_server_emits": {
+          "new_message": "To receiver when direct message arrives",
+          "message_sent": "Confirmation to sender",
+          "message_error": "Error sending message",
+          "new_notification": "Notification pushed to recipient",
+          "notification_created": "New notification with unread count",
+          "notification_read": "Confirmation of read",
+          "all_notifications_read": "All cleared",
+          "user_status_changed": "Online/offline status broadcast",
+          "typing_started": "Typing indicator",
+          "typing_stopped": "Stopped typing",
+          "messages_read": "To sender when messages are read",
+          "client_progress_update": "To coach when client logs workout",
+          "user_joined_session": "Joined live workout session",
+          "user_left_session": "Left live workout session",
+          "new_conversation_message": "New message in group/direct conversation",
+          "user_typing": "Typing in conversation",
+          "user_stopped_typing": "Stopped typing in conversation",
+          "conversation_marked_read": "Conversation read status updated"
+        },
+        "helper_functions": [
+          "initializeSocket(io)",
+          "getActiveUser(userId)",
+          "getActiveUsers()",
+          "emitToUser(io, userId, event, data)",
+          "sendUserNotification(io, recipientId, notificationData)",
+          "sendBulkNotifications(io, recipientIds, notificationData)",
+          "sendMessageNotification(io, conversationId, message, conversation)",
+          "sendWorkoutNotification(io, recipientId, workout, type)",
+          "sendProgressNotification(io, recipientId, progress, type)"
+        ]
+      },
+      "email.js": "Nodemailer service — sends verification, password reset emails",
+      "cloudinary.js": "Cloudinary upload service — images and videos"
+    }
+  },
+
+  "frontend": {
+    "framework": "Next.js 16.2.1 (App Router)",
+    "language": "TypeScript",
+    "styling": "Tailwind CSS 4",
+    "state_management": "Redux Toolkit 2.11.2",
+    "http_client": "Axios 1.13.6",
+    "realtime": "Socket.io-client 4.8.3",
+    "notifications_ui": "react-hot-toast 2.4.1",
+    "charts": "Recharts 3.8.1",
+
+    "env_file": "web/.env.local",
+    "environment_variables": {
+      "NEXT_PUBLIC_API_URL": "http://localhost:5000/api"
+    },
+
+    "services": {
+      "api.ts": {
+        "file": "web/services/api.ts",
+        "desc": "Axios instance with auth interceptors",
+        "features": [
+          "Auto-attach Bearer token from localStorage",
+          "Auto-refresh token on 401 with queue management",
+          "Redirect to /auth/login on refresh failure",
+          "Sends refreshToken from localStorage in refresh body"
+        ]
+      },
+      "socket.ts": {
+        "file": "web/services/socket.ts",
+        "exports": ["socket (Socket instance)", "connectSocket()", "disconnectSocket()"],
+        "note": "autoConnect: false — call connectSocket() after login"
+      },
+      "authService.ts": {
+        "functions": ["login(payload)", "register(payload)", "getProfile()"]
+      },
+      "userService.ts": {
+        "functions": ["getUsers()", "getCoaches()", "getUserById(id)", "updateUser(id, data)", "uploadAvatar(id, file)", "approveCoach(id)", "getClients(id)"]
+      },
+      "workoutService.ts": {
+        "functions": ["getWorkouts(params)", "getTemplates()", "getWorkoutById(id)", "createWorkout(data)", "updateWorkout(id, data)", "assignWorkout(id, clientId)", "deleteWorkout(id)"]
+      },
+      "exerciseService.ts": {
+        "functions": ["getExercises(params)", "getExerciseById(id)", "createExercise(data)", "updateExercise(id, data)", "uploadExerciseImages(id, files)", "approveExercise(id)", "deleteExercise(id)", "getSimilarExercises(id)"]
+      },
+      "courseService.ts": {
+        "functions": ["getCourses(params)", "getCourseById(id)", "createCourse(data)", "updateCourse(id, data)", "enrollInCourse(id)", "updateProgress(id, data)", "getMyProgress(id)", "publishCourse(id)", "deleteCourse(id)"]
+      },
+      "tipService.ts": {
+        "functions": ["getTips(params)", "getTipById(id)", "createTip(data)", "updateTip(id, data)", "likeTip(id)", "bookmarkTip(id)", "addComment(id, content)", "getComments(id)", "publishTip(id)", "deleteTip(id)"]
+      },
+      "progressService.ts": {
+        "functions": ["getProgress(params)", "getProgressById(id)", "createProgress(data)", "updateProgress(id, data)", "uploadPhotos(id, files)", "getStats()", "getChartData(type, range)"]
+      },
+      "chatService.ts": {
+        "functions": ["getConversations()", "getMessages(userId)", "sendMessage(data)", "markAsRead(messageId)", "getUnreadCount()", "deleteMessage(id)", "getOnlineUsers()", "createDirectConversation(userId)", "createGroupConversation(data)", "getConversationMessages(conversationId, params)"]
+      },
+      "notificationService.ts": {
+        "functions": ["getNotifications(params)", "markAsRead(id)", "markAllAsRead()", "deleteNotification(id)", "bulkDelete(ids)", "getUnreadCount()"]
+      }
+    },
+
+    "redux_store": {
+      "file": "web/store/index.ts",
+      "slices": {
+        "authSlice": {
+          "file": "web/store/authSlice.ts",
+          "state": { "user": "User|null", "token": "string|null", "role": "string|null", "loading": "boolean", "error": "string|null" },
+          "thunks": ["login(payload)", "register(payload)", "fetchProfile()"],
+          "reducers": ["logout()"]
+        },
+        "workoutsSlice": {
+          "file": "web/store/workoutsSlice.ts",
+          "state": { "plans": "WorkoutPlan[]", "currentPlan": "WorkoutPlan|null", "loading": "boolean", "error": "string|null", "pagination": "object" },
+          "thunks": ["getWorkouts(params)", "createWorkout(data)", "assignWorkout(id, clientId)"]
+        },
+        "exercisesSlice": {
+          "file": "web/store/exercisesSlice.ts",
+          "state": { "exercises": "Exercise[]", "currentExercise": "Exercise|null", "loading": "boolean", "error": "string|null", "pagination": "object" },
+          "thunks": ["fetchExercises(params)", "fetchExerciseById(id)", "createExercise(data)"]
+        },
+        "coursesSlice": {
+          "file": "web/store/coursesSlice.ts",
+          "state": { "courses": "Course[]", "currentCourse": "Course|null", "myCourses": "Course[]", "enrolledCourses": "Course[]", "categories": "string[]", "filters": "object", "pagination": "object", "loading": "boolean", "error": "string|null" },
+          "thunks": ["fetchCourses(params)", "fetchCourseById(id)", "createCourse(data)", "updateCourse(id, data)", "deleteCourse(id)", "enrollInCourse(id)", "updateProgress(id, data)", "fetchMyCourses()", "fetchMyProgress(id)", "fetchCategories()", "uploadCourseThumbnail(id, file)", "publishCourse(id)"],
+          "reducers": ["clearError()", "setFilters(filters)", "resetFilters()", "clearCurrentCourse()"]
+        },
+        "tipsSlice": {
+          "file": "web/store/tipsSlice.ts",
+          "state": { "tips": "Tip[]", "currentTip": "Tip|null", "loading": "boolean", "error": "string|null", "pagination": "object" },
+          "thunks": ["fetchTips(params)", "fetchTipById(id)", "createTip(data)", "likeTip(id)", "addComment(id, content)"]
+        },
+        "progressSlice": {
+          "file": "web/store/progressSlice.ts",
+          "state": { "entries": "Progress[]", "stats": "object|null", "chartData": "object|null", "loading": "boolean", "error": "string|null" },
+          "thunks": ["fetchProgress(params)", "createProgress(data)", "updateProgress(id, data)", "fetchStats()", "fetchChartData(type, range)"]
+        },
+        "notificationsSlice": {
+          "file": "web/store/notificationsSlice.ts",
+          "state": { "notifications": "Notification[]", "unreadCount": "number", "loading": "boolean", "error": "string|null" },
+          "thunks": ["fetchNotifications(params)", "markNotificationAsRead(id)", "markAllNotificationsAsRead()", "deleteNotification(id)"],
+          "reducers": ["addNotification(notification)", "updateNotificationReadStatus({id, isRead})", "markAllAsReadLocal()", "removeNotification(id)", "clearNotifications()"]
+        },
+        "chatSlice": {
+          "file": "web/store/chatSlice.ts",
+          "state": { "conversations": "Conversation[]", "messages": "Message[]", "activeConversation": "Conversation|null", "unreadCount": "number", "loading": "boolean", "error": "string|null" },
+          "thunks": ["fetchConversations()", "fetchMessages(userId)", "sendMessage(data)", "markMessageRead(id)", "createDirectConversation(userId)"]
+        },
+        "usersSlice": {
+          "file": "web/store/usersSlice.ts",
+          "state": { "users": "User[]", "coaches": "User[]", "currentUser": "User|null", "loading": "boolean", "error": "string|null" },
+          "thunks": ["fetchUsers()", "fetchCoaches()", "fetchUserById(id)", "updateUser(id, data)", "approveCoach(id)"]
+        },
+        "analyticsSlice": {
+          "file": "web/store/analyticsSlice.ts",
+          "state": { "dashboardStats": "object|null", "userAnalytics": "object|null", "loading": "boolean", "error": "string|null" },
+          "thunks": ["fetchDashboardStats()", "fetchUserAnalytics()", "fetchCourseAnalytics()", "fetchRevenueAnalytics()"]
+        }
+      }
+    },
+
+    "hooks": {
+      "useNotifications": {
+        "file": "web/hooks/useNotifications.ts",
+        "returns": ["notifications", "unreadCount", "loading", "markAsReadViaSocket(id)", "markAllAsReadViaSocket()", "handleDelete(id)"],
+        "socket_events_listened": ["notification_created", "notification_read", "all_notifications_read", "notification_deleted"],
+        "side_effects": ["Fetches initial notifications on mount", "Shows toast on new notification", "Cleans up socket listeners on unmount"]
+      },
+      "useChat": {
+        "file": "web/hooks/useChat.ts",
+        "returns": ["messages", "conversations", "sendMessage()", "markAsRead()", "onlineUsers"]
+      }
+    },
+
+    "pages": {
+      "/(root)": "Landing page — public",
+      "/auth/login": "Login form",
+      "/auth/register": "Registration form",
+      "/client/dashboard": "Client home — workouts, progress, notifications",
+      "/client/workouts": "Browse and view assigned workouts",
+      "/client/courses": "Browse and enroll in courses",
+      "/client/progress": "Log and view progress / body measurements",
+      "/client/chat": "Chat with coach — real-time messaging",
+      "/client/tips": "Browse fitness tips and articles",
+      "/client/profile": "Edit personal profile",
+      "/coach/dashboard": "Coach home — clients, workouts, analytics",
+      "/coach/workouts": "Manage workout plans",
+      "/coach/exercises": "Manage exercises library",
+      "/coach/courses": "Manage courses",
+      "/coach/tips": "Manage tips and articles",
+      "/coach/clients": "Manage assigned clients",
+      "/coach/chat": "Message clients",
+      "/admin/dashboard": "Admin analytics and KPIs",
+      "/admin/users": "User management — approve coaches, manage roles",
+      "/admin/content": "Content moderation",
+      "/admin/analytics": "Detailed analytics reports"
+    },
+
+    "components": {
+      "AppShell": "Main layout wrapper with sidebar and header",
+      "Sidebar": "Navigation sidebar with role-based menu items",
+      "ProtectedRoute": "Redirects unauthenticated users to /auth/login",
+      "NotificationBell": "Notification dropdown with real-time badge count",
+      "CourseCard": "Course display card with enrollment button",
+      "TipCard": "Tip display card with like and bookmark",
+      "WorkoutCard": "Workout plan card",
+      "ExerciseCard": "Exercise card with images",
+      "ProgressChart": "Recharts line/bar chart for progress data",
+      "ChatWindow": "Real-time chat UI with Socket.io",
+      "MessageBubble": "Individual chat message component",
+      "UserAvatar": "Avatar with online status indicator"
+    }
+  },
+
+  "user_roles": {
+    "client": {
+      "permissions": ["view_workouts", "enroll_courses", "log_progress", "chat_with_coach", "view_tips", "update_own_profile"],
+      "dashboard": "/client/dashboard"
+    },
+    "coach": {
+      "permissions": ["create_workouts", "create_courses", "create_exercises", "create_tips", "manage_clients", "view_analytics", "send_notifications"],
+      "requires": "admin approval (isApproved: true)",
+      "dashboard": "/coach/dashboard"
+    },
+    "admin": {
+      "permissions": ["all_permissions", "approve_coaches", "manage_users", "manage_all_content", "view_all_analytics", "send_system_announcements"],
+      "dashboard": "/admin/dashboard"
+    }
+  },
+
+  "realtime_features": {
+    "chat": ["Direct messaging", "Group conversations", "Typing indicators", "Read receipts", "File/image attachments", "Message soft-delete"],
+    "notifications": ["Push notifications via Socket.io", "Toast UI on new events", "Unread badge count", "Real-time mark-as-read sync"],
+    "presence": ["Online/offline user status", "lastSeen timestamp", "Active users map (server-side)"],
+    "live_workout": ["Join/leave workout session rooms", "Live progress broadcasting to coach"]
+  },
+
+  "multilingual_support": {
+    "languages": ["en (English)", "ar (Arabic)", "ku (Kurdish)"],
+    "models_with_multilingual_fields": ["WorkoutPlan", "Exercise", "Course", "Tip"],
+    "field_pattern": "title / titleAr / titleKu, description / descriptionAr / descriptionKu, content / contentAr / contentKu"
+  },
+
+  "file_upload": {
+    "provider": "Cloudinary",
+    "supported_types": ["images (JPEG, PNG, WebP)", "videos (MP4)"],
+    "used_in": ["User avatars", "Exercise images and videos", "Course thumbnails", "Tip media", "Progress photos"]
+  },
+
+  "known_bugs_fixed": [
+    { "id": 1,  "file": "backend/models/User.js",          "fix": "Added findByEmail() static method" },
+    { "id": 2,  "file": "backend/services/socket.js",      "fix": "Fixed emitToUser() to accept io as first parameter" },
+    { "id": 3,  "file": "backend/routes/notifications.js", "fix": "Added category extraction and validation in POST route" },
+    { "id": 4,  "file": "backend/routes/notifications.js", "fix": "Added missing require('../models/WorkoutPlan')" },
+    { "id": 5,  "file": "web/services/socket.ts",          "fix": "Created missing socket.ts service file" },
+    { "id": 6,  "file": "backend/models/Message.js",       "fix": "Added isDeleted and deletedAt fields" },
+    { "id": 7,  "file": "backend/models/User.js",          "fix": "Added isOnline and lastSeen fields" },
+    { "id": 8,  "file": "backend/routes/notifications.js", "fix": "Fixed field mapping: relatedWorkoutPlan → data.workoutPlan, relatedCourse → data.course" },
+    { "id": 9,  "file": "backend/models/Conversation.js + Message.js + Notification.js", "fix": "Fixed deprecated mongoose.Types.ObjectId() → new mongoose.Types.ObjectId()" },
+    { "id": 10, "file": "web/services/api.ts",             "fix": "Sends refreshToken in token refresh request body" },
+    { "id": 11, "file": "backend/services/socket.js",      "fix": "Notification category now derived from type instead of hardcoded system" },
+    { "id": 12, "file": "backend/models/User.js",          "fix": "Added missing module.exports = mongoose.model('User', userSchema)" },
+    { "id": 13, "file": "web/store/coursesSlice.ts + tipsSlice.ts", "fix": "Fixed wrong import: import { api } from '../../services/api' → import api from '@/services/api'" }
+  ]
+}

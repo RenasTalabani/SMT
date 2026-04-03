@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmd.exe /c \"echo %PATH%\")",
+      "Bash(tr ';' '\\\\n')",
+      "Read(//dev/**)",
+      "Bash(grep -rn \"useDispatch\\\\b\\\\|useSelector\\\\b\" 'c:/Users/Karwan Store/Documents/GYM/web' --include=*.tsx --include=*.ts --exclude-dir=node_modules --exclude-dir=.next)",
+      "Bash(\"/c/Users/Karwan Store/flutter/bin/flutter\" analyze --no-fatal-warnings)",
+      "Bash(sed -n '94,100p' lib/core/network/api_client.dart)",
+      "Bash(sed -n '66,72p' lib/screens/client/client_shell.dart)",
+      "Bash(sed -n '5,10p' lib/screens/client/conversations_screen.dart)",
+      "Bash(sed -n '1,5p' lib/screens/client/plan_screen.dart)",
+      "Bash(sed -n '1,5p' lib/screens/coach/clients_screen.dart)",
+      "Bash(sed -n '85,115p' lib/core/network/api_client.dart)",
+      "Bash(sed -n '60,100p' lib/screens/client/client_shell.dart)",
+      "Bash(sed -n '1,60p' lib/screens/client/client_shell.dart)",
+      "Bash(sed -n '90,130p' lib/screens/coach/clients_screen.dart)",
+      "Bash(\"/c/Users/Karwan Store/flutter/bin/flutter\" run -d RFCX40491RP)"
+    ]
+  }
+}

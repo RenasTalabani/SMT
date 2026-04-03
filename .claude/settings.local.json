@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -rn isDeleted 'c:/Users/Karwan Store/Documents/GYM/backend' --include=*.js)",
+      "Bash(grep -rn \"from ''react-redux''\" \"c:/Users/Karwan Store/Documents/GYM/web\" --include=\"*.tsx\" --include=\"*.ts\" --exclude-dir=node_modules --exclude-dir=.next)",
+      "Bash(grep -rn \"useDispatch\\\\|useSelector\" 'c:/Users/Karwan Store/Documents/GYM/web' --include=*.tsx --include=*.ts --exclude-dir=node_modules --exclude-dir=.next)",
+      "Bash(find 'c:/Users/Karwan Store/Documents/GYM/web' -name *.tsx -o -name *.ts)",
+      "Bash(flutter pub:*)"
+    ]
+  }
+}
