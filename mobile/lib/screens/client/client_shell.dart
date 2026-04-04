@@ -17,7 +17,7 @@ class _ClientShellState extends ConsumerState<ClientShell> {
   static const List<String> _routes = [
     '/client',
     '/client/plan',
-    '/client/courses',
+    '/client/coaches',
     '/client/tips',
     '/client/progress',
     '/client/profile',
@@ -55,9 +55,9 @@ class _ClientShellState extends ConsumerState<ClientShell> {
         label: 'nav_plan'.tr(),
       ),
       NavigationDestination(
-        icon: const Icon(Icons.play_circle_outline_rounded),
-        selectedIcon: const Icon(Icons.play_circle_rounded),
-        label: 'nav_courses'.tr(),
+        icon: const Icon(Icons.people_outline_rounded),
+        selectedIcon: const Icon(Icons.people_rounded),
+        label: 'nav_coaches'.tr(),
       ),
       NavigationDestination(
         icon: const Icon(Icons.lightbulb_outline_rounded),

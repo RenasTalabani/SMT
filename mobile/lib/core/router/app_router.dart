@@ -22,6 +22,8 @@ import '../../screens/coach/coach_workouts_screen.dart';
 import '../../screens/coach/coach_profile_screen.dart';
 import '../../screens/coach/create_workout_screen.dart';
 import '../../screens/coach/create_exercise_screen.dart';
+import '../../screens/client/coaches_screen.dart';
+import '../../screens/client/coach_public_profile_screen.dart';
 import '../../screens/client/progress_screen.dart';
 import '../../screens/ai/ai_chat_screen.dart';
 import '../../screens/ai/ai_workout_screen.dart';
@@ -99,6 +101,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/client/courses',
             builder: (_, __) => const CoursesScreen(),
+          ),
+          GoRoute(
+            path: '/client/coaches',
+            builder: (_, __) => const CoachesScreen(),
+          ),
+          GoRoute(
+            path: '/client/coaches/:id',
+            builder: (_, state) => CoachPublicProfileScreen(
+              coachId: state.pathParameters['id']!,
+            ),
           ),
           GoRoute(
             path: '/client/tips',

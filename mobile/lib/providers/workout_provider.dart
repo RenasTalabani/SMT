@@ -9,27 +9,35 @@ import '../models/workout_model.dart';
 
 class WorkoutsState {
   final List<WorkoutPlanModel> plans;
+  final List<WorkoutPlanModel> templates;
   final bool isLoading;
+  final bool isLoadingTemplates;
   final String? error;
   final bool requestSent;
 
   const WorkoutsState({
     this.plans = const [],
+    this.templates = const [],
     this.isLoading = false,
+    this.isLoadingTemplates = false,
     this.error,
     this.requestSent = false,
   });
 
   WorkoutsState copyWith({
     List<WorkoutPlanModel>? plans,
+    List<WorkoutPlanModel>? templates,
     bool? isLoading,
+    bool? isLoadingTemplates,
     String? error,
     bool clearError = false,
     bool? requestSent,
   }) {
     return WorkoutsState(
       plans: plans ?? this.plans,
+      templates: templates ?? this.templates,
       isLoading: isLoading ?? this.isLoading,
+      isLoadingTemplates: isLoadingTemplates ?? this.isLoadingTemplates,
       error: clearError ? null : (error ?? this.error),
       requestSent: requestSent ?? this.requestSent,
     );
@@ -108,6 +116,34 @@ class WorkoutNotifier extends StateNotifier<WorkoutsState> {
         isLoading: false,
         error: ApiClient.extractError(e),
       );
+    }
+  }
+
+  // ── fetchTemplates ────────────────────────────────────────────────────────
+  Future<void> fetchTemplates() async {
+    state = state.copyWith(isLoadingTemplates: true);
+    try {
+      final response = await _api.get('/workouts/templates');
+      final data = response.data['data'];
+
+      List<dynamic> rawList;
+      if (data is List) {
+        rawList = data;
+      } else if (data is Map && data['templates'] is List) {
+        rawList = data['templates'] as List;
+      } else if (data is Map && data['workoutPlans'] is List) {
+        rawList = data['workoutPlans'] as List;
+      } else {
+        rawList = [];
+      }
+
+      final templates = rawList
+          .map((e) => WorkoutPlanModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      state = state.copyWith(isLoadingTemplates: false, templates: templates);
+    } catch (_) {
+      state = state.copyWith(isLoadingTemplates: false);
     }
   }
 

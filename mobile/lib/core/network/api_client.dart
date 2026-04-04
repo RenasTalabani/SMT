@@ -13,8 +13,9 @@ class ApiClient {
   void init() {
     _dio = Dio(BaseOptions(
       baseUrl: ApiConstants.baseUrl,
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 15),
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+      sendTimeout: const Duration(seconds: 30),
       headers: {'Content-Type': 'application/json'},
     ));
 
@@ -102,9 +103,20 @@ class ApiClient {
 
   static String extractError(Object e) {
     if (e is DioException) {
-      return e.response?.data?['message'] as String? ??
-          e.message ??
-          'Something went wrong';
+      switch (e.type) {
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+          return 'Connection timed out. Check your internet and try again.';
+        case DioExceptionType.connectionError:
+          return 'Cannot reach server. Make sure you are on the same network.';
+        case DioExceptionType.badResponse:
+          return e.response?.data?['message'] as String? ?? 'Server error';
+        default:
+          return e.response?.data?['message'] as String? ??
+              e.message ??
+              'Something went wrong';
+      }
     }
     return e.toString();
   }

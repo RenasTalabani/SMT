@@ -1,0 +1,38 @@
+# ── Backend ─────────────────────────────────────────────────────────────────
+backend/node_modules/
+backend/.env
+backend/uploads/
+backend/server.log
+backend/*.log
+
+# ── Mobile ───────────────────────────────────────────────────────────────────
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.packages
+mobile/build/
+mobile/.idea/
+mobile/*.iml
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/android/key.properties
+mobile/android/app/google-services.json
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+mobile/ios/Flutter/Flutter.framework
+mobile/ios/Flutter/Flutter.podspec
+mobile/ios/Runner.xcworkspace/
+mobile/web/
+
+# ── Root logs / temp ─────────────────────────────────────────────────────────
+build.log
+analyze.log
+run_output.txt
+flutter_run.log
+*.log
+
+# ── OS / Editor ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+*.swp

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -71,7 +72,32 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await fetchProfile();
       await SecureStorage.saveGuestMode(false);
       state = state.copyWith(isLoading: false, isLoggedIn: true, isGuest: false);
+    } on DioException catch (e) {
+      // Network/timeout error — tokens may still be valid; don't wipe them.
+      // Only clear on 401 (token truly invalid).
+      if (e.response?.statusCode == 401) {
+        await SecureStorage.clearAll();
+        state = state.copyWith(
+          isLoading: false,
+          isLoggedIn: false,
+          isGuest: false,
+          clearUser: true,
+          clearError: true,
+        );
+      } else {
+        // Re-check guest flag — user may have tapped "Continue as Guest"
+        // while init was running in the background.
+        final stillGuest = await SecureStorage.isGuestMode();
+        state = state.copyWith(
+          isLoading: false,
+          isLoggedIn: false,
+          isGuest: stillGuest,
+          clearUser: true,
+          clearError: true,
+        );
+      }
     } catch (_) {
+      // Non-Dio error (parse error etc.) — clear everything.
       await SecureStorage.clearAll();
       state = state.copyWith(
         isLoading: false,

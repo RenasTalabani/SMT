@@ -8,6 +8,8 @@ import '../../providers/workout_provider.dart';
 import '../../providers/tip_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/ai_provider.dart';
+import '../../providers/coach_provider.dart';
+import '../../models/coach_model.dart';
 import '../../models/workout_model.dart';
 import '../../models/tip_model.dart';
 import '../../widgets/gym_avatar.dart';
@@ -34,6 +36,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       ref.read(aiDailyTipProvider.notifier).loadTip();
       ref.read(aiInsightsProvider.notifier).loadInsights();
       ref.read(aiProfileProvider.notifier).load();
+      ref.read(coachProvider.notifier).fetchCoaches();
     });
   }
 
@@ -44,6 +47,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final workoutState = ref.watch(workoutProvider);
     final courseState = ref.watch(courseProvider);
     final tipState = ref.watch(tipProvider);
+    final coachState = ref.watch(coachProvider);
     final unreadCount =
         ref.watch(notificationProvider.select((s) => s.unreadCount));
 
@@ -155,6 +159,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               plans: workoutState.plans,
             ),
             const SizedBox(height: 20),
+
+            // Our Coaches
+            if (coachState.coaches.isNotEmpty) ...[
+              _SectionHeader(
+                title: 'Our Coaches',
+                actionLabel: 'See All',
+                actionRoute: '/client/coaches',
+              ),
+              const SizedBox(height: 12),
+              _CoachesRow(coaches: coachState.coaches),
+              const SizedBox(height: 20),
+            ],
 
             // Latest Tips
             const _SectionHeader(
@@ -1162,6 +1178,113 @@ class _Chip extends StatelessWidget {
           fontWeight: FontWeight.w600,
           color: color,
         ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Coaches row (dashboard preview)
+// ---------------------------------------------------------------------------
+
+class _CoachesRow extends StatelessWidget {
+  const _CoachesRow({required this.coaches});
+  final List<CoachModel> coaches;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 150,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: coaches.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final coach = coaches[index];
+          return GestureDetector(
+            onTap: () => context.push('/client/coaches/${coach.id}'),
+            child: Container(
+              width: 130,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Avatar circle
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF26BDB8), Color(0xFF1A9E99)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        coach.initials,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    coach.name.split(' ').first,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    coach.primarySpecialty,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.star_rounded,
+                          color: Color(0xFFF59E0B), size: 11),
+                      const SizedBox(width: 2),
+                      Text(
+                        coach.rating.toStringAsFixed(1),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF475569),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

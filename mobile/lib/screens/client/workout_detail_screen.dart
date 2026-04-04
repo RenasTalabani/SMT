@@ -22,33 +22,13 @@ final _planDetailProvider = FutureProvider.family<WorkoutPlanModel, String>((ref
 // Main screen
 // ---------------------------------------------------------------------------
 
-class WorkoutDetailScreen extends ConsumerStatefulWidget {
+class WorkoutDetailScreen extends ConsumerWidget {
   const WorkoutDetailScreen({super.key, required this.planId});
   final String planId;
 
   @override
-  ConsumerState<WorkoutDetailScreen> createState() => _WorkoutDetailScreenState();
-}
-
-class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 1, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final planAsync = ref.watch(_planDetailProvider(widget.planId));
+  Widget build(BuildContext context, WidgetRef ref) {
+    final planAsync = ref.watch(_planDetailProvider(planId));
 
     return planAsync.when(
       loading: () => Scaffold(
@@ -59,8 +39,19 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
         ),
       ),
       error: (e, _) => Scaffold(
-        appBar: AppBar(title: const Text('Error')),
-        body: Center(child: Text(e.toString())),
+        appBar: AppBar(
+          title: const Text('Error'),
+          backgroundColor: Colors.white,
+          foregroundColor: const Color(0xFF0F172A),
+          elevation: 0,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(e.toString(),
+                style: const TextStyle(color: Color(0xFF64748B))),
+          ),
+        ),
       ),
       data: (plan) => _PlanDetail(plan: plan),
     );
@@ -77,9 +68,46 @@ class _PlanDetail extends StatefulWidget {
 
 class _PlanDetailState extends State<_PlanDetail> {
   int _selectedDayIndex = 0;
+  // "workoutIdx-exerciseIdx" → completed
+  final Map<String, bool> _completed = {};
+
+  @override
+  void initState() {
+    super.initState();
+    for (int wi = 0; wi < widget.plan.workouts.length; wi++) {
+      final day = widget.plan.workouts[wi];
+      for (int ei = 0; ei < day.exercises.length; ei++) {
+        _completed['$wi-$ei'] = day.exercises[ei].completed;
+      }
+    }
+  }
 
   WorkoutDayModel? get _currentDay =>
       widget.plan.workouts.isEmpty ? null : widget.plan.workouts[_selectedDayIndex];
+
+  bool _isComplete(int exerciseIdx) =>
+      _completed['$_selectedDayIndex-$exerciseIdx'] ?? false;
+
+  int get _totalCompleted => _completed.values.where((v) => v).length;
+  int get _totalExercises => _completed.length;
+  double get _overallProgress =>
+      _totalExercises == 0 ? 0 : _totalCompleted / _totalExercises;
+
+  Future<void> _toggleExercise(int exerciseIdx) async {
+    final key = '$_selectedDayIndex-$exerciseIdx';
+    final newValue = !(_completed[key] ?? false);
+    setState(() => _completed[key] = newValue);
+    try {
+      await ApiClient().put('/workouts/${widget.plan.id}/progress', data: {
+        'workoutIndex': _selectedDayIndex,
+        'exerciseIndex': exerciseIdx,
+        'completed': newValue,
+      });
+    } catch (_) {
+      // Revert on error
+      if (mounted) setState(() => _completed[key] = !newValue);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -146,11 +174,15 @@ class _PlanDetailState extends State<_PlanDetail> {
           ),
 
           // Progress bar
-          if (plan.totalExercises > 0)
+          if (_totalExercises > 0)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: _ProgressCard(plan: plan),
+                child: _ProgressCard(
+                  completed: _totalCompleted,
+                  total: _totalExercises,
+                  progress: _overallProgress,
+                ),
               ),
             ),
 
@@ -180,6 +212,8 @@ class _PlanDetailState extends State<_PlanDetail> {
                       return _ExerciseCard(
                         workoutEx: _currentDay!.exercises[exIndex],
                         index: exIndex,
+                        isComplete: _isComplete(exIndex),
+                        onToggle: () => _toggleExercise(exIndex),
                       );
                     }
                     if (_currentDay!.coolDown != null &&
@@ -271,12 +305,17 @@ class _DaySelectorDelegate extends SliverPersistentHeaderDelegate {
 // ---------------------------------------------------------------------------
 
 class _ProgressCard extends StatelessWidget {
-  const _ProgressCard({required this.plan});
-  final WorkoutPlanModel plan;
+  const _ProgressCard({
+    required this.completed,
+    required this.total,
+    required this.progress,
+  });
+  final int completed;
+  final int total;
+  final double progress;
 
   @override
   Widget build(BuildContext context) {
-    final pct = plan.overallProgress;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -305,7 +344,7 @@ class _ProgressCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '${(pct * 100).round()}%',
+                '${(progress * 100).round()}%',
                 style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -318,7 +357,7 @@ class _ProgressCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: pct,
+              value: progress,
               minHeight: 6,
               backgroundColor: const Color(0xFFE2E8F0),
               valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF26BDB8)),
@@ -326,7 +365,7 @@ class _ProgressCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '${plan.completedExercises} of ${plan.totalExercises} exercises completed',
+            '$completed of $total exercises completed',
             style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
           ),
         ],
@@ -340,9 +379,16 @@ class _ProgressCard extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _ExerciseCard extends StatelessWidget {
-  const _ExerciseCard({required this.workoutEx, required this.index});
+  const _ExerciseCard({
+    required this.workoutEx,
+    required this.index,
+    required this.isComplete,
+    required this.onToggle,
+  });
   final WorkoutExerciseModel workoutEx;
   final int index;
+  final bool isComplete;
+  final VoidCallback onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -415,9 +461,18 @@ class _ExerciseCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (workoutEx.completed)
-                  const Icon(Icons.check_circle_rounded,
-                      color: Color(0xFF22C55E), size: 20),
+                GestureDetector(
+                  onTap: onToggle,
+                  child: Icon(
+                    isComplete
+                        ? Icons.check_circle_rounded
+                        : Icons.radio_button_unchecked_rounded,
+                    color: isComplete
+                        ? const Color(0xFF22C55E)
+                        : const Color(0xFFCBD5E1),
+                    size: 26,
+                  ),
+                ),
               ],
             ),
           ),

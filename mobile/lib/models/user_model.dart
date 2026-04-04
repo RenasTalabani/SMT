@@ -45,7 +45,9 @@ class UserModel {
         avatar: json['avatar'],
         isEmailVerified: json['isEmailVerified'] ?? false,
         isApproved: json['isApproved'] ?? false,
-        specialization: json['specialization'],
+        specialization: json['specialization'] is List
+            ? (json['specialization'] as List).map((e) => e.toString()).join(', ')
+            : json['specialization']?.toString(),
         bio: json['bio'],
         rating: (json['rating'] as num?)?.toDouble(),
         reviewCount: json['reviewCount'],

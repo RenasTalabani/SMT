@@ -1,9 +1,9 @@
 class ApiConstants {
   // static const String baseUrl = 'http://10.0.2.2:5000/api'; // Android emulator
   // static const String baseUrl = 'http://localhost:5000/api'; // iOS simulator
-  static const String baseUrl = 'http://192.168.0.109:5000/api'; // Physical device
+  static const String baseUrl = 'http://192.168.1.73:5000/api'; // Physical device
 
-  static const String socketUrl = 'http://192.168.0.109:5000';
+  static const String socketUrl = 'http://192.168.1.73:5000';
 
   // Auth
   static const String login = '/auth/login';

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../providers/ai_provider.dart';
-import '../../providers/auth_provider.dart';
 import '../../widgets/auth_guard_modal.dart';
 
 const _teal = Color(0xFF26BDB8);
