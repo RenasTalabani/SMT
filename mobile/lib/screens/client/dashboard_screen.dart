@@ -714,6 +714,12 @@ class _AiCoachSection extends StatelessWidget {
                   label: 'Nutrition',
                   route: '/client/ai/nutrition',
                 )),
+                const SizedBox(width: 10),
+                Expanded(child: _AiTile(
+                  icon: Icons.bar_chart_rounded,
+                  label: 'Progress',
+                  route: '/client/ai/progress',
+                )),
               ]),
             ],
           ),

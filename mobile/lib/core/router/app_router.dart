@@ -28,6 +28,7 @@ import '../../screens/client/progress_screen.dart';
 import '../../screens/ai/ai_chat_screen.dart';
 import '../../screens/ai/ai_workout_screen.dart';
 import '../../screens/ai/ai_nutrition_screen.dart';
+import '../../screens/ai/ai_progress_screen.dart';
 import '../../screens/admin/admin_dashboard_screen.dart';
 import '../../screens/splash_screen.dart';
 
@@ -156,6 +157,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/client/ai/nutrition',
             builder: (_, __) => const AiNutritionScreen(),
+          ),
+          GoRoute(
+            path: '/client/ai/progress',
+            builder: (_, __) => const AiProgressScreen(),
           ),
         ],
       ),
