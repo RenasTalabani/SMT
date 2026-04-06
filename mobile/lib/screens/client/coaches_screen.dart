@@ -97,10 +97,10 @@ class _TeamBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   'Meet Our Expert Team',
                   style: TextStyle(
