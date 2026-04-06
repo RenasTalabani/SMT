@@ -157,6 +157,10 @@ const workoutPlanSchema = new mongoose.Schema({
       order: {
         type: Number,
         default: 0
+      },
+      completed: {
+        type: Boolean,
+        default: false
       }
     }],
     warmUp: {

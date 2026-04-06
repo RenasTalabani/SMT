@@ -223,6 +223,7 @@ const seedDatabase = async () => {
         frequency: 3,
         goals: ['strength', 'general_fitness'],
         isTemplate: true,
+        isPublic: true,
         status: 'active',
         workouts: [
           {
@@ -260,6 +261,7 @@ const seedDatabase = async () => {
         frequency: 4,
         goals: ['strength', 'muscle_gain'],
         isTemplate: true,
+        isPublic: true,
         status: 'active',
         workouts: [
           {
@@ -297,6 +299,7 @@ const seedDatabase = async () => {
         frequency: 5,
         goals: ['endurance', 'weight_loss'],
         isTemplate: true,
+        isPublic: true,
         status: 'active',
         workouts: [
           {

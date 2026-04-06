@@ -116,7 +116,7 @@ class _TipDetailScreenState extends ConsumerState<TipDetailScreen> {
         _postingComment = false;
       });
       _commentController.clear();
-      FocusScope.of(context).unfocus();
+      if (mounted) FocusScope.of(context).unfocus();
     } catch (e) {
       setState(() => _postingComment = false);
       if (mounted) {
