@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 const Exercise = require('./models/Exercise');
 const Course = require('./models/Course');
@@ -22,11 +21,11 @@ const seedDatabase = async () => {
     console.log('Cleared existing data');
 
     // Create admin user
-    const adminPassword = await bcrypt.hash('admin123', 12);
+    
     const admin = await User.create({
       name: 'Admin User',
       email: 'admin@gym.com',
-      password: adminPassword,
+      password: "admin123",
       role: 'admin',
       isApproved: true,
       isActive: true,
@@ -38,11 +37,11 @@ const seedDatabase = async () => {
     console.log('Admin user created');
 
     // Create coach users
-    const coach1Password = await bcrypt.hash('coach123', 12);
+    
     const coach1 = await User.create({
       name: 'Ahmed Hassan',
       email: 'ahmed@gym.com',
-      password: coach1Password,
+      password: "coach123",
       role: 'coach',
       isApproved: true,
       isActive: true,
@@ -58,11 +57,11 @@ const seedDatabase = async () => {
       languages: ['en', 'ar']
     });
 
-    const coach2Password = await bcrypt.hash('coach123', 12);
+    
     const coach2 = await User.create({
       name: 'Sara Mohamed',
       email: 'sara@gym.com',
-      password: coach2Password,
+      password: "coach123",
       role: 'coach',
       isApproved: true,
       isActive: true,
@@ -80,11 +79,11 @@ const seedDatabase = async () => {
     console.log('Coach users created');
 
     // Create client users
-    const client1Password = await bcrypt.hash('client123', 12);
+    
     const client1 = await User.create({
       name: 'Mohammed Ali',
       email: 'mohammed@gym.com',
-      password: client1Password,
+      password: "client123",
       role: 'client',
       isApproved: true,
       isActive: true,
@@ -98,11 +97,11 @@ const seedDatabase = async () => {
       languages: ['ar', 'en']
     });
 
-    const client2Password = await bcrypt.hash('client123', 12);
+    
     const client2 = await User.create({
       name: 'Fatima Omar',
       email: 'fatima@gym.com',
-      password: client2Password,
+      password: "client123",
       role: 'client',
       isApproved: true,
       isActive: true,
