@@ -59,6 +59,29 @@ router.get('/', protect, validatePagination, async (req, res) => {
   }
 });
 
+// @route   GET /api/notifications/unread-count
+// @desc    Get unread notifications count
+// @access  Private
+router.get('/unread-count', protect, async (req, res) => {
+  try {
+    const unreadCount = await Notification.countDocuments({
+      recipient: req.user._id,
+      isRead: false
+    });
+
+    res.json({
+      success: true,
+      data: { unreadCount, count: unreadCount }
+    });
+  } catch (error) {
+    console.error('Get unread count error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+});
+
 // @route   GET /api/notifications/:id
 // @desc    Get notification by ID
 // @access  Private
@@ -225,29 +248,6 @@ router.post('/mark-all-read', protect, async (req, res) => {
     });
   } catch (error) {
     console.error('Mark all notifications read error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error'
-    });
-  }
-});
-
-// @route   GET /api/notifications/unread-count
-// @desc    Get unread notifications count
-// @access  Private
-router.get('/unread-count', protect, async (req, res) => {
-  try {
-    const unreadCount = await Notification.countDocuments({
-      recipient: req.user._id,
-      isRead: false
-    });
-
-    res.json({
-      success: true,
-      data: { unreadCount }
-    });
-  } catch (error) {
-    console.error('Get unread count error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error'

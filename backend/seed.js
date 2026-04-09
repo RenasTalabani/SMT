@@ -134,6 +134,7 @@ const seedDatabase = async () => {
           { step: 3, instruction: 'Push yourself back up to the starting position' }
         ],
         isActive: true,
+        isApproved: true,
         createdBy: coach1._id
       },
       {
@@ -153,6 +154,7 @@ const seedDatabase = async () => {
           { step: 4, instruction: 'Return to standing position' }
         ],
         isActive: true,
+        isApproved: true,
         createdBy: coach1._id
       },
       {
@@ -172,6 +174,7 @@ const seedDatabase = async () => {
           { step: 4, instruction: 'Maintain core engagement throughout' }
         ],
         isActive: true,
+        isApproved: true,
         createdBy: coach2._id
       },
       {
@@ -189,6 +192,7 @@ const seedDatabase = async () => {
           { step: 3, instruction: 'Slowly lower back to starting position' }
         ],
         isActive: true,
+        isApproved: true,
         createdBy: coach1._id
       },
       {
@@ -206,6 +210,7 @@ const seedDatabase = async () => {
           { step: 3, instruction: 'Jump back to starting position' }
         ],
         isActive: true,
+        isApproved: true,
         createdBy: coach2._id
       }
     ]);
