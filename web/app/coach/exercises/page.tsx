@@ -22,8 +22,8 @@ export default function CoachExercises() {
       window.alert('Exercise created');
       setName('');
       setDescription('');
-    } catch (err: any) {
-      window.alert(err || 'Failed to create exercise');
+    } catch (err: unknown) {
+      window.alert(typeof err === 'string' ? err : 'Failed to create exercise');
     }
   };
 

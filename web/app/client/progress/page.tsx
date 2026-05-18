@@ -12,7 +12,7 @@ export default function ClientProgress() {
   const { entries, loading, error } = useAppSelector(state => state.progress);
   const [notes, setNotes] = useState('');
   const [photoUrl, setPhotoUrl] = useState('');
-  const [progressId, setProgressId] = useState(''); // You'd get this from creating a progress entry
+  const [progressId] = useState('');
 
   useEffect(() => {
     dispatch(fetchProgress({ page: 1, limit: 20 }));
@@ -23,8 +23,8 @@ export default function ClientProgress() {
       await dispatch(addProgress({ notes, date: new Date().toISOString(), type: 'workout' })).unwrap();
       setNotes('');
       window.alert('Progress logged');
-    } catch (err: any) {
-      window.alert(err || 'Failed to log progress');
+    } catch (err: unknown) {
+      window.alert(typeof err === 'string' ? err : 'Failed to log progress');
     }
   };
 

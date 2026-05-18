@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../models/coach_model.dart';
 import '../../providers/coach_provider.dart';
@@ -471,12 +472,8 @@ class _ConnectButton extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content:
-                        Text('Coach booking coming soon!'),
-                    backgroundColor: Color(0xFF0F172A),
-                  ),
+                context.push(
+                  '/client/bookings/new/${coach.id}?name=${Uri.encodeComponent(coach.name)}',
                 );
               },
               style: ElevatedButton.styleFrom(

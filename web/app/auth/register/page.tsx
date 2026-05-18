@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { register } from '@/store/authSlice';
@@ -16,13 +16,14 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'client' | 'coach'>('client');
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const result = await dispatch(register({ name, email, password, role }));
-
-    if ((result as any).type === 'auth/register/fulfilled') {
-      if (role === 'coach') router.push('/coach/dashboard');
+    try {
+      const result = await dispatch(register({ name, email, password, role })).unwrap();
+      if (result.user.role === 'coach') router.push('/coach/dashboard');
       else router.push('/client/dashboard');
+    } catch {
+      // error is already stored in auth.error via the slice
     }
   };
 
@@ -32,38 +33,46 @@ export default function RegisterPage() {
         <h1 className="mb-4 text-3xl font-bold">Create an account</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">Name</label>
+            <label htmlFor="reg-name" className="block text-sm font-medium text-slate-700 dark:text-slate-200">Name</label>
             <input
+              id="reg-name"
               type="text"
               required
+              placeholder="Your full name"
               value={name}
               onChange={e => setName(e.target.value)}
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">Email</label>
+            <label htmlFor="reg-email" className="block text-sm font-medium text-slate-700 dark:text-slate-200">Email</label>
             <input
+              id="reg-email"
               type="email"
               required
+              placeholder="you@example.com"
               value={email}
               onChange={e => setEmail(e.target.value)}
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">Password</label>
+            <label htmlFor="reg-password" className="block text-sm font-medium text-slate-700 dark:text-slate-200">Password</label>
             <input
+              id="reg-password"
               type="password"
               required
+              placeholder="••••••••"
               value={password}
               onChange={e => setPassword(e.target.value)}
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">Role</label>
+            <label htmlFor="reg-role" className="block text-sm font-medium text-slate-700 dark:text-slate-200">Role</label>
             <select
+              id="reg-role"
+              title="Select your role"
               value={role}
               onChange={e => setRole(e.target.value as 'client' | 'coach')}
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"

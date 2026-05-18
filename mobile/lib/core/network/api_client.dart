@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../constants/api_constants.dart';
 import '../storage/secure_storage.dart';
+import '../storage/cache_service.dart';
 
 class ApiClient {
   static final ApiClient _instance = ApiClient._internal();
@@ -21,6 +22,7 @@ class ApiClient {
 
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: _onRequest,
+      onResponse: _onResponse,
       onError: _onError,
     ));
   }
@@ -34,6 +36,22 @@ class ApiClient {
       options.headers['Authorization'] = 'Bearer $token';
     }
     handler.next(options);
+  }
+
+  Future<void> _onResponse(
+    Response response,
+    ResponseInterceptorHandler handler,
+  ) async {
+    if (response.requestOptions.method == 'GET' &&
+        (response.statusCode ?? 0) >= 200 &&
+        (response.statusCode ?? 0) < 300) {
+      final key = CacheService.keyFor(
+        response.requestOptions.path,
+        response.requestOptions.queryParameters,
+      );
+      await CacheService.set(key, response.data);
+    }
+    handler.next(response);
   }
 
   Future<void> _onError(
@@ -79,6 +97,27 @@ class ApiClient {
       }
       return;
     }
+    // Serve cached data for GET requests when there's no connectivity
+    if (err.requestOptions.method == 'GET' &&
+        (err.type == DioExceptionType.connectionError ||
+            err.type == DioExceptionType.connectionTimeout ||
+            err.type == DioExceptionType.receiveTimeout ||
+            err.type == DioExceptionType.sendTimeout)) {
+      final key = CacheService.keyFor(
+        err.requestOptions.path,
+        err.requestOptions.queryParameters,
+      );
+      final cached = await CacheService.get(key);
+      if (cached != null) {
+        handler.resolve(Response(
+          requestOptions: err.requestOptions,
+          data: cached,
+          statusCode: 200,
+        ));
+        return;
+      }
+    }
+
     handler.next(err);
   }
 

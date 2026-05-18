@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import * as workoutService from '@/services/workoutService';
+import { WorkoutQueryOptions } from '@/services/workoutService';
 
 interface WorkoutPlan {
   _id: string;
@@ -8,7 +9,7 @@ interface WorkoutPlan {
   difficulty?: string;
   category?: string;
   status?: string;
-  assignedTo?: any;
+  assignedTo?: string | null;
 }
 
 interface WorkoutsState {
@@ -31,43 +32,53 @@ const initialState: WorkoutsState = {
   requestError: null
 };
 
-export const getWorkouts = createAsyncThunk('workouts/getWorkouts', async (params: any, thunkAPI) => {
-  try {
-    const data = await workoutService.getWorkouts(params);
-    return data;
-  } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.response?.data?.message || error.message || 'Failed to get workouts');
+export const getWorkouts = createAsyncThunk(
+  'workouts/getWorkouts',
+  async (params: WorkoutQueryOptions, thunkAPI) => {
+    try {
+      return await workoutService.getWorkouts(params);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to get workouts';
+      return thunkAPI.rejectWithValue(msg);
+    }
   }
-});
+);
 
-export const createWorkout = createAsyncThunk('workouts/createWorkout', async (payload: any, thunkAPI) => {
-  try {
-    const workout = await workoutService.createWorkout(payload);
-    return workout;
-  } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.response?.data?.message || error.message || 'Failed to create workout');
+export const createWorkout = createAsyncThunk(
+  'workouts/createWorkout',
+  async (payload: Record<string, unknown>, thunkAPI) => {
+    try {
+      return await workoutService.createWorkout(payload);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to create workout';
+      return thunkAPI.rejectWithValue(msg);
+    }
   }
-});
+);
 
 export const requestPlan = createAsyncThunk(
   'workouts/requestPlan',
   async (payload: { coachId: string; planType: string; notes?: string }, thunkAPI) => {
     try {
       return await workoutService.requestPlan(payload);
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message || 'Failed to send request');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to send request';
+      return thunkAPI.rejectWithValue(msg);
     }
   }
 );
 
-export const assignWorkout = createAsyncThunk('workouts/assignWorkout', async ({ workoutId, clientId }: { workoutId: string; clientId: string }, thunkAPI) => {
-  try {
-    const plan = await workoutService.assignWorkout(workoutId, clientId);
-    return plan;
-  } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.response?.data?.message || error.message || 'Failed to assign workout');
+export const assignWorkout = createAsyncThunk(
+  'workouts/assignWorkout',
+  async ({ workoutId, clientId }: { workoutId: string; clientId: string }, thunkAPI) => {
+    try {
+      return await workoutService.assignWorkout(workoutId, clientId);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to assign workout';
+      return thunkAPI.rejectWithValue(msg);
+    }
   }
-});
+);
 
 const workoutsSlice = createSlice({
   name: 'workouts',
@@ -79,14 +90,14 @@ const workoutsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(getWorkouts.fulfilled, (state, action: PayloadAction<any>) => {
+      .addCase(getWorkouts.fulfilled, (state, action: PayloadAction<{ workoutPlans: WorkoutPlan[]; pagination: WorkoutsState['pagination'] }>) => {
         state.loading = false;
         state.plans = action.payload.workoutPlans || [];
         state.pagination = action.payload.pagination || initialState.pagination;
       })
-      .addCase(getWorkouts.rejected, (state, action: PayloadAction<any>) => {
+      .addCase(getWorkouts.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload as string;
       })
       .addCase(createWorkout.pending, state => {
         state.loading = true;
@@ -96,9 +107,9 @@ const workoutsSlice = createSlice({
         state.loading = false;
         state.plans.unshift(action.payload);
       })
-      .addCase(createWorkout.rejected, (state, action: PayloadAction<any>) => {
+      .addCase(createWorkout.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload as string;
       })
       .addCase(assignWorkout.pending, state => {
         state.loading = true;
@@ -109,9 +120,9 @@ const workoutsSlice = createSlice({
         const idx = state.plans.findIndex(p => p._id === action.payload._id);
         if (idx >= 0) state.plans[idx] = action.payload;
       })
-      .addCase(assignWorkout.rejected, (state, action: PayloadAction<any>) => {
+      .addCase(assignWorkout.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload as string;
       })
       .addCase(requestPlan.pending, state => {
         state.requestLoading = true;
@@ -121,9 +132,9 @@ const workoutsSlice = createSlice({
         state.requestLoading = false;
         state.requestSent = true;
       })
-      .addCase(requestPlan.rejected, (state, action: PayloadAction<any>) => {
+      .addCase(requestPlan.rejected, (state, action) => {
         state.requestLoading = false;
-        state.requestError = action.payload;
+        state.requestError = action.payload as string;
       });
   }
 });

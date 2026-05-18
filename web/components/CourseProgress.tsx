@@ -3,7 +3,7 @@ import { Course, CourseEnrollment } from '@/store/coursesSlice';
 interface CourseProgressProps {
   enrollment: CourseEnrollment;
   course: Course;
-  onProgressUpdate: (progress: any) => void;
+  onProgressUpdate: (progress: Record<string, unknown>) => void;
 }
 
 export default function CourseProgress({ enrollment, course, onProgressUpdate }: CourseProgressProps) {

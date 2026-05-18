@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'; // PayloadAction used in reducers
 import api from '@/services/api';
 
 export interface Notification {
@@ -17,7 +17,7 @@ export interface Notification {
   category: 'workout' | 'progress' | 'social' | 'system' | 'payment' | 'reminder';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   actionUrl?: string;
-  data?: any;
+  data?: Record<string, unknown>;
   createdAt: string;
   timeAgo?: string;
 }
@@ -48,9 +48,10 @@ export const fetchNotifications = createAsyncThunk(
         params: { page, limit }
       });
       return data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to fetch notifications';
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || 'Failed to fetch notifications'
+        (error as { response?: { data?: { message?: string } } }).response?.data?.message || msg
       );
     }
   }
@@ -62,9 +63,10 @@ export const markNotificationAsRead = createAsyncThunk(
     try {
       await api.put(`/notifications/${id}/read`);
       return id;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to mark as read';
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || 'Failed to mark as read'
+        (error as { response?: { data?: { message?: string } } }).response?.data?.message || msg
       );
     }
   }
@@ -76,9 +78,10 @@ export const markAllNotificationsAsRead = createAsyncThunk(
     try {
       const { data } = await api.post('/notifications/mark-all-read');
       return data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to mark all as read';
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || 'Failed to mark all as read'
+        (error as { response?: { data?: { message?: string } } }).response?.data?.message || msg
       );
     }
   }
@@ -90,9 +93,10 @@ export const deleteNotification = createAsyncThunk(
     try {
       await api.delete(`/notifications/${id}`);
       return id;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to delete notification';
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || 'Failed to delete notification'
+        (error as { response?: { data?: { message?: string } } }).response?.data?.message || msg
       );
     }
   }
@@ -168,15 +172,16 @@ const notificationsSlice = createSlice({
       })
       .addCase(
         fetchNotifications.fulfilled,
-        (state, action: PayloadAction<any>) => {
+        (state, action) => {
           state.loading = false;
-          state.notifications = action.payload.notifications || [];
-          state.unreadCount = action.payload.unreadCount || 0;
+          const payload = action.payload as { notifications?: Notification[]; unreadCount?: number };
+          state.notifications = payload.notifications || [];
+          state.unreadCount = payload.unreadCount || 0;
         }
       )
-      .addCase(fetchNotifications.rejected, (state, action: PayloadAction<any>) => {
+      .addCase(fetchNotifications.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload as string;
       });
 
     // Mark as read

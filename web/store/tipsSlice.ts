@@ -92,8 +92,9 @@ export const fetchTips = createAsyncThunk(
 
       const response = await api.get(`/tips?${queryParams.toString()}`);
       return response.data.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch tips');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to fetch tips';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -104,8 +105,9 @@ export const fetchTipById = createAsyncThunk(
     try {
       const response = await api.get(`/tips/${tipId}`);
       return response.data.data.tip;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch tip');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to fetch tip';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -116,8 +118,9 @@ export const createTip = createAsyncThunk(
     try {
       const response = await api.post('/tips', tipData);
       return response.data.data.tip;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to create tip');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to create tip';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -128,8 +131,9 @@ export const updateTip = createAsyncThunk(
     try {
       const response = await api.put(`/tips/${tipId}`, updates);
       return response.data.data.tip;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to update tip');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to update tip';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -140,8 +144,9 @@ export const deleteTip = createAsyncThunk(
     try {
       await api.delete(`/tips/${tipId}`);
       return tipId;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to delete tip');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to delete tip';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -152,8 +157,9 @@ export const likeTip = createAsyncThunk(
     try {
       const response = await api.post(`/tips/${tipId}/like`);
       return { tipId, ...response.data.data };
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to like tip');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to like tip';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -164,8 +170,9 @@ export const bookmarkTip = createAsyncThunk(
     try {
       const response = await api.post(`/tips/${tipId}/bookmark`);
       return { tipId, ...response.data.data };
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to bookmark tip');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to bookmark tip';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -176,8 +183,9 @@ export const fetchTipComments = createAsyncThunk(
     try {
       const response = await api.get(`/tips/${tipId}/comments`);
       return { tipId, comments: response.data.data.comments };
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch comments');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to fetch comments';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -188,8 +196,9 @@ export const addTipComment = createAsyncThunk(
     try {
       const response = await api.post(`/tips/${tipId}/comments`, { content });
       return { tipId, comment: response.data.data.comment };
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to add comment');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to add comment';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -200,8 +209,9 @@ export const fetchMyTips = createAsyncThunk(
     try {
       const response = await api.get('/tips/my-tips');
       return response.data.data.tips;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch my tips');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to fetch my tips';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -212,8 +222,9 @@ export const fetchBookmarkedTips = createAsyncThunk(
     try {
       const response = await api.get('/tips/bookmarked');
       return response.data.data.tips;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch bookmarked tips');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to fetch bookmarked tips';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -224,8 +235,9 @@ export const fetchTipCategories = createAsyncThunk(
     try {
       const response = await api.get('/tips/categories');
       return response.data.data.categories;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch categories');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to fetch categories';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -245,8 +257,9 @@ export const uploadTipMedia = createAsyncThunk(
         },
       });
       return { tipId, media: response.data.data.media };
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to upload media');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to upload media';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -257,8 +270,9 @@ export const publishTip = createAsyncThunk(
     try {
       await api.put(`/tips/${tipId}/publish`, { isPublished });
       return { tipId, isPublished };
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to publish tip');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to publish tip';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -269,8 +283,9 @@ export const fetchAuthorTips = createAsyncThunk(
     try {
       const response = await api.get(`/tips/author/${authorId}`);
       return response.data.data.tips;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch author tips');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to fetch author tips';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -420,7 +435,7 @@ const tipsSlice = createSlice({
             tip.likes = tip.likes.filter(id => id !== 'currentUser');
           }
         }
-        if (state.currentTip?._id === tipId) {
+        if (state.currentTip && state.currentTip._id === tipId) {
           state.currentTip.likesCount = likesCount;
           if (liked) {
             state.currentTip.likes.push('currentUser');
@@ -451,7 +466,7 @@ const tipsSlice = createSlice({
             tip.bookmarks = tip.bookmarks.filter(id => id !== 'currentUser');
           }
         }
-        if (state.currentTip?._id === tipId) {
+        if (state.currentTip && state.currentTip._id === tipId) {
           state.currentTip.bookmarksCount = bookmarksCount;
           if (bookmarked) {
             state.currentTip.bookmarks.push('currentUser');
@@ -599,7 +614,7 @@ const tipsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchAuthorTips.fulfilled, (state, action) => {
+      .addCase(fetchAuthorTips.fulfilled, (state) => {
         state.loading = false;
         // This could be used to show author tips in a separate section
       })

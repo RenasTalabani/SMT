@@ -5,7 +5,7 @@ export async function getProgress(page = 1, limit = 20) {
   return res.data.data;
 }
 
-export async function addProgress(payload: any) {
+export async function addProgress(payload: Record<string, unknown>) {
   const res = await api.post('/progress', payload);
   return res.data.data.progress;
 }

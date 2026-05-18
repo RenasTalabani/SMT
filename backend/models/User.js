@@ -87,6 +87,11 @@ const userSchema = new mongoose.Schema({
   emailVerificationExpires: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  refreshToken: {
+    type: String,
+    default: null,
+    select: false,
+  },
   refreshTokens: [{
     token: String,
     createdAt: {
@@ -220,6 +225,34 @@ userSchema.methods.removeRefreshToken = function(token) {
 // Static method to find user by email
 userSchema.statics.findByEmail = function(email) {
   return this.findOne({ email: email.toLowerCase() });
+};
+
+// ── toPublicJSON — safe representation for API responses ──────────────────
+userSchema.methods.toPublicJSON = function() {
+  return {
+    id: this._id,
+    name: this.name,
+    email: this.email,
+    role: this.role,
+    avatar: this.avatar || null,
+    isEmailVerified: this.isEmailVerified || false,
+    isApproved: this.isApproved || false,
+    isActive: this.isActive !== false,
+    phone: this.phone || null,
+    gender: this.gender || null,
+    height: this.height || null,
+    weight: this.weight || null,
+    fitnessGoals: this.fitnessGoals || [],
+    experienceLevel: this.experienceLevel || 'beginner',
+    specialization: this.specialization || [],
+    bio: this.bio || null,
+    hourlyRate: this.hourlyRate || null,
+    experienceYears: this.experienceYears || null,
+    rating: this.rating || 0,
+    reviewCount: this.reviewCount || 0,
+    lastLogin: this.lastLogin || null,
+    createdAt: this.createdAt,
+  };
 };
 
 module.exports = mongoose.model('User', userSchema);

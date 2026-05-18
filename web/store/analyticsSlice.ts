@@ -2,10 +2,13 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '@/services/api';
 
 export interface AnalyticsData {
-  overview: any;
-  distribution: any;
-  growth: any[];
-  topItems?: any[];
+  overview: Record<string, unknown>;
+  distribution: Record<string, unknown>;
+  growth: Record<string, unknown>[];
+  topItems?: Record<string, unknown>[];
+  engagement?: Record<string, unknown>[];
+  topTips?: Record<string, unknown>[];
+  topCourses?: Record<string, unknown>[];
   period: number;
 }
 
@@ -91,9 +94,9 @@ const analyticsSlice = createSlice({
   initialState,
   reducers: {
     clearAnalyticsError: (state, action) => {
-      const type = action.payload;
-      if (state[type as keyof AnalyticsState]) {
-        (state[type as keyof AnalyticsState] as any).error = null;
+      const section = state[action.payload as keyof AnalyticsState];
+      if (section) {
+        section.error = null;
       }
     },
   },

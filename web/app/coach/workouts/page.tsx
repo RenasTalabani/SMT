@@ -25,8 +25,8 @@ export default function CoachWorkouts() {
       window.alert('Workout created successfully');
       setTitle('');
       setDescription('');
-    } catch (err: any) {
-      window.alert(err || 'Create workout failed');
+    } catch (err: unknown) {
+      window.alert(typeof err === 'string' ? err : 'Create workout failed');
     }
   };
 
@@ -35,8 +35,8 @@ export default function CoachWorkouts() {
     try {
       await dispatch(assignWorkout({ workoutId, clientId })).unwrap();
       window.alert('Workout assigned successfully');
-    } catch (err: any) {
-      window.alert(err || 'Assign workout failed');
+    } catch (err: unknown) {
+      window.alert(typeof err === 'string' ? err : 'Assign workout failed');
     }
   };
 

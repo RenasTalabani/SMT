@@ -10,12 +10,12 @@ export interface WorkoutQueryOptions {
 }
 
 export async function getWorkouts(options: WorkoutQueryOptions = {}) {
-  const params: any = { ...options };
+  const params = { ...options };
   const res = await api.get('/workouts', { params });
   return res.data.data;
 }
 
-export async function createWorkout(payload: any) {
+export async function createWorkout(payload: Record<string, unknown>) {
   const res = await api.post('/workouts', payload);
   return res.data.data.workoutPlan;
 }

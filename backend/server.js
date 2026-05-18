@@ -1,96 +1,60 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
-const { createServer } = require('http');
-const { Server } = require('socket.io');
-require('dotenv').config();
+'use strict';
 
-const app = express();
-const server = createServer(app);
-const io = new Server(server, {
+// Load env before anything else
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, `.env.${process.env.NODE_ENV || 'development'}`) });
+
+const http = require('http');
+const { Server: SocketServer } = require('socket.io');
+
+const app = require('./src/app');
+const { connectDB } = require('./src/config/database');
+const logger = require('./src/utils/logger');
+const config = require('./src/config');
+
+// ── Socket.IO ────────────────────────────────────────────────────────────────
+const httpServer = http.createServer(app);
+const io = new SocketServer(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
-    methods: ["GET", "POST"]
-  }
+    origin: config.isDev ? '*' : config.cors.origins,
+    methods: ['GET', 'POST'],
+  },
+  transports: ['websocket', 'polling'],
 });
 
-// Security middleware
-app.use(helmet());
-app.use(cors({
-  origin: [process.env.CLIENT_URL, process.env.MOBILE_URL],
-  credentials: true
-}));
+try {
+  require('./socket')(io);
+} catch {
+  logger.warn('socket.js not found — real-time chat disabled');
+}
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-app.use(limiter);
+// ── Start ─────────────────────────────────────────────────────────────────────
+async function start() {
+  await connectDB();
 
-// Logging
-app.use(morgan('combined'));
+  httpServer.listen(config.server.port, config.server.host, () => {
+    logger.info(`CityGym server running on port ${config.server.port} [${config.env}]`);
+    if (config.isDev) {
+      logger.info(`  API:    http://localhost:${config.server.port}/api`);
+      logger.info(`  Health: http://localhost:${config.server.port}/health`);
+    }
+  });
+}
 
-// Body parsing
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// ── Graceful shutdown ─────────────────────────────────────────────────────────
+async function shutdown(signal) {
+  logger.info(`${signal} received — shutting down`);
+  httpServer.close(async () => {
+    const mongoose = require('mongoose');
+    await mongoose.connection.close();
+    process.exit(0);
+  });
+  setTimeout(() => process.exit(1), 10000);
+}
 
-// Serve uploaded files statically
-app.use('/uploads', express.static(require('path').join(__dirname, 'uploads')));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT',  () => shutdown('SIGINT'));
+process.on('uncaughtException',  (err) => { logger.error('Uncaught exception:', err); process.exit(1); });
+process.on('unhandledRejection', (err) => { logger.error('Unhandled rejection:', err); });
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/gymdb', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.error('MongoDB connection error:', err));
-
-// Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/users', require('./routes/users'));
-app.use('/api/workouts', require('./routes/workouts'));
-app.use('/api/exercises', require('./routes/exercises'));
-app.use('/api/courses', require('./routes/courses'));
-app.use('/api/tips', require('./routes/tips'));
-app.use('/api/progress', require('./routes/progress'));
-app.use('/api/chat', require('./routes/chat'));
-app.use('/api/notifications', require('./routes/notifications'));
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/upload', require('./routes/upload'));
-app.use('/api/ai', require('./routes/ai'));
-
-// Socket.io for real-time features
-const { initializeSocket } = require('./services/socket');
-initializeSocket(io);
-
-// Start AI scheduler once DB is connected
-mongoose.connection.once('open', () => {
-  try {
-    const { startScheduler } = require('./cron/aiScheduler');
-    startScheduler();
-  } catch (err) {
-    console.error('AI Scheduler failed to start:', err.message);
-  }
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
-});
-
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({ message: 'Route not found' });
-});
-
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
-module.exports = { app, server, io };
+start();

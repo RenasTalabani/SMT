@@ -48,19 +48,19 @@ export default function CourseDetailPage() {
       await dispatch(enrollInCourse(courseId)).unwrap();
       toast.success('Successfully enrolled in the course!');
       dispatch(fetchMyProgress());
-    } catch (error: any) {
-      toast.error(error || 'Failed to enroll in course');
+    } catch (error: unknown) {
+      toast.error(typeof error === 'string' ? error : 'Failed to enroll in course');
     } finally {
       setEnrolling(false);
     }
   };
 
-  const handleProgressUpdate = async (progress: any) => {
+  const handleProgressUpdate = async (progress: Record<string, unknown>) => {
     try {
       await dispatch(updateProgress({ courseId, progress })).unwrap();
       toast.success('Progress updated successfully!');
-    } catch (error: any) {
-      toast.error(error || 'Failed to update progress');
+    } catch (error: unknown) {
+      toast.error(typeof error === 'string' ? error : 'Failed to update progress');
     }
   };
 
@@ -205,7 +205,7 @@ export default function CourseDetailPage() {
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as 'overview' | 'content' | 'progress' | 'reviews')}
                   className={`py-4 px-1 border-b-2 font-medium text-sm ${
                     activeTab === tab.id
                       ? 'border-blue-500 text-blue-600 dark:text-blue-400'
@@ -226,7 +226,7 @@ export default function CourseDetailPage() {
                 <h3>About this course</h3>
                 <p>{currentCourse.description}</p>
 
-                <h4>What you'll learn</h4>
+                <h4>What you&apos;ll learn</h4>
                 <ul>
                   {currentCourse.content.weeks.map((week, index) => (
                     <li key={index}>Week {index + 1}: {week.title}</li>

@@ -18,7 +18,7 @@ export default function TipsPage() {
 
   useEffect(() => {
     dispatch(fetchTipCategories());
-    dispatch(fetchTips());
+    dispatch(fetchTips({}));
   }, [dispatch]);
 
   const handleSearch = (query: string) => {
@@ -41,7 +41,7 @@ export default function TipsPage() {
   const handleResetFilters = () => {
     dispatch(resetFilters());
     setSearchQuery('');
-    dispatch(fetchTips());
+    dispatch(fetchTips({}));
   };
 
   return (

@@ -18,8 +18,8 @@ export default function AdminUsers() {
     try {
       await dispatch(approveCoach(id)).unwrap();
       window.alert('Coach approved successfully');
-    } catch (err: any) {
-      window.alert(err || 'Failed to approve coach');
+    } catch (err: unknown) {
+      window.alert(err instanceof Error ? err.message : 'Failed to approve coach');
     }
   };
 

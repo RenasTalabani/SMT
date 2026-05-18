@@ -33,7 +33,7 @@ export default function ClientPlan() {
   const { plans, loading, error, requestLoading, requestSent, requestError } = useAppSelector(state => state.workouts);
 
   const [coaches, setCoaches] = useState<Coach[]>([]);
-  const [coachesLoading, setCoachesLoading] = useState(false);
+  const [coachesLoading, setCoachesLoading] = useState(true);
   const [selectedCoach, setSelectedCoach] = useState<string>('');
   const [selectedPlanType, setSelectedPlanType] = useState<string>('');
   const [notes, setNotes] = useState('');
@@ -44,7 +44,6 @@ export default function ClientPlan() {
   }, [dispatch]);
 
   useEffect(() => {
-    setCoachesLoading(true);
     workoutService.getCoaches()
       .then(data => setCoaches(data))
       .catch(() => setCoaches([]))

@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   # State Management
   flutter_riverpod: ^2.4.9
@@ -55,6 +57,13 @@ dependencies:
   flutter_facebook_auth: ^7.0.3
   sign_in_with_apple: ^6.1.2
   local_auth: ^2.3.0
+
+  # 3D / WebView
+  model_viewer_plus: ^1.8.0
+  url_launcher: ^6.3.0
+
+  # Connectivity
+  connectivity_plus: ^6.0.3
 
   # Localization
   easy_localization: ^3.0.7

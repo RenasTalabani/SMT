@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as exerciseService from '@/services/exerciseService';
 
 interface Exercise {
@@ -23,21 +23,23 @@ const initialState: ExercisesState = {
   pagination: { page: 1, limit: 20, total: 0, pages: 0 }
 };
 
-export const fetchExercises = createAsyncThunk('exercises/fetchExercises', async (params: any, thunkAPI) => {
+export const fetchExercises = createAsyncThunk('exercises/fetchExercises', async (params: { page?: number; limit?: number }, thunkAPI) => {
   try {
     const data = await exerciseService.getExercises(params.page || 1, params.limit || 20);
     return data;
-  } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.response?.data?.message || error.message || 'Failed to fetch exercises');
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : 'Failed to fetch exercises';
+    return thunkAPI.rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
   }
 });
 
-export const createExercise = createAsyncThunk('exercises/createExercise', async (payload: any, thunkAPI) => {
+export const createExercise = createAsyncThunk('exercises/createExercise', async (payload: Partial<Exercise>, thunkAPI) => {
   try {
     const data = await exerciseService.createExercise(payload);
     return data;
-  } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.response?.data?.message || error.message || 'Failed to create exercise');
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : 'Failed to create exercise';
+    return thunkAPI.rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
   }
 });
 
@@ -51,26 +53,27 @@ const exercisesSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchExercises.fulfilled, (state, action: PayloadAction<any>) => {
+      .addCase(fetchExercises.fulfilled, (state, action) => {
         state.loading = false;
-        state.exercises = action.payload.exercises || [];
-        state.pagination = action.payload.pagination || initialState.pagination;
+        const payload = action.payload as { exercises?: Exercise[]; pagination?: ExercisesState['pagination'] };
+        state.exercises = payload.exercises || [];
+        state.pagination = payload.pagination || initialState.pagination;
       })
-      .addCase(fetchExercises.rejected, (state, action: PayloadAction<any>) => {
+      .addCase(fetchExercises.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload as string;
       })
       .addCase(createExercise.pending, state => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(createExercise.fulfilled, (state, action: PayloadAction<Exercise>) => {
+      .addCase(createExercise.fulfilled, (state, action) => {
         state.loading = false;
-        state.exercises.unshift(action.payload);
+        state.exercises.unshift(action.payload as Exercise);
       })
-      .addCase(createExercise.rejected, (state, action: PayloadAction<any>) => {
+      .addCase(createExercise.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload as string;
       });
   }
 });

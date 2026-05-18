@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/notification_provider.dart';
+import '../../providers/network_provider.dart';
 
 class ClientShell extends ConsumerStatefulWidget {
   const ClientShell({super.key, required this.child});
@@ -17,6 +18,7 @@ class _ClientShellState extends ConsumerState<ClientShell> {
   static const List<String> _routes = [
     '/client',
     '/client/plan',
+    '/client/anatomy',
     '/client/coaches',
     '/client/tips',
     '/client/progress',
@@ -54,6 +56,11 @@ class _ClientShellState extends ConsumerState<ClientShell> {
         selectedIcon: const Icon(Icons.fitness_center_rounded),
         label: 'nav_plan'.tr(),
       ),
+      const NavigationDestination(
+        icon: Icon(Icons.biotech_outlined),
+        selectedIcon: Icon(Icons.biotech_rounded),
+        label: 'Anatomy',
+      ),
       NavigationDestination(
         icon: const Icon(Icons.people_outline_rounded),
         selectedIcon: const Icon(Icons.people_rounded),
@@ -76,8 +83,37 @@ class _ClientShellState extends ConsumerState<ClientShell> {
       ),
     ];
 
+    final isOnline = ref.watch(isOnlineProvider);
+
     return Scaffold(
-      body: widget.child,
+      body: Column(
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            height: isOnline ? 0 : 32,
+            color: const Color(0xFFF97316),
+            child: isOnline
+                ? const SizedBox.shrink()
+                : const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.wifi_off_rounded,
+                          size: 14, color: Colors.white),
+                      SizedBox(width: 6),
+                      Text(
+                        'You are offline — showing cached data',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+          Expanded(child: widget.child),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,
         onDestinationSelected: (index) {

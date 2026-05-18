@@ -2,20 +2,21 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  addMessage,
   receiveMessage,
-  addTypingUser,
-  removeTypingUser,
-  markMessageAsRead
+  markMessageAsRead,
+  Message
 } from '@/store/chatSlice';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 let socket: Socket | null = null;
 
+interface TypingEvent { userId: string; userName: string }
+interface ReadEvent { messageId: string }
+interface MessageEvent { message: Message }
+
 export const useSocket = () => {
   const [isConnected, setIsConnected] = useState(false);
-  const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
     const token =
@@ -31,8 +32,6 @@ export const useSocket = () => {
         reconnectionDelayMax: 5000,
         reconnectionAttempts: 5
       });
-
-      socketRef.current = socket;
 
       socket.on('connect', () => {
         setIsConnected(true);
@@ -54,7 +53,7 @@ export const useSocket = () => {
     };
   }, []);
 
-  return { socket: socketRef.current || socket, isConnected };
+  return { socket, isConnected };
 };
 
 export const useChat = (conversationId?: string) => {
@@ -63,13 +62,11 @@ export const useChat = (conversationId?: string) => {
   const [typingUsers, setTypingUsers] = useState<
     { userId: string; userName: string }[]
   >([]);
-  const typingTimeoutRef = useRef<NodeJS.Timeout>();
-  const conversationTypingTimeoutRef = useRef<NodeJS.Timeout>();
+  const typingTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const conversationTypingTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const messages = useAppSelector(state => state.chat.messages);
-  const currentConversation = useAppSelector(state => state.chat.currentConversation);
 
-  // Join conversation room
   useEffect(() => {
     if (socket && isConnected && conversationId) {
       socket.emit('join_conversation', { conversationId });
@@ -80,28 +77,27 @@ export const useChat = (conversationId?: string) => {
     }
   }, [socket, isConnected, conversationId]);
 
-  // Listen for new messages
   useEffect(() => {
     if (!socket) return;
 
-    const handleNewMessage = (data: any) => {
+    const handleNewMessage = (data: MessageEvent) => {
       dispatch(receiveMessage(data.message));
     };
 
-    const handleTypingStarted = (data: any) => {
+    const handleTypingStarted = (data: TypingEvent) => {
       setTypingUsers((prev) => {
         if (prev.find((u) => u.userId === data.userId)) return prev;
         return [...prev, { userId: data.userId, userName: data.userName }];
       });
     };
 
-    const handleTypingStopped = (data: any) => {
+    const handleTypingStopped = (data: TypingEvent) => {
       setTypingUsers((prev) =>
         prev.filter((u) => u.userId !== data.userId)
       );
     };
 
-    const handleMessageRead = (data: any) => {
+    const handleMessageRead = (data: ReadEvent) => {
       dispatch(markMessageAsRead(data.messageId));
     };
 
@@ -118,15 +114,14 @@ export const useChat = (conversationId?: string) => {
     };
   }, [socket, dispatch]);
 
-  // Direct message events (for backward compatibility)
   useEffect(() => {
     if (!socket) return;
 
-    const handleNewMessage = (message: any) => {
+    const handleNewMessage = (message: Message) => {
       dispatch(receiveMessage(message));
     };
 
-    const handleTypingStarted = (data: any) => {
+    const handleTypingStarted = (data: TypingEvent) => {
       setTypingUsers((prev) => {
         if (prev.find((u) => u.userId === data.userId)) return prev;
         return [
@@ -136,7 +131,7 @@ export const useChat = (conversationId?: string) => {
       });
     };
 
-    const handleTypingStopped = (data: any) => {
+    const handleTypingStopped = (data: TypingEvent) => {
       setTypingUsers((prev) =>
         prev.filter((u) => u.userId !== data.userId)
       );
@@ -153,9 +148,8 @@ export const useChat = (conversationId?: string) => {
     };
   }, [socket, dispatch]);
 
-  // Send conversation message
   const sendConversationMessage = useCallback(
-    (content: string, messageType = 'text', attachments: any[] = []) => {
+    (content: string, messageType = 'text', attachments: unknown[] = []) => {
       if (!socket || !isConnected || !conversationId) {
         console.error('Socket not ready or no conversation');
         return;
@@ -171,7 +165,6 @@ export const useChat = (conversationId?: string) => {
     [socket, isConnected, conversationId]
   );
 
-  // Send direct message (backward compatibility)
   const sendMessage = useCallback(
     (content: string, receiverId: string) => {
       if (!socket || !isConnected) {
@@ -184,7 +177,6 @@ export const useChat = (conversationId?: string) => {
     [socket, isConnected]
   );
 
-  // Typing indicator for conversation
   const emitTypingStart = useCallback(() => {
     if (!socket || !isConnected || !conversationId) return;
 
@@ -199,7 +191,6 @@ export const useChat = (conversationId?: string) => {
     }, 3000);
   }, [socket, isConnected, conversationId]);
 
-  // Typing indicator for direct messages
   const emitDirectTyping = useCallback(
     (receiverId: string) => {
       if (!socket || !isConnected) return;
@@ -217,7 +208,6 @@ export const useChat = (conversationId?: string) => {
     [socket, isConnected]
   );
 
-  // Mark messages as read
   const markAsRead = useCallback(() => {
     if (!socket || !isConnected || !conversationId) return;
 
@@ -235,4 +225,3 @@ export const useChat = (conversationId?: string) => {
     markAsRead
   };
 };
-

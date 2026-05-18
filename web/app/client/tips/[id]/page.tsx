@@ -43,8 +43,8 @@ export default function TipDetailPage() {
     try {
       await dispatch(likeTip(tipId)).unwrap();
       toast.success(isLiked ? 'Tip unliked' : 'Tip liked!');
-    } catch (error: any) {
-      toast.error(error || 'Failed to like tip');
+    } catch (error: unknown) {
+      toast.error(typeof error === 'string' ? error : 'Failed to like tip');
     } finally {
       setLiking(false);
     }
@@ -57,8 +57,8 @@ export default function TipDetailPage() {
     try {
       await dispatch(bookmarkTip(tipId)).unwrap();
       toast.success(isBookmarked ? 'Tip unbookmarked' : 'Tip bookmarked!');
-    } catch (error: any) {
-      toast.error(error || 'Failed to bookmark tip');
+    } catch (error: unknown) {
+      toast.error(typeof error === 'string' ? error : 'Failed to bookmark tip');
     } finally {
       setBookmarking(false);
     }
@@ -73,8 +73,8 @@ export default function TipDetailPage() {
       await dispatch(addTipComment({ tipId, content: commentText })).unwrap();
       setCommentText('');
       toast.success('Comment added successfully!');
-    } catch (error: any) {
-      toast.error(error || 'Failed to add comment');
+    } catch (error: unknown) {
+      toast.error(typeof error === 'string' ? error : 'Failed to add comment');
     } finally {
       setSubmittingComment(false);
     }

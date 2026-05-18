@@ -50,8 +50,9 @@ export default function FileUpload({
       });
 
       onUpload(response.data.url || response.data.avatar);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Upload failed');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(msg || 'Upload failed');
     } finally {
       setUploading(false);
     }

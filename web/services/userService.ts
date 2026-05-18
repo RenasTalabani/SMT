@@ -9,7 +9,7 @@ export interface UserFilterOptions {
 }
 
 export async function getAllUsers(options: UserFilterOptions = {}) {
-  const params: any = {};
+  const params: Record<string, unknown> = {};
   if (options.page) params.page = options.page;
   if (options.limit) params.limit = options.limit;
   if (options.role) params.role = options.role;

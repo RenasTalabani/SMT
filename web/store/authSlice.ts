@@ -31,9 +31,7 @@ const initialState: AuthState = {
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
-  headers: {
-    'Content-Type': 'application/json'
-  }
+  headers: { 'Content-Type': 'application/json' }
 });
 
 apiClient.interceptors.request.use(config => {
@@ -44,28 +42,35 @@ apiClient.interceptors.request.use(config => {
   return config;
 });
 
+function extractMessage(error: unknown, fallback: string): string {
+  if (axios.isAxiosError(error)) {
+    return (error.response?.data as { message?: string })?.message ?? error.message ?? fallback;
+  }
+  return error instanceof Error ? error.message : fallback;
+}
+
 export const login = createAsyncThunk(
   'auth/login',
   async ({ email, password }: { email: string; password: string }, thunkAPI) => {
     try {
       const data = await authService.login({ email, password });
       setAuthToken(data.accessToken);
-      return { token: data.accessToken, user: data.user };
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message || 'Login failed');
+      return { token: data.accessToken, user: data.user as UserProfile };
+    } catch (error: unknown) {
+      return thunkAPI.rejectWithValue(extractMessage(error, 'Login failed'));
     }
   }
 );
 
 export const register = createAsyncThunk(
   'auth/register',
-  async (payload: { name: string; email: string; password: string; role: UserRole }, thunkAPI) => {
+  async (payload: { name: string; email: string; password: string; role: 'client' | 'coach' }, thunkAPI) => {
     try {
-      const data = await authService.register(payload as any);
+      const data = await authService.register(payload);
       setAuthToken(data.accessToken);
-      return { token: data.accessToken, user: data.user };
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message || 'Registration failed');
+      return { token: data.accessToken, user: data.user as UserProfile };
+    } catch (error: unknown) {
+      return thunkAPI.rejectWithValue(extractMessage(error, 'Registration failed'));
     }
   }
 );
@@ -73,9 +78,9 @@ export const register = createAsyncThunk(
 export const fetchProfile = createAsyncThunk('auth/fetchProfile', async (_, thunkAPI) => {
   try {
     const profile = await authService.getProfile();
-    return profile;
-  } catch (error: any) {
-    return thunkAPI.rejectWithValue(error.response?.data?.message || error.message || 'Fetch profile failed');
+    return profile as UserProfile;
+  } catch (error: unknown) {
+    return thunkAPI.rejectWithValue(extractMessage(error, 'Fetch profile failed'));
   }
 });
 
@@ -104,9 +109,9 @@ export const authSlice = createSlice({
         state.user = action.payload.user;
         state.role = action.payload.user.role;
       })
-      .addCase(login.rejected, (state, action: PayloadAction<any>) => {
+      .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload as string;
       })
       .addCase(register.pending, state => {
         state.loading = true;
@@ -118,9 +123,9 @@ export const authSlice = createSlice({
         state.user = action.payload.user;
         state.role = action.payload.user.role;
       })
-      .addCase(register.rejected, (state, action: PayloadAction<any>) => {
+      .addCase(register.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload as string;
       })
       .addCase(fetchProfile.pending, state => {
         state.loading = true;
@@ -131,13 +136,12 @@ export const authSlice = createSlice({
         state.user = action.payload;
         state.role = action.payload.role;
       })
-      .addCase(fetchProfile.rejected, (state, action: PayloadAction<any>) => {
+      .addCase(fetchProfile.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload as string;
       });
   }
 });
 
 export const { logout } = authSlice.actions;
-
 export default authSlice.reducer;

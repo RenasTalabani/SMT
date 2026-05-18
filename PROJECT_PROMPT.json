@@ -1,0 +1,316 @@
+{
+  "project": {
+    "name": "Ultimate Gym System",
+    "description": "A full-stack fitness platform with role-based access (admin, coach, client), real-time chat, AI coaching, workout management, courses, tips, analytics, and notifications.",
+    "version": "1.0.0",
+    "status": "In Development",
+    "platforms": ["Web (Next.js)", "Mobile (Flutter)", "Backend (Node.js/Express)"]
+  },
+
+  "architecture": {
+    "type": "Monorepo",
+    "structure": {
+      "backend": "/backend",
+      "web": "/web",
+      "mobile": "/mobile"
+    },
+    "communication": {
+      "rest_api": "HTTP REST via axios (web) / http package (Flutter)",
+      "realtime": "Socket.IO for chat, notifications, typing indicators",
+      "auth": "JWT access + refresh tokens stored in localStorage / secure storage"
+    }
+  },
+
+  "backend": {
+    "runtime": "Node.js",
+    "framework": "Express.js 4.18",
+    "database": "MongoDB via Mongoose 7.5",
+    "entry_point": "server.js",
+    "port": 5000,
+    "dependencies": {
+      "core": ["express", "mongoose", "dotenv", "cors", "helmet", "morgan", "compression"],
+      "auth": ["jsonwebtoken", "bcryptjs", "google-auth-library", "apple-signin-auth"],
+      "realtime": ["socket.io"],
+      "ai": ["openai"],
+      "media": ["cloudinary", "multer"],
+      "scheduling": ["node-cron"],
+      "email": ["nodemailer"],
+      "validation": ["express-validator", "joi"],
+      "logging": ["winston"]
+    },
+    "models": {
+      "User": "roles: admin|coach|client; fields: name, email, password, role, avatar, isApproved, isActive, refreshToken, googleId, appleId",
+      "WorkoutPlan": "title, description, coach (ref User), assignedTo (ref User), category, difficulty, status, exercises[], isTemplate",
+      "Course": "title, description, instructor (ref User), level, category, price, content.weeks[].materials[], enrollmentCount, averageRating, totalRatings, prerequisites[], tags[], thumbnail, isPublished",
+      "Tip": "title, content, author (ref User), category, type (article|video|workout), difficulty, media[], tags[], likes[], bookmarks[], comments[], views, estimatedTime, isPublished",
+      "Exercise": "name, description, category, muscleGroup, difficulty, instructions, mediaUrl",
+      "Progress": "user (ref User), date, type (workout|body), notes, photos[], bodyStats{}",
+      "Notification": "recipient, sender, type, title, message, isRead, readAt, category, priority, actionUrl, data",
+      "Conversation": "isGroup, groupName, groupPhoto, members[], lastMessage, lastMessageText, lastMessageSender, unreadCounts[]",
+      "Message": "conversationId, sender (ref User), content, messageType (text|image|video|file), attachments[], isRead, readAt",
+      "AiChat": "user (ref User), messages[], context",
+      "AiUserProfile": "user (ref User), fitnessGoals, currentFitnessLevel, healthConditions[], preferredWorkouts[]"
+    },
+    "routes": {
+      "/api/auth": "POST /login, POST /register, POST /refresh, POST /logout, GET /me, POST /google, POST /apple",
+      "/api/users": "GET / (list+filter), GET /:id, PUT /:id, DELETE /:id, PUT /:id/approve, GET /coaches",
+      "/api/workouts": "GET /, POST /, GET /:id, PUT /:id, DELETE /:id, POST /:id/assign, POST /request-plan",
+      "/api/courses": "GET /, POST /, GET /:id, PUT /:id, DELETE /:id, POST /:id/enroll, PUT /:id/progress, GET /my-courses, GET /my-progress, PUT /:id/publish, POST /:id/thumbnail",
+      "/api/tips": "GET /, POST /, GET /:id, PUT /:id, DELETE /:id, POST /:id/like, POST /:id/bookmark, GET /:id/comments, POST /:id/comments, POST /:id/media, PUT /:id/publish",
+      "/api/exercises": "GET /, POST /, GET /:id, PUT /:id, DELETE /:id",
+      "/api/progress": "GET /, POST /, GET /:id, POST /:id/photos",
+      "/api/notifications": "GET /, PUT /:id/read, POST /mark-all-read, DELETE /:id",
+      "/api/chat": "POST /conversation/create-direct, POST /conversation/create-group, GET /conversation/list, GET /conversation/:id/messages, PUT /conversation/:id/mark-read, PUT /conversation/:id/mute, DELETE /conversation/:id",
+      "/api/admin": "GET /analytics/users, GET /analytics/courses, GET /analytics/tips, GET /analytics/workouts, GET /analytics/revenue",
+      "/api/ai": "POST /chat, GET /profile, PUT /profile",
+      "/api/upload": "POST / (Cloudinary upload)"
+    },
+    "socket_events": {
+      "client_to_server": [
+        "join_conversation", "leave_conversation",
+        "send_conversation_message",
+        "typing_start_conversation", "typing_stop_conversation",
+        "mark_conversation_read",
+        "send_message", "typing_start", "typing_stop"
+      ],
+      "server_to_client": [
+        "new_conversation_message", "user_typing", "user_stopped_typing",
+        "conversation_marked_read",
+        "new_message", "typing_started", "typing_stopped",
+        "new_notification"
+      ]
+    },
+    "middleware": {
+      "auth": "JWT verification, role guards: adminOnly, coachOnly, clientOnly, isApproved",
+      "upload": "Multer + Cloudinary for images/videos",
+      "rate_limiting": "express-rate-limit on /api/auth endpoints",
+      "logging": "Winston (file) + Morgan (HTTP)",
+      "validation": "express-validator per route, Joi schemas for complex payloads"
+    },
+    "cron": "node-cron for reminder notifications and scheduled tasks",
+    "env_vars": [
+      "PORT", "MONGODB_URI",
+      "JWT_SECRET", "JWT_REFRESH_SECRET", "JWT_EXPIRES_IN", "JWT_REFRESH_EXPIRES_IN",
+      "CLOUDINARY_CLOUD_NAME", "CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET",
+      "OPENAI_API_KEY",
+      "GOOGLE_CLIENT_ID",
+      "APPLE_CLIENT_ID", "APPLE_TEAM_ID", "APPLE_KEY_ID", "APPLE_PRIVATE_KEY",
+      "SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS",
+      "FRONTEND_URL"
+    ]
+  },
+
+  "web": {
+    "framework": "Next.js 16.2 (App Router)",
+    "language": "TypeScript (strict, no 'any')",
+    "react_version": "19.2",
+    "state_management": "Redux Toolkit 2 + react-redux 9",
+    "styling": "Tailwind CSS 4",
+    "api_client": "axios with request interceptor (Bearer token) + response interceptor (auto-refresh on 401, queue failed requests)",
+    "realtime": "socket.io-client 4.8 — singleton socket at module level",
+    "charts": "Recharts 3.8 (BarChart, LineChart, PieChart)",
+    "notifications_ui": "react-hot-toast",
+    "icons": "react-icons 5, @heroicons/react 2",
+    "routing": "Next.js App Router (file-based, server + client components)",
+
+    "app_routes": {
+      "/": "Root redirect based on auth state",
+      "/auth/login": "Login page (email/password) — dispatches login thunk, uses unwrap() + role-based redirect",
+      "/auth/register": "Register page — role selection (client|coach), same pattern",
+      "/admin/dashboard": "Admin home — overview stats",
+      "/admin/users": "User management + coach approval",
+      "/admin/analytics": "Analytics dashboard with charts",
+      "/coach/dashboard": "Coach home",
+      "/coach/workouts": "Workout plan management",
+      "/coach/exercises": "Exercise library",
+      "/coach/courses": "Course management",
+      "/coach/tips": "Tips management",
+      "/client/dashboard": "Client home",
+      "/client/plan": "Request plan from coach + view assigned plans",
+      "/client/courses": "Browse + enroll courses",
+      "/client/courses/[id]": "Course detail (overview, content, progress, reviews tabs)",
+      "/client/tips": "Browse tips",
+      "/client/tips/[id]": "Tip detail (content, like, bookmark, comments)",
+      "/client/progress": "Log and view progress entries",
+      "/client/chat": "Real-time chat (conversations list + message pane)",
+      "/client/notifications": "Notification list"
+    },
+
+    "redux_slices": {
+      "authSlice": {
+        "state": "{ token, user: UserProfile|null, role: admin|coach|client|null, loading, error }",
+        "thunks": "login, register, fetchProfile",
+        "reducers": "logout (clears state + removeAuthToken)"
+      },
+      "workoutsSlice": {
+        "state": "{ plans: WorkoutPlan[], loading, error, pagination, requestLoading, requestSent, requestError }",
+        "thunks": "getWorkouts, createWorkout, assignWorkout, requestPlan"
+      },
+      "coursesSlice": {
+        "state": "{ courses: Course[], currentCourse, enrolledCourses: CourseEnrollment[], loading, error, pagination }",
+        "thunks": "fetchCourses, fetchCourseById, enrollInCourse, updateProgress, fetchMyCourses, fetchMyProgress, clearCurrentCourse"
+      },
+      "tipsSlice": {
+        "state": "{ tips: Tip[], currentTip, loading, error, pagination }",
+        "thunks": "fetchTips, fetchTipById, likeTip, bookmarkTip, fetchTipComments, addTipComment, clearCurrentTip"
+      },
+      "chatSlice": {
+        "state": "{ conversations: Conversation[], currentConversation, messages: Message[], typingUsers, loading, error, unreadCount, hasMore, currentPage }",
+        "thunks": "fetchConversations({}), fetchMessages, createDirectConversation, createGroupConversation, markConversationAsRead, leaveConversation",
+        "reducers": "addMessage, receiveMessage, setCurrentConversation, clearCurrentConversation, addTypingUser, removeTypingUser, markMessageAsRead, resetChat"
+      },
+      "notificationsSlice": {
+        "state": "{ notifications: Notification[], loading, error, unreadCount }",
+        "thunks": "fetchNotifications, markNotificationAsRead, markAllNotificationsAsRead, deleteNotification",
+        "reducers": "addNotification, updateNotificationReadStatus, markAllAsReadLocal, removeNotification, clearNotifications"
+      },
+      "analyticsSlice": {
+        "state": "{ users{}, courses{}, tips{}, workouts{}, revenue{} } — each: { data: AnalyticsData|null, loading, error }",
+        "thunks": "fetchUsersAnalytics, fetchCoursesAnalytics, fetchTipsAnalytics, fetchWorkoutsAnalytics, fetchRevenueAnalytics"
+      },
+      "exercisesSlice": {
+        "state": "{ exercises: Exercise[], loading, error }",
+        "thunks": "fetchExercises, createExercise"
+      },
+      "progressSlice": {
+        "state": "{ entries: ProgressEntry[], loading, error }",
+        "thunks": "fetchProgress, addProgress"
+      },
+      "usersSlice": {
+        "state": "{ users: UserProfile[], loading, error, pagination }",
+        "thunks": "fetchUsers, approveCoach"
+      }
+    },
+
+    "services": {
+      "api.ts": "axios instance, base URL from NEXT_PUBLIC_API_URL, Bearer token interceptor, 401 auto-refresh with queue",
+      "authService.ts": "login(payload), register(payload), getProfile()",
+      "workoutService.ts": "getWorkouts(options), createWorkout(payload), assignWorkout({workoutId,clientId}), getCoaches(), requestPlan({coachId,planType,notes})",
+      "courseService.ts": "getCourses(filters), getCourseById, createCourse, updateCourse, enrollInCourse, updateCourseProgress, getMyCourses, getMyProgress, publishCourse, uploadCourseThumbnail",
+      "tipService.ts": "getTips(filters), getTipById, createTip, updateTip, likeTip, bookmarkTip, getTipComments, addTipComment, publishTip, uploadTipMedia",
+      "exerciseService.ts": "getExercises(page, limit), createExercise(payload)",
+      "progressService.ts": "getProgress(page, limit), addProgress(payload)",
+      "notificationService.ts": "getNotifications, markAsRead(id), markAllAsRead, deleteNotification(id)",
+      "userService.ts": "getAllUsers(options), approveCoach(userId)",
+      "chatService.ts": "conversation and message API wrappers"
+    },
+
+    "key_components": {
+      "AppShell": "Layout shell — Sidebar + header (dark mode toggle, logout, NotificationBell). Dark mode uses lazy useState initializer from localStorage.",
+      "Sidebar": "Role-based nav links; collapses on mobile",
+      "ProtectedRoute": "Checks auth.token + role against allowedRoles; redirects to /auth/login if unauth",
+      "NotificationBell": "Polls/subscribes for notifications; shows unread badge",
+      "CourseCard": "Course listing card with enrollment status indicator",
+      "TipCard": "Tip listing with like/bookmark/view counts",
+      "CourseProgress": "Per-week/material progress with 'Mark Complete' buttons",
+      "CourseContent": "Week accordion with material list",
+      "CourseReviews": "Star ratings display",
+      "TipComments": "Comment list with add-comment form",
+      "FileUpload": "Wraps axios multipart POST to Cloudinary endpoint; exposes onUpload(url) callback",
+      "FilterDropdown": "Category/sort filter UI",
+      "SearchBar": "Debounced search",
+      "Pagination": "Page number controls",
+      "LoadingSpinner": "Centered spinner"
+    },
+
+    "hooks": {
+      "useSocket": "Singleton Socket.IO connection. Token from localStorage. Returns { socket: Socket|null, isConnected }. Socket is module-level variable (not ref) to survive unmounts.",
+      "useChat(conversationId?)": "Joins/leaves conversation room. Listens for new messages, typing, read events. Returns { messages, typingUsers, isConnected, sendConversationMessage, emitTypingStart, markAsRead, sendMessage, emitDirectTyping }"
+    },
+
+    "important_patterns": {
+      "useRef": "Always initialized: useRef<T | undefined>(undefined) — React 19 removed no-arg useRef",
+      "thunk_dispatch": "Thunks with default object params require explicit arg: dispatch(fetchConversations({}))",
+      "error_handling": "catch (e: unknown) — typeof e === 'string' for RTK rejectWithValue, instanceof Error for native errors",
+      "auth_redirect": "dispatch(login(creds)).unwrap() then check result.user.role for routing",
+      "immer_narrowing": "state.currentTip && state.currentTip._id === id (not state.currentTip?._id — optional chaining doesn't narrow)"
+    }
+  },
+
+  "mobile": {
+    "framework": "Flutter",
+    "language": "Dart",
+    "state_management": "Provider pattern (ChangeNotifier)",
+    "api_client": "http package via NetworkProvider (adds Bearer token header)",
+    "auth_storage": "flutter_secure_storage for tokens",
+    "biometric": "biometric_service.dart — local_auth package for fingerprint/Face ID",
+
+    "screens": {
+      "auth/": "Login, Register, Forgot Password",
+      "client/": "Dashboard, Workout viewer, Course viewer, Tips browser, Progress tracker, Chat",
+      "coach/": "Dashboard, Workout builder, Client management",
+      "admin/": "Dashboard, User approval",
+      "ai/": "AI coach chat interface",
+      "splash_screen.dart": "Splash + onboarding"
+    },
+
+    "providers": {
+      "auth_provider.dart": "login, register, logout, refresh token, isAuthenticated",
+      "workout_provider.dart": "fetch/create/assign plans",
+      "course_provider.dart": "listing, enrollment, progress",
+      "tip_provider.dart": "listing, like, bookmark, comments",
+      "chat_provider.dart": "conversations, messages, socket event handling",
+      "notification_provider.dart": "in-app + push notifications",
+      "ai_provider.dart": "OpenAI-backed chat messages",
+      "coach_provider.dart": "coach listing for plan requests",
+      "booking_provider.dart": "session booking (not in web)",
+      "network_provider.dart": "base HTTP client with auth headers + error handling",
+      "anatomy_provider.dart": "muscle anatomy visualization data (not in web)"
+    }
+  },
+
+  "features_matrix": {
+    "authentication": { "web": true, "mobile": true, "methods": ["email/password", "Google", "Apple", "Biometric(mobile-only)"] },
+    "workout_management": { "web": true, "mobile": true, "create": "coach", "assign": "coach", "view": "client" },
+    "plan_request": { "web": true, "mobile": true, "actor": "client requests from coach" },
+    "courses": { "web": true, "mobile": true, "create": "coach/admin", "enroll": "client" },
+    "tips": { "web": true, "mobile": true, "create": "coach/admin", "consume": "all" },
+    "real_time_chat": { "web": true, "mobile": true, "types": ["direct", "group"] },
+    "ai_coach": { "web": true, "mobile": true, "provider": "OpenAI GPT" },
+    "notifications": { "web": true, "mobile": true, "realtime": "Socket.IO", "push": "mobile TBD" },
+    "analytics": { "web": true, "mobile": false, "scope": "admin only" },
+    "progress_tracking": { "web": true, "mobile": true },
+    "body_anatomy": { "web": false, "mobile": true },
+    "session_booking": { "web": false, "mobile": true },
+    "payment": { "web": false, "mobile": false, "note": "price field exists, processing not implemented" }
+  },
+
+  "api_conventions": {
+    "base_url_dev": "http://localhost:5000/api",
+    "base_url_env": "NEXT_PUBLIC_API_URL (web) | base_url in NetworkProvider (Flutter)",
+    "response_success": "{ success: true, data: { ... } }",
+    "response_error": "{ success: false, message: 'Description' }",
+    "auth_header": "Authorization: Bearer <accessToken>",
+    "pagination_query": "?page=1&limit=20",
+    "pagination_response": "{ items: [], pagination: { page, limit, total, pages } }",
+    "uploads": "multipart/form-data POST to /api/upload or specific resource endpoint"
+  },
+
+  "development": {
+    "start_backend": "cd backend && npm run dev  (nodemon, port 5000)",
+    "start_web": "cd web && npm run dev  (Next.js, port 3000)",
+    "start_mobile": "cd mobile && flutter run",
+    "docker": "cd backend && docker-compose up",
+    "lint_web": "cd web && npx eslint . --ext .ts,.tsx",
+    "build_web": "cd web && npm run build",
+    "seed_db": "cd backend && node seed.js"
+  },
+
+  "code_quality": {
+    "typescript_strict": true,
+    "no_any_types": true,
+    "eslint_errors": 0,
+    "eslint_warnings": 17,
+    "warning_types": ["@next/next/no-img-element (use next/image for production)", "@typescript-eslint/no-unused-vars (unused imports)"],
+    "react_19_notes": [
+      "useRef<T | undefined>(undefined) — initial value required",
+      "React.SyntheticEvent<HTMLFormElement> replaces deprecated FormEvent in some contexts",
+      "Components defined inside render functions lose state — define at module level"
+    ],
+    "rtk_notes": [
+      "Thunks with default-valued object params still need {} at call site",
+      "Do not annotate .rejected handlers with PayloadAction — use action.payload as string",
+      "Immer optional chaining (?.) does not narrow type — use && for control flow"
+    ]
+  }
+}

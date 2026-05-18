@@ -18,7 +18,7 @@ export default function CoursesPage() {
 
   useEffect(() => {
     dispatch(fetchCategories());
-    dispatch(fetchCourses());
+    dispatch(fetchCourses({}));
   }, [dispatch]);
 
   const handleSearch = (query: string) => {
@@ -41,7 +41,7 @@ export default function CoursesPage() {
   const handleResetFilters = () => {
     dispatch(resetFilters());
     setSearchQuery('');
-    dispatch(fetchCourses());
+    dispatch(fetchCourses({}));
   };
 
   return (

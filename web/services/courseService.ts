@@ -28,7 +28,7 @@ export interface CourseEnrollment {
 }
 
 export async function getCourses(filters: CourseFilters = {}) {
-  const params: any = { ...filters };
+  const params = { ...filters };
   const res = await api.get('/courses', { params });
   return res.data.data;
 }
@@ -38,12 +38,12 @@ export async function getCourseById(courseId: string) {
   return res.data.data.course;
 }
 
-export async function createCourse(courseData: any) {
+export async function createCourse(courseData: Record<string, unknown>) {
   const res = await api.post('/courses', courseData);
   return res.data.data.course;
 }
 
-export async function updateCourse(courseId: string, updates: any) {
+export async function updateCourse(courseId: string, updates: Record<string, unknown>) {
   const res = await api.put(`/courses/${courseId}`, updates);
   return res.data.data.course;
 }
@@ -58,7 +58,7 @@ export async function enrollInCourse(courseId: string) {
   return res.data.data.enrollment;
 }
 
-export async function updateCourseProgress(courseId: string, progress: any) {
+export async function updateCourseProgress(courseId: string, progress: Record<string, unknown>) {
   const res = await api.put(`/courses/${courseId}/progress`, progress);
   return res.data.data.progress;
 }

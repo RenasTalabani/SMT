@@ -11,7 +11,7 @@ export interface Message {
   };
   content: string;
   messageType: 'text' | 'image' | 'video' | 'file';
-  attachments?: any[];
+  attachments?: Record<string, unknown>[];
   isRead: boolean;
   readAt?: string;
   createdAt: string;
@@ -22,10 +22,10 @@ export interface Conversation {
   isGroup: boolean;
   groupName?: string;
   groupPhoto?: string;
-  members: any[];
+  members: { _id: string; name: string; avatar?: string }[];
   lastMessage?: Message;
   lastMessageText?: string;
-  lastMessageSender?: any;
+  lastMessageSender?: { _id: string; name: string; avatar?: string };
   unreadCounts?: Array<{ userId: string; unreadCount: number }>;
   createdAt: string;
   updatedAt: string;
@@ -67,9 +67,10 @@ export const fetchConversations = createAsyncThunk(
         params: { page, limit }
       });
       return data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to fetch conversations';
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || 'Failed to fetch conversations'
+        (error as { response?: { data?: { message?: string } } }).response?.data?.message || msg
       );
     }
   }
@@ -93,9 +94,10 @@ export const fetchMessages = createAsyncThunk(
         }
       );
       return { messages: data.data.messages, pagination: data.data.pagination };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to fetch messages';
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || 'Failed to fetch messages'
+        (error as { response?: { data?: { message?: string } } }).response?.data?.message || msg
       );
     }
   }
@@ -109,9 +111,10 @@ export const createDirectConversation = createAsyncThunk(
         otherUserId
       });
       return data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to create conversation';
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || 'Failed to create conversation'
+        (error as { response?: { data?: { message?: string } } }).response?.data?.message || msg
       );
     }
   }
@@ -129,9 +132,10 @@ export const createGroupConversation = createAsyncThunk(
         memberIds
       });
       return data.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to create group';
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || 'Failed to create group'
+        (error as { response?: { data?: { message?: string } } }).response?.data?.message || msg
       );
     }
   }
@@ -143,9 +147,10 @@ export const markConversationAsRead = createAsyncThunk(
     try {
       await api.put(`/chat/conversation/${conversationId}/mark-read`);
       return conversationId;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to mark as read';
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || 'Failed to mark as read'
+        (error as { response?: { data?: { message?: string } } }).response?.data?.message || msg
       );
     }
   }
@@ -157,9 +162,10 @@ export const toggleConversationMute = createAsyncThunk(
     try {
       await api.put(`/chat/conversation/${conversationId}/mute`);
       return conversationId;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to toggle mute';
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || 'Failed to toggle mute'
+        (error as { response?: { data?: { message?: string } } }).response?.data?.message || msg
       );
     }
   }
@@ -171,9 +177,10 @@ export const leaveConversation = createAsyncThunk(
     try {
       await api.delete(`/chat/conversation/${conversationId}`);
       return conversationId;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to leave';
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || 'Failed to leave'
+        (error as { response?: { data?: { message?: string } } }).response?.data?.message || msg
       );
     }
   }
@@ -272,7 +279,7 @@ const chatSlice = createSlice({
           state,
           action: PayloadAction<{
             conversations: Conversation[];
-            pagination: any;
+            pagination: { page: number; pages: number };
           }>
         ) => {
           state.loading = false;
@@ -297,7 +304,7 @@ const chatSlice = createSlice({
         fetchMessages.fulfilled,
         (
           state,
-          action: PayloadAction<{ messages: Message[]; pagination: any }>
+          action: PayloadAction<{ messages: Message[]; pagination: { page: number; pages: number } }>
         ) => {
           state.loading = false;
           state.messages = action.payload.messages;

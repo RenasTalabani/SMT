@@ -5,7 +5,7 @@ export async function getExercises(page = 1, limit = 20) {
   return res.data.data;
 }
 
-export async function createExercise(payload: any) {
+export async function createExercise(payload: Record<string, unknown>) {
   const res = await api.post('/exercises', payload);
   return res.data.data.exercise;
 }

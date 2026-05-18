@@ -115,8 +115,9 @@ export const fetchCourses = createAsyncThunk(
 
       const response = await api.get(`/courses?${queryParams.toString()}`);
       return response.data.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch courses');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to fetch courses';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -127,8 +128,9 @@ export const fetchCourseById = createAsyncThunk(
     try {
       const response = await api.get(`/courses/${courseId}`);
       return response.data.data.course;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch course');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to fetch course';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -139,8 +141,9 @@ export const createCourse = createAsyncThunk(
     try {
       const response = await api.post('/courses', courseData);
       return response.data.data.course;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to create course');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to create course';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -151,8 +154,9 @@ export const updateCourse = createAsyncThunk(
     try {
       const response = await api.put(`/courses/${courseId}`, updates);
       return response.data.data.course;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to update course');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to update course';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -163,8 +167,9 @@ export const deleteCourse = createAsyncThunk(
     try {
       await api.delete(`/courses/${courseId}`);
       return courseId;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to delete course');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to delete course';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -175,20 +180,22 @@ export const enrollInCourse = createAsyncThunk(
     try {
       const response = await api.post(`/courses/${courseId}/enroll`);
       return response.data.data.enrollment;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to enroll in course');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to enroll in course';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
 
 export const updateProgress = createAsyncThunk(
   'courses/updateProgress',
-  async ({ courseId, progress }: { courseId: string; progress: any }, { rejectWithValue }) => {
+  async ({ courseId, progress }: { courseId: string; progress: Record<string, unknown> }, { rejectWithValue }) => {
     try {
       const response = await api.put(`/courses/${courseId}/progress`, progress);
       return response.data.data.progress;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to update progress');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to update progress';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -199,8 +206,9 @@ export const fetchMyCourses = createAsyncThunk(
     try {
       const response = await api.get('/courses/my-courses');
       return response.data.data.courses;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch my courses');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to fetch my courses';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -211,8 +219,9 @@ export const fetchMyProgress = createAsyncThunk(
     try {
       const response = await api.get('/courses/my-progress');
       return response.data.data.progress;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch progress');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to fetch progress';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -223,8 +232,9 @@ export const fetchCategories = createAsyncThunk(
     try {
       const response = await api.get('/courses/categories');
       return response.data.data.categories;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch categories');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to fetch categories';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -242,8 +252,9 @@ export const uploadCourseThumbnail = createAsyncThunk(
         },
       });
       return response.data.data.thumbnail;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to upload thumbnail');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to upload thumbnail';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );
@@ -254,8 +265,9 @@ export const publishCourse = createAsyncThunk(
     try {
       await api.put(`/courses/${courseId}/publish`, { isPublished });
       return { courseId, isPublished };
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to publish course');
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Failed to publish course';
+      return rejectWithValue((error as { response?: { data?: { message?: string } } }).response?.data?.message || msg);
     }
   }
 );

@@ -8,8 +8,9 @@ import { useChat } from '@/hooks/useChat';
 import {
   fetchConversations,
   setCurrentConversation,
-  createDirectConversation,
-  fetchMessages
+  fetchMessages,
+  Conversation,
+  Message
 } from '@/store/chatSlice';
 import { AiOutlineSend, AiOutlineSmile, AiOutlinePaperClip, AiOutlinePlus } from 'react-icons/ai';
 import { BsSearch } from 'react-icons/bs';
@@ -29,7 +30,7 @@ export default function ClientChatPage() {
   const [showNewChat, setShowNewChat] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const typingTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const {
     typingUsers,
@@ -39,12 +40,10 @@ export default function ClientChatPage() {
     markAsRead
   } = useChat(currentConversation?._id);
 
-  // Load conversations on mount
   useEffect(() => {
-    dispatch(fetchConversations() as any);
+    dispatch(fetchConversations({}));
   }, [dispatch]);
 
-  // Load messages when conversation changes
   useEffect(() => {
     if (currentConversation) {
       dispatch(
@@ -52,26 +51,22 @@ export default function ClientChatPage() {
           conversationId: currentConversation._id,
           page: 1,
           limit: 50
-        }) as any
+        })
       );
       markAsRead();
     }
   }, [currentConversation, dispatch, markAsRead]);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Handle send message
   const handleSendMessage = () => {
     if (!messageInput.trim() || !currentConversation || !isConnected) return;
-
     sendConversationMessage(messageInput, 'text', []);
     setMessageInput('');
   };
 
-  // Handle typing
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessageInput(e.target.value);
 
@@ -89,39 +84,25 @@ export default function ClientChatPage() {
     }, 1000);
   };
 
-  // Select conversation
-  const handleSelectConversation = (conversation: any) => {
+  const handleSelectConversation = (conversation: Conversation) => {
     dispatch(setCurrentConversation(conversation));
   };
 
-  // Filter conversations by search
-  const filteredConversations = conversations.filter(conv => {
+  const filteredConversations = conversations.filter((conv: Conversation) => {
     const displayName = conv.isGroup
       ? conv.groupName
-      : conv.members
-          .find((m: any) => m._id !== auth.user?._id)
-          ?.name || 'Unknown';
-    return displayName.toLowerCase().includes(searchQuery.toLowerCase());
+      : conv.members.find(m => m._id !== auth.user?._id)?.name || 'Unknown';
+    return displayName?.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
-  // Get unread count for conversation
-  const getUnreadCount = (conv: any) => {
-    const unreadEntry = conv.unreadCounts?.find(
-      (u: any) => u.userId === auth.user?._id
-    );
+  const getUnreadCount = (conv: Conversation) => {
+    const unreadEntry = conv.unreadCounts?.find(u => u.userId === auth.user?._id);
     return unreadEntry?.unreadCount || 0;
   };
 
-  // Get conversation display name
-  const getConversationName = (conv: any) => {
-    if (conv.isGroup) {
-      return conv.groupName;
-    }
-    return (
-      conv.members
-        .find((m: any) => m._id !== auth.user?._id)
-        ?.name || 'Unknown'
-    );
+  const getConversationName = (conv: Conversation) => {
+    if (conv.isGroup) return conv.groupName;
+    return conv.members.find(m => m._id !== auth.user?._id)?.name || 'Unknown';
   };
 
   return (
@@ -167,7 +148,7 @@ export default function ClientChatPage() {
                 </div>
               )}
 
-              {filteredConversations.map((conv: any) => {
+              {filteredConversations.map((conv: Conversation) => {
                 const unreadCount = getUnreadCount(conv);
                 const displayName = getConversationName(conv);
 
@@ -224,7 +205,7 @@ export default function ClientChatPage() {
                     </div>
                   )}
 
-                  {messages.map((msg: any) => (
+                  {messages.map((msg: Message) => (
                     <div
                       key={msg._id}
                       className={`flex ${

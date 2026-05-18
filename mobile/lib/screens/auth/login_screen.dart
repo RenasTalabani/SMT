@@ -1,6 +1,5 @@
-import 'dart:io' show Platform;
-
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -315,7 +314,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           onPressed: isLoading ? null : _loginWithFacebook,
                         ),
                       ),
-                      if (Platform.isIOS) ...[
+                      if (!kIsWeb) ...[
                         const SizedBox(width: 10),
                         Expanded(
                           child: FutureBuilder<bool>(

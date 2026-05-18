@@ -162,7 +162,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
             // Our Coaches
             if (coachState.coaches.isNotEmpty) ...[
-              _SectionHeader(
+              const _SectionHeader(
                 title: 'Our Coaches',
                 actionLabel: 'See All',
                 actionRoute: '/client/coaches',
@@ -696,25 +696,25 @@ class _AiCoachSection extends StatelessWidget {
                 ),
               ]),
               const SizedBox(height: 14),
-              Row(children: [
+              const Row(children: [
                 Expanded(child: _AiTile(
                   icon: Icons.chat_bubble_outline_rounded,
                   label: 'Chat',
                   route: '/client/ai/chat',
                 )),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Expanded(child: _AiTile(
                   icon: Icons.auto_awesome_rounded,
                   label: 'Workout',
                   route: '/client/ai/workout',
                 )),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Expanded(child: _AiTile(
                   icon: Icons.restaurant_menu_rounded,
                   label: 'Nutrition',
                   route: '/client/ai/nutrition',
                 )),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Expanded(child: _AiTile(
                   icon: Icons.bar_chart_rounded,
                   label: 'Progress',
@@ -940,9 +940,9 @@ class _CoachInsightCard extends ConsumerWidget {
                     color: color, size: 16),
               ),
               const SizedBox(width: 8),
-              Text(
+              const Text(
                 'AI Coach Insights',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF0F172A),
@@ -1042,13 +1042,13 @@ class _CoachInsightCard extends ConsumerWidget {
               ref.read(aiInsightsProvider.notifier).refresh();
               ref.read(aiInsightsProvider.notifier).loadInsights();
             },
-            child: Row(
+            child: const Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const Icon(Icons.refresh_rounded,
+                Icon(Icons.refresh_rounded,
                     size: 13, color: Color(0xFF94A3B8)),
-                const SizedBox(width: 4),
-                const Text(
+                SizedBox(width: 4),
+                Text(
                   'Refresh insights',
                   style: TextStyle(
                     fontSize: 11,

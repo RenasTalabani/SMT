@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { login } from '@/store/authSlice';
@@ -14,15 +14,16 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const result = await dispatch(login({ email, password }));
-
-    if ((result as any).type === 'auth/login/fulfilled') {
-      const role = (result as any).payload.user.role;
+    try {
+      const result = await dispatch(login({ email, password })).unwrap();
+      const role = result.user.role;
       if (role === 'admin') router.push('/admin/dashboard');
       else if (role === 'coach') router.push('/coach/dashboard');
       else router.push('/client/dashboard');
+    } catch {
+      // error is already stored in auth.error via the slice
     }
   };
 
@@ -32,20 +33,24 @@ export default function LoginPage() {
         <h1 className="mb-4 text-3xl font-bold">Login to Ultimate Gym</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">Email</label>
+            <label htmlFor="login-email" className="block text-sm font-medium text-slate-700 dark:text-slate-200">Email</label>
             <input
+              id="login-email"
               type="email"
               required
+              placeholder="you@example.com"
               value={email}
               onChange={e => setEmail(e.target.value)}
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">Password</label>
+            <label htmlFor="login-password" className="block text-sm font-medium text-slate-700 dark:text-slate-200">Password</label>
             <input
+              id="login-password"
               type="password"
               required
+              placeholder="••••••••"
               value={password}
               onChange={e => setPassword(e.target.value)}
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
@@ -61,7 +66,7 @@ export default function LoginPage() {
           {auth.error && <p className="text-sm text-red-500">{auth.error}</p>}
         </form>
         <p className="mt-4 text-sm text-slate-500 dark:text-slate-300">
-          Don't have an account? <Link href="/auth/register" className="text-blue-600 hover:text-blue-700">Register</Link>
+          Don&apos;t have an account? <Link href="/auth/register" className="text-blue-600 hover:text-blue-700">Register</Link>
         </p>
       </div>
     </div>

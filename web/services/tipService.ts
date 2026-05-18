@@ -12,7 +12,7 @@ export interface TipFilters {
 }
 
 export async function getTips(filters: TipFilters = {}) {
-  const params: any = { ...filters };
+  const params = { ...filters };
   const res = await api.get('/tips', { params });
   return res.data.data;
 }
@@ -22,12 +22,12 @@ export async function getTipById(tipId: string) {
   return res.data.data.tip;
 }
 
-export async function createTip(tipData: any) {
+export async function createTip(tipData: Record<string, unknown>) {
   const res = await api.post('/tips', tipData);
   return res.data.data.tip;
 }
 
-export async function updateTip(tipId: string, updates: any) {
+export async function updateTip(tipId: string, updates: Record<string, unknown>) {
   const res = await api.put(`/tips/${tipId}`, updates);
   return res.data.data.tip;
 }

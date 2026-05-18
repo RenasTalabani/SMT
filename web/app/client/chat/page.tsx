@@ -8,7 +8,9 @@ import { useChat } from '@/hooks/useChat';
 import {
   fetchConversations,
   setCurrentConversation,
-  fetchMessages
+  fetchMessages,
+  Conversation,
+  Message
 } from '@/store/chatSlice';
 import { AiOutlineSend, AiOutlineSmile, AiOutlinePaperClip, AiOutlinePlus } from 'react-icons/ai';
 import { BsSearch } from 'react-icons/bs';
@@ -27,7 +29,7 @@ export default function ClientChatPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const typingTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const {
     typingUsers,
@@ -38,7 +40,7 @@ export default function ClientChatPage() {
   } = useChat(currentConversation?._id);
 
   useEffect(() => {
-    dispatch(fetchConversations() as any);
+    dispatch(fetchConversations({}));
   }, [dispatch]);
 
   useEffect(() => {
@@ -48,7 +50,7 @@ export default function ClientChatPage() {
           conversationId: currentConversation._id,
           page: 1,
           limit: 50
-        }) as any
+        })
       );
       markAsRead();
     }
@@ -78,29 +80,25 @@ export default function ClientChatPage() {
     }, 1000);
   };
 
-  const handleSelectConversation = (conversation: any) => {
+  const handleSelectConversation = (conversation: Conversation) => {
     dispatch(setCurrentConversation(conversation));
   };
 
-  const filteredConversations = conversations.filter(conv => {
+  const filteredConversations = conversations.filter((conv: Conversation) => {
     const displayName = conv.isGroup
       ? conv.groupName
-      : conv.members.find((m: any) => m._id !== auth.user?._id)?.name || 'Unknown';
-    return displayName.toLowerCase().includes(searchQuery.toLowerCase());
+      : conv.members.find(m => m._id !== auth.user?._id)?.name || 'Unknown';
+    return displayName?.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
-  const getUnreadCount = (conv: any) => {
-    const unreadEntry = conv.unreadCounts?.find(
-      (u: any) => u.userId === auth.user?._id
-    );
+  const getUnreadCount = (conv: Conversation) => {
+    const unreadEntry = conv.unreadCounts?.find(u => u.userId === auth.user?._id);
     return unreadEntry?.unreadCount || 0;
   };
 
-  const getConversationName = (conv: any) => {
-    if (conv.isGroup) {
-      return conv.groupName;
-    }
-    return conv.members.find((m: any) => m._id !== auth.user?._id)?.name || 'Unknown';
+  const getConversationName = (conv: Conversation) => {
+    if (conv.isGroup) return conv.groupName;
+    return conv.members.find(m => m._id !== auth.user?._id)?.name || 'Unknown';
   };
 
   return (
@@ -129,7 +127,7 @@ export default function ClientChatPage() {
               {!loading && filteredConversations.length === 0 && (
                 <div className="p-4 text-center text-slate-500">No conversations yet</div>
               )}
-              {filteredConversations.map((conv: any) => {
+              {filteredConversations.map((conv: Conversation) => {
                 const unreadCount = getUnreadCount(conv);
                 const displayName = getConversationName(conv);
                 return (
@@ -171,7 +169,7 @@ export default function ClientChatPage() {
                       <p className="text-slate-500">No messages yet. Start the conversation!</p>
                     </div>
                   )}
-                  {messages.map((msg: any) => (
+                  {messages.map((msg: Message) => (
                     <div
                       key={msg._id}
                       className={`flex ${
