@@ -1,9 +1,15 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '@/services/api';
 
+export interface DistributionItem {
+  _id: string;
+  count: number;
+  [key: string]: unknown;
+}
+
 export interface AnalyticsData {
-  overview: Record<string, unknown>;
-  distribution: Record<string, unknown>;
+  overview: Record<string, number | string>;
+  distribution: Record<string, DistributionItem[]>;
   growth: Record<string, unknown>[];
   topItems?: Record<string, unknown>[];
   engagement?: Record<string, unknown>[];

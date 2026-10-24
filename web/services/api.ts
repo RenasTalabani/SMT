@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getAuthToken, getRefreshToken, removeAuthToken, setAuthToken, setRefreshToken } from '@/lib/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -28,11 +29,9 @@ const processQueue = (error: unknown, token: string | null = null) => {
 };
 
 api.interceptors.request.use(req => {
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      req.headers.Authorization = `Bearer ${token}`;
-    }
+  const token = getAuthToken();
+  if (token) {
+    req.headers.Authorization = `Bearer ${token}`;
   }
   return req;
 });
@@ -61,12 +60,25 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       return new Promise((resolve, reject) => {
-        const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
+        const refreshToken = getRefreshToken();
+        if (!refreshToken) {
+          isRefreshing = false;
+          processQueue(error, null);
+          if (typeof window !== 'undefined') {
+            removeAuthToken();
+            window.location.href = '/auth/login';
+          }
+          reject(error);
+          return;
+        }
         api.post('/auth/refresh', { refreshToken })
           .then(({ data }) => {
             if (data.success) {
-              const { accessToken } = data.data;
-              localStorage.setItem('accessToken', accessToken);
+              const { accessToken, refreshToken: nextRefresh } = data.data;
+              setAuthToken(accessToken);
+              // The server rotates refresh tokens — keep the new one or the
+              // next refresh would be rejected as "revoked".
+              if (nextRefresh) setRefreshToken(nextRefresh);
               api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
               processQueue(null, accessToken);
               resolve(api(originalRequest));
@@ -78,7 +90,7 @@ api.interceptors.response.use(
           .catch(err => {
             processQueue(err, null);
             if (typeof window !== 'undefined') {
-              localStorage.removeItem('accessToken');
+              removeAuthToken();
               window.location.href = '/auth/login';
             }
             reject(err);

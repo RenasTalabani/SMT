@@ -55,7 +55,14 @@ async function getAvailableSlots(coachId, from, to) {
       }).select('slot.startTime slot.endTime');
 
       const bookedTimes = new Set(booked.map((b) => b.slot.startTime));
-      const available = allSlots.filter((s) => !bookedTimes.has(s.startTime));
+      const now = Date.now();
+      const available = allSlots.filter((s) => {
+        if (bookedTimes.has(s.startTime)) return false;
+        const [h, m] = s.startTime.split(':').map(Number);
+        const startsAt = new Date(cursor);
+        startsAt.setHours(h, m, 0, 0);
+        return startsAt.getTime() > now; // hide times that already passed today
+      });
 
       if (available.length) {
         results.push({ date: new Date(cursor), slots: available });
@@ -78,6 +85,10 @@ async function createBooking(clientId, data) {
 
   // The requested slot must be one the coach actually offers on that day.
   const day = new Date(date);
+  const [sh, sm] = String(startTime).split(':').map(Number);
+  const startsAt = new Date(day);
+  startsAt.setHours(sh, sm, 0, 0);
+  if (startsAt.getTime() <= Date.now()) throw new AppError('This time has already passed', 400);
   const offered = generateSlots(availability, day, availability.sessionDurationMin, availability.bufferMin);
   const blocked = (availability.blockedDates || []).some((d) => d.toDateString() === day.toDateString());
   if (blocked || !offered.some((s) => s.startTime === startTime && s.endTime === endTime)) {

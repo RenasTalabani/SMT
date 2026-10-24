@@ -224,6 +224,7 @@ export default function AdminAnalytics() {
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="count"
+                    nameKey="_id"
                   >
                     {(users.data?.distribution?.byRole || []).map((_: unknown, index: number) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

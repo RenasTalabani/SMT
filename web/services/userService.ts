@@ -21,6 +21,7 @@ export async function getAllUsers(options: UserFilterOptions = {}) {
 }
 
 export async function approveCoach(userId: string) {
-  const res = await api.put(`/users/${userId}`, { isApproved: true });
-  return res.data.data.user;
+  // The general PUT /users/:id ignores isApproved — use the admin approve route.
+  const res = await api.put(`/users/${userId}/approve`, { isApproved: true });
+  return res.data.data?.user;
 }

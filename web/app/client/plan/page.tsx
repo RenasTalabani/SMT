@@ -6,6 +6,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { getWorkouts, requestPlan } from '@/store/workoutsSlice';
 import * as workoutService from '@/services/workoutService';
+import PlanDays from '@/components/PlanDays';
 
 const PLAN_TYPES = [
   { id: 'HIIT', label: 'HIIT', icon: '⚡', desc: 'High-intensity interval training for max calorie burn', category: 'cardio' },
@@ -93,6 +94,7 @@ export default function ClientPlan() {
                         Category: {plan.category.replace('_', ' ')}
                       </p>
                     )}
+                    <PlanDays planId={plan._id} />
                   </li>
                 ))}
               </ul>

@@ -5,7 +5,9 @@ const { objectId } = require('../../middlewares/validate.middleware');
 
 const createBooking = Joi.object({
   coachId:   objectId.required(),
-  date:      Joi.date().min('now').required(),
+  // The day of the session (slot lists return local midnight). Whether the
+  // exact start time is still in the future is checked in the service.
+  date:      Joi.date().required(),
   startTime: Joi.string().pattern(/^\d{2}:\d{2}$/).required(),
   endTime:   Joi.string().pattern(/^\d{2}:\d{2}$/).required(),
   type:      Joi.string().valid('personal_training','nutrition_consult','assessment','group_class','online').default('personal_training'),
