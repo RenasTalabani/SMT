@@ -2,6 +2,7 @@
 backend/node_modules/
 backend/.env
 backend/uploads/
+backend/.demo-db/
 backend/server.log
 backend/*.log
 

@@ -475,7 +475,7 @@ const seedDatabase = async () => {
     await BodyPart.insertMany([
       // ── MUSCLES – Upper Body ────────────────────────────────────────────────
       {
-        partId: 'pectoralis_major', name: 'Pectoralis Major', nameAr: 'العضلة الصدرية الكبرى', nameKu: 'Pectoralis Major',
+        partId: 'pectoralis_major', name: 'Pectoralis Major', nameAr: 'العضلة الصدرية الكبرى', nameKu: 'ماسولکەی گەورەی سنگ',
         type: 'muscle', region: 'upper_body', side: 'both',
         description: 'The large fan-shaped muscle that covers most of the chest.',
         function: 'Flexion, adduction, and internal rotation of the arm. Primary pushing muscle.',
@@ -490,7 +490,7 @@ const seedDatabase = async () => {
         isActive: true,
       },
       {
-        partId: 'biceps_brachii', name: 'Biceps Brachii', nameAr: 'العضلة ذات الرأسين', nameKu: 'Biceps Brachii',
+        partId: 'biceps_brachii', name: 'Biceps Brachii', nameAr: 'العضلة ذات الرأسين', nameKu: 'ماسولکەی دوو سەری باسک',
         type: 'muscle', region: 'upper_body', side: 'both',
         description: 'A two-headed muscle located on the front of the upper arm.',
         function: 'Flexion and supination of the forearm. Assists in shoulder flexion.',
@@ -505,7 +505,7 @@ const seedDatabase = async () => {
         isActive: true,
       },
       {
-        partId: 'triceps_brachii', name: 'Triceps Brachii', nameAr: 'العضلة ثلاثية الرؤوس', nameKu: 'Triceps Brachii',
+        partId: 'triceps_brachii', name: 'Triceps Brachii', nameAr: 'العضلة ثلاثية الرؤوس', nameKu: 'ماسولکەی سێ سەری باسک',
         type: 'muscle', region: 'upper_body', side: 'both',
         description: 'A three-headed muscle on the back of the upper arm.',
         function: 'Extension of the forearm at the elbow. Primary pushing muscle.',
@@ -520,7 +520,7 @@ const seedDatabase = async () => {
         isActive: true,
       },
       {
-        partId: 'deltoid', name: 'Deltoid', nameAr: 'العضلة الدالية', nameKu: 'Deltoid',
+        partId: 'deltoid', name: 'Deltoid', nameAr: 'العضلة الدالية', nameKu: 'ماسولکەی شان',
         type: 'muscle', region: 'upper_body', side: 'both',
         description: 'The triangular muscle forming the rounded contour of the shoulder.',
         function: 'Abduction, flexion, and extension of the arm at the shoulder.',
@@ -535,7 +535,7 @@ const seedDatabase = async () => {
         isActive: true,
       },
       {
-        partId: 'latissimus_dorsi', name: 'Latissimus Dorsi', nameAr: 'العضلة الظهرية العريضة', nameKu: 'Latissimus Dorsi',
+        partId: 'latissimus_dorsi', name: 'Latissimus Dorsi', nameAr: 'العضلة الظهرية العريضة', nameKu: 'ماسولکەی پانی پشت',
         type: 'muscle', region: 'upper_body', side: 'both',
         description: 'The broadest muscle of the back, forming the V-shape.',
         function: 'Extension, adduction, and internal rotation of the arm. Pulls the arm downward and backward.',
@@ -550,7 +550,7 @@ const seedDatabase = async () => {
         isActive: true,
       },
       {
-        partId: 'trapezius', name: 'Trapezius', nameAr: 'العضلة الشبه منحرفة', nameKu: 'Trapezius',
+        partId: 'trapezius', name: 'Trapezius', nameAr: 'العضلة الشبه منحرفة', nameKu: 'ماسولکەی تراپیزیۆس (پشتی مل)',
         type: 'muscle', region: 'upper_body', side: 'both',
         description: 'A large trapezoid-shaped muscle spanning the neck, shoulders, and back.',
         function: 'Elevation, retraction, and depression of the scapula. Head and neck extension.',
@@ -566,7 +566,7 @@ const seedDatabase = async () => {
       },
       // ── MUSCLES – Core ──────────────────────────────────────────────────────
       {
-        partId: 'rectus_abdominis', name: 'Rectus Abdominis', nameAr: 'عضلة البطن المستقيمة', nameKu: 'Rectus Abdominis',
+        partId: 'rectus_abdominis', name: 'Rectus Abdominis', nameAr: 'عضلة البطن المستقيمة', nameKu: 'ماسولکەی ڕاستی سک',
         type: 'muscle', region: 'core', side: 'center',
         description: 'The "six-pack" muscle running vertically along the front of the abdomen.',
         function: 'Flexion of the lumbar spine. Compression of the abdominal cavity.',
@@ -581,7 +581,7 @@ const seedDatabase = async () => {
         isActive: true,
       },
       {
-        partId: 'obliques', name: 'Obliques', nameAr: 'عضلات البطن المائلة', nameKu: 'Obliques',
+        partId: 'obliques', name: 'Obliques', nameAr: 'عضلات البطن المائلة', nameKu: 'ماسولکە لارەکانی سک',
         type: 'muscle', region: 'core', side: 'both',
         description: 'External and internal obliques forming the sides of the abdominal wall.',
         function: 'Rotation and lateral flexion of the trunk. Compresses abdominal contents.',
@@ -596,7 +596,7 @@ const seedDatabase = async () => {
         isActive: true,
       },
       {
-        partId: 'erector_spinae', name: 'Erector Spinae', nameAr: 'عضلات القامة', nameKu: 'Erector Spinae',
+        partId: 'erector_spinae', name: 'Erector Spinae', nameAr: 'عضلات القامة', nameKu: 'ماسولکەکانی ڕاگری بڕبڕە',
         type: 'muscle', region: 'core', side: 'both',
         description: 'A group of muscles running along the length of the spine.',
         function: 'Extension and lateral flexion of the spine. Maintains upright posture.',
@@ -612,7 +612,7 @@ const seedDatabase = async () => {
       },
       // ── MUSCLES – Lower Body ────────────────────────────────────────────────
       {
-        partId: 'quadriceps', name: 'Quadriceps', nameAr: 'عضلة الفخذ الرباعية الرؤوس', nameKu: 'Quadriceps',
+        partId: 'quadriceps', name: 'Quadriceps', nameAr: 'عضلة الفخذ الرباعية الرؤوس', nameKu: 'ماسولکەی چوار سەری ڕان',
         type: 'muscle', region: 'lower_body', side: 'both',
         description: 'A group of four muscles on the front of the thigh.',
         function: 'Extension of the knee. Rectus femoris also flexes the hip.',
@@ -627,7 +627,7 @@ const seedDatabase = async () => {
         isActive: true,
       },
       {
-        partId: 'hamstrings', name: 'Hamstrings', nameAr: 'عضلات الفخذ الخلفية', nameKu: 'Hamstrings',
+        partId: 'hamstrings', name: 'Hamstrings', nameAr: 'عضلات الفخذ الخلفية', nameKu: 'ماسولکەکانی پشتی ڕان',
         type: 'muscle', region: 'lower_body', side: 'both',
         description: 'Three muscles on the back of the thigh: biceps femoris, semitendinosus, semimembranosus.',
         function: 'Flexion of the knee and extension of the hip.',
@@ -642,7 +642,7 @@ const seedDatabase = async () => {
         isActive: true,
       },
       {
-        partId: 'gluteus_maximus', name: 'Gluteus Maximus', nameAr: 'العضلة الألوية الكبرى', nameKu: 'Gluteus Maximus',
+        partId: 'gluteus_maximus', name: 'Gluteus Maximus', nameAr: 'العضلة الألوية الكبرى', nameKu: 'ماسولکەی گەورەی سمت',
         type: 'muscle', region: 'lower_body', side: 'both',
         description: 'The largest and most superficial of the gluteal muscles.',
         function: 'Extension and external rotation of the hip. Critical for running and jumping.',
@@ -657,7 +657,7 @@ const seedDatabase = async () => {
         isActive: true,
       },
       {
-        partId: 'gastrocnemius', name: 'Gastrocnemius', nameAr: 'عضلة الساق', nameKu: 'Gastrocnemius',
+        partId: 'gastrocnemius', name: 'Gastrocnemius', nameAr: 'عضلة الساق', nameKu: 'ماسولکەی پشتی لاق',
         type: 'muscle', region: 'lower_body', side: 'both',
         description: 'The two-headed calf muscle forming the rounded contour of the lower leg.',
         function: 'Plantarflexion of the foot. Assists in knee flexion.',
@@ -673,7 +673,7 @@ const seedDatabase = async () => {
       },
       // ── JOINTS ──────────────────────────────────────────────────────────────
       {
-        partId: 'shoulder_joint', name: 'Shoulder Joint (Glenohumeral)', nameAr: 'مفصل الكتف', nameKu: 'Shoulder Joint',
+        partId: 'shoulder_joint', name: 'Shoulder Joint (Glenohumeral)', nameAr: 'مفصل الكتف', nameKu: 'جومگەی شان',
         type: 'joint', region: 'upper_body', side: 'both',
         description: 'A ball-and-socket joint providing the greatest range of motion of any joint in the body.',
         function: 'Allows arm movement in multiple planes: flexion, extension, abduction, adduction, rotation.',
@@ -684,7 +684,7 @@ const seedDatabase = async () => {
         isActive: true,
       },
       {
-        partId: 'knee_joint', name: 'Knee Joint', nameAr: 'مفصل الركبة', nameKu: 'Knee Joint',
+        partId: 'knee_joint', name: 'Knee Joint', nameAr: 'مفصل الركبة', nameKu: 'جومگەی ئەژنۆ',
         type: 'joint', region: 'lower_body', side: 'both',
         description: 'A hinge joint connecting the femur and tibia, stabilized by multiple ligaments.',
         function: 'Flexion and extension of the lower leg. Slight rotation in flexion.',
@@ -695,7 +695,7 @@ const seedDatabase = async () => {
         isActive: true,
       },
       {
-        partId: 'hip_joint', name: 'Hip Joint', nameAr: 'مفصل الورك', nameKu: 'Hip Joint',
+        partId: 'hip_joint', name: 'Hip Joint', nameAr: 'مفصل الورك', nameKu: 'جومگەی حەوز (ڕان)',
         type: 'joint', region: 'lower_body', side: 'both',
         description: 'A ball-and-socket joint connecting the femur to the pelvis.',
         function: 'Supports body weight, flexion, extension, abduction, adduction, and rotation of the thigh.',
@@ -706,7 +706,7 @@ const seedDatabase = async () => {
         isActive: true,
       },
       {
-        partId: 'ankle_joint', name: 'Ankle Joint', nameAr: 'مفصل الكاحل', nameKu: 'Ankle Joint',
+        partId: 'ankle_joint', name: 'Ankle Joint', nameAr: 'مفصل الكاحل', nameKu: 'جومگەی قولەپێ',
         type: 'joint', region: 'lower_body', side: 'both',
         description: 'A hinge joint connecting the leg bones to the foot.',
         function: 'Plantarflexion and dorsiflexion of the foot. Weight bearing and propulsion.',
@@ -718,7 +718,7 @@ const seedDatabase = async () => {
       },
       // ── ARTERIES ────────────────────────────────────────────────────────────
       {
-        partId: 'aorta', name: 'Aorta', nameAr: 'الشريان الأورطي', nameKu: 'Aorta',
+        partId: 'aorta', name: 'Aorta', nameAr: 'الشريان الأورطي', nameKu: 'خوێنبەری سەرەکی (ئەئۆرتا)',
         type: 'artery', region: 'core', side: 'center',
         description: 'The largest artery in the body, originating from the left ventricle of the heart.',
         function: 'Carries oxygenated blood from the heart to the entire body.',
@@ -729,7 +729,7 @@ const seedDatabase = async () => {
         isActive: true,
       },
       {
-        partId: 'femoral_artery', name: 'Femoral Artery', nameAr: 'الشريان الفخذي', nameKu: 'Femoral Artery',
+        partId: 'femoral_artery', name: 'Femoral Artery', nameAr: 'الشريان الفخذي', nameKu: 'خوێنبەری ڕان',
         type: 'artery', region: 'lower_body', side: 'both',
         description: 'The main blood supply to the lower limb, running through the femoral triangle.',
         function: 'Supplies oxygenated blood to the thigh, knee, and lower leg.',
@@ -741,7 +741,7 @@ const seedDatabase = async () => {
       },
       // ── NERVES ──────────────────────────────────────────────────────────────
       {
-        partId: 'sciatic_nerve', name: 'Sciatic Nerve', nameAr: 'العصب الوركي', nameKu: 'Sciatic Nerve',
+        partId: 'sciatic_nerve', name: 'Sciatic Nerve', nameAr: 'العصب الوركي', nameKu: 'دەماری سیاتیک',
         type: 'nerve', region: 'lower_body', side: 'both',
         description: 'The longest and widest nerve in the human body, running from the lower back through the buttocks down each leg.',
         function: 'Controls muscles in the posterior thigh, leg, and foot. Provides sensation to most of the leg.',
@@ -753,7 +753,7 @@ const seedDatabase = async () => {
         isActive: true,
       },
       {
-        partId: 'radial_nerve', name: 'Radial Nerve', nameAr: 'العصب الكعبري', nameKu: 'Radial Nerve',
+        partId: 'radial_nerve', name: 'Radial Nerve', nameAr: 'العصب الكعبري', nameKu: 'دەماری ڕادیاڵ',
         type: 'nerve', region: 'upper_body', side: 'both',
         description: 'The largest branch of the brachial plexus, running along the radial aspect of the arm.',
         function: 'Controls extension of the wrist and fingers. Provides sensation to the back of the hand.',
@@ -765,7 +765,7 @@ const seedDatabase = async () => {
         isActive: true,
       },
       {
-        partId: 'median_nerve', name: 'Median Nerve', nameAr: 'العصب المتوسط', nameKu: 'Median Nerve',
+        partId: 'median_nerve', name: 'Median Nerve', nameAr: 'العصب المتوسط', nameKu: 'دەماری ناوەڕاستی دەست',
         type: 'nerve', region: 'upper_body', side: 'both',
         description: 'Passes through the carpal tunnel, providing sensation and motor control to the hand.',
         function: 'Controls forearm pronation, wrist flexion, and thumb opposition. Sensation to the palm side.',
