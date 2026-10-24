@@ -22,11 +22,12 @@ const io = new SocketServer(httpServer, {
   transports: ['websocket', 'polling'],
 });
 
-try {
-  require('./socket')(io);
-} catch {
-  logger.warn('socket.js not found — real-time chat disabled');
-}
+// Real-time chat, typing indicators and live notifications.
+// (Previously this required './socket', which does not exist, so real-time
+// was silently disabled. The implementation lives in services/socket.js.)
+const { initializeSocket } = require('./services/socket');
+initializeSocket(io);
+app.set('io', io);
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 async function start() {
@@ -52,9 +53,14 @@ async function shutdown(signal) {
   setTimeout(() => process.exit(1), 10000);
 }
 
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-process.on('SIGINT',  () => shutdown('SIGINT'));
-process.on('uncaughtException',  (err) => { logger.error('Uncaught exception:', err); process.exit(1); });
-process.on('unhandledRejection', (err) => { logger.error('Unhandled rejection:', err); });
+// Only boot (connect DB + listen) when run directly: `node server.js`.
+// Tests import the Express app without opening ports or killing the process.
+if (require.main === module) {
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT',  () => shutdown('SIGINT'));
+  process.on('uncaughtException',  (err) => { logger.error('Uncaught exception:', err); process.exit(1); });
+  process.on('unhandledRejection', (err) => { logger.error('Unhandled rejection:', err); });
+  start();
+}
 
-start();
+module.exports = { app, httpServer, io };

@@ -245,7 +245,7 @@ router.post('/refresh', async (req, res) => {
     }
 
     // Verify refresh token
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    const decoded = require('../src/utils/jwt').verifyRefresh(refreshToken);
 
     // Find user
     const user = await User.findById(decoded.userId);

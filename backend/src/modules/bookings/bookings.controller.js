@@ -50,4 +50,28 @@ const rate = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { getAvailableSlots, create, myBookings, coachBookings, updateStatus, rate };
+const myAvailability = async (req, res, next) => {
+  try {
+    const availability = await service.getAvailability(req.user._id);
+    ApiResponse.success(res, { availability });
+  } catch (err) { next(err); }
+};
+
+const coachAvailability = async (req, res, next) => {
+  try {
+    const availability = await service.getAvailability(req.params.coachId);
+    ApiResponse.success(res, { availability });
+  } catch (err) { next(err); }
+};
+
+const saveAvailability = async (req, res, next) => {
+  try {
+    const availability = await service.setAvailability(req.user._id, req.body);
+    ApiResponse.success(res, { availability }, 'Schedule saved');
+  } catch (err) { next(err); }
+};
+
+module.exports = {
+  getAvailableSlots, create, myBookings, coachBookings, updateStatus, rate,
+  myAvailability, coachAvailability, saveAvailability,
+};

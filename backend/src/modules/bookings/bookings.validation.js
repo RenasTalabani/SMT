@@ -29,4 +29,22 @@ const availabilityQuery = Joi.object({
   to:      Joi.date().min(Joi.ref('from')).required(),
 });
 
-module.exports = { createBooking, updateStatus, addRating, availabilityQuery };
+const hhmm = Joi.string().pattern(/^([01]\d|2[0-3]):[0-5]\d$/);
+const daySchedule = Joi.object({
+  enabled: Joi.boolean().default(false),
+  slots: Joi.array().items(Joi.object({ startTime: hhmm.required(), endTime: hhmm.required() })).default([]),
+});
+const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+const saveAvailability = Joi.object({
+  weeklySchedule: Joi.object(Object.fromEntries(days.map((d) => [d, daySchedule]))).required(),
+  sessionDurationMin: Joi.number().integer().min(15).max(240).default(60),
+  bufferMin: Joi.number().integer().min(0).max(120).default(15),
+  maxAdvanceDays: Joi.number().integer().min(1).max(365).default(30),
+  sessionPrice: Joi.number().min(0).default(0),
+  currency: Joi.string().max(5).default('usd'),
+  blockedDates: Joi.array().items(Joi.date()).default([]),
+  timezone: Joi.string().max(60).default('UTC'),
+});
+
+module.exports = { createBooking, updateStatus, addRating, availabilityQuery, saveAvailability };

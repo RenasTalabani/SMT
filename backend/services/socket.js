@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+const { verifyAccess } = require('../src/utils/jwt');
 const User = require('../models/User');
 const Message = require('../models/Message');
 const Notification = require('../models/Notification');
@@ -17,7 +17,7 @@ const initializeSocket = (io) => {
         return next(new Error('Authentication token required'));
       }
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = verifyAccess(token);
       const user = await User.findById(decoded.userId);
 
       if (!user || !user.isActive) {

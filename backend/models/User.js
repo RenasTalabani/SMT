@@ -178,23 +178,17 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
 };
 
 // Instance method to generate auth token
+// Uses the single token module (src/utils/jwt.js) so social-login tokens,
+// legacy routes, the v1 API and Socket.IO all agree on secret + issuer.
 userSchema.methods.generateAuthToken = function() {
-  const jwt = require('jsonwebtoken');
-  return jwt.sign(
-    { userId: this._id, role: this.role },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRE || '7d' }
-  );
+  const { signAccess } = require('../src/utils/jwt');
+  return signAccess({ userId: this._id.toString(), role: this.role });
 };
 
 // Instance method to generate refresh token
 userSchema.methods.generateRefreshToken = function() {
-  const jwt = require('jsonwebtoken');
-  return jwt.sign(
-    { userId: this._id },
-    process.env.JWT_REFRESH_SECRET,
-    { expiresIn: process.env.JWT_REFRESH_EXPIRE || '30d' }
-  );
+  const { signRefresh } = require('../src/utils/jwt');
+  return signRefresh({ userId: this._id.toString(), role: this.role });
 };
 
 // Pre-save middleware to hash password

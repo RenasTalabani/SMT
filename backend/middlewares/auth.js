@@ -1,4 +1,6 @@
-const jwt = require('jsonwebtoken');
+// Same signing secret + issuer as the token generator (src/utils/jwt.js),
+// so tokens issued by /auth/login are accepted by every legacy route too.
+const { verifyAccess } = require('../src/utils/jwt');
 const User = require('../models/User');
 
 // Protect routes - require authentication
@@ -25,7 +27,7 @@ const protect = async (req, res, next) => {
 
     try {
       // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = verifyAccess(token);
 
       // Get user from token
       const user = await User.findById(decoded.userId).select('-password');
@@ -102,13 +104,13 @@ const optionalAuth = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
     }
 
-    if (!token && req.cookies.token) {
+    if (!token && req.cookies && req.cookies.token) {
       token = req.cookies.token;
     }
 
     if (token) {
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = verifyAccess(token);
         const user = await User.findById(decoded.userId).select('-password');
 
         if (user && user.isActive) {

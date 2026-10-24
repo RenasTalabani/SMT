@@ -70,11 +70,24 @@ async function getAvailableSlots(coachId, from, to) {
 async function createBooking(clientId, data) {
   const { coachId, date, startTime, endTime, type, notes } = data;
 
+  const coach = await User.findById(coachId);
+  if (!coach || coach.role !== 'coach') throw new AppError('Coach not found', 404);
+
+  const availability = await CoachAvailability.findOne({ coach: coachId });
+  if (!availability) throw new AppError('This coach has not published a schedule yet', 400);
+
+  // The requested slot must be one the coach actually offers on that day.
+  const day = new Date(date);
+  const offered = generateSlots(availability, day, availability.sessionDurationMin, availability.bufferMin);
+  const blocked = (availability.blockedDates || []).some((d) => d.toDateString() === day.toDateString());
+  if (blocked || !offered.some((s) => s.startTime === startTime && s.endTime === endTime)) {
+    throw new AppError('The coach is not available at this time', 400);
+  }
+
   const conflict = await Booking.hasConflict(coachId, date, startTime, endTime);
   if (conflict) throw new AppError('This time slot is already booked', 409);
 
-  const availability = await CoachAvailability.findOne({ coach: coachId });
-  const price = availability?.sessionPrice || 0;
+  const price = availability.sessionPrice || 0;
 
   const booking = await Booking.create({
     client: clientId,
@@ -124,8 +137,10 @@ async function updateBookingStatus(bookingId, actorId, actorRole, { status, canc
   const booking = await Booking.findById(bookingId);
   if (!booking) throw new AppError('Booking not found', 404);
 
-  const isCoach = actorRole === 'coach' && booking.coach.toString() === actorId;
-  const isClient = actorRole === 'client' && booking.client.toString() === actorId;
+  // actorId arrives as an ObjectId from req.user — compare as strings.
+  const actor = actorId.toString();
+  const isCoach = actorRole === 'coach' && booking.coach.toString() === actor;
+  const isClient = actorRole === 'client' && booking.client.toString() === actor;
   const isAdmin = actorRole === 'admin';
 
   if (!isCoach && !isClient && !isAdmin) throw new AppError('Not authorized', 403);
@@ -158,4 +173,20 @@ async function addRating(bookingId, clientId, { score, review }) {
   return booking;
 }
 
-module.exports = { getAvailableSlots, createBooking, getClientBookings, getCoachBookings, updateBookingStatus, addRating };
+// ── Coach availability (weekly schedule) ─────────────────────────────────────
+async function getAvailability(coachId) {
+  const schedule = await CoachAvailability.findOne({ coach: coachId });
+  return schedule; // null when the coach has not set one up yet
+}
+
+async function setAvailability(coachId, data) {
+  const update = { ...data, coach: coachId };
+  return CoachAvailability.findOneAndUpdate({ coach: coachId }, update, {
+    new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true,
+  });
+}
+
+module.exports = {
+  getAvailableSlots, createBooking, getClientBookings, getCoachBookings,
+  updateBookingStatus, addRating, getAvailability, setAvailability, generateSlots,
+};

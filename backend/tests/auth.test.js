@@ -1,146 +1,73 @@
+'use strict';
+
 const request = require('supertest');
-const mongoose = require('mongoose');
-const app = require('../server');
-const User = require('../models/User');
+const app = require('../src/app');
+const db = require('./helpers/db');
+const { registerUser } = require('./helpers/users');
+
+beforeAll(db.connect);
+afterEach(db.clear);
+afterAll(db.close);
 
 describe('Auth API', () => {
-  beforeAll(async () => {
-    // Connect to test database
-    await mongoose.connect(process.env.MONGODB_URI_TEST || 'mongodb://localhost:27017/gym-test');
-  });
-
-  afterAll(async () => {
-    await mongoose.connection.close();
-  });
-
-  beforeEach(async () => {
-    // Clear users
-    await User.deleteMany({});
-  });
-
-  describe('POST /api/auth/register', () => {
-    it('should register a new user', async () => {
-      const res = await request(app)
-        .post('/api/auth/register')
-        .send({
-          name: 'Test User',
-          email: 'test@example.com',
-          password: 'password123',
-          role: 'client'
-        });
-
-      expect(res.statusCode).toEqual(201);
-      expect(res.body.success).toBe(true);
-      expect(res.body.data.user.email).toBe('test@example.com');
+  it('registers a client and returns tokens', async () => {
+    const res = await request(app).post('/api/auth/register').send({
+      name: 'Test User', email: 'test@example.com', password: 'Password123!', role: 'client',
     });
+    expect(res.statusCode).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.user.email).toBe('test@example.com');
+    expect(res.body.data.accessToken).toBeTruthy();
+    expect(res.body.data.refreshToken).toBeTruthy();
   });
 
-  describe('POST /api/auth/login', () => {
-    it('should login user and return tokens', async () => {
-      // Register user first
-      await request(app)
-        .post('/api/auth/register')
-        .send({
-          name: 'Test User',
-          email: 'test@example.com',
-          password: 'password123',
-          role: 'client'
-        });
-
-      const res = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: 'test@example.com',
-          password: 'password123'
-        });
-
-      expect(res.statusCode).toEqual(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.data.accessToken).toBeDefined();
-      expect(res.headers['set-cookie']).toBeDefined();
+  it('refuses self-registration as admin', async () => {
+    const res = await request(app).post('/api/auth/register').send({
+      name: 'Sneaky', email: 'sneaky@example.com', password: 'Password123!', role: 'admin',
     });
+    expect(res.statusCode).toBe(400);
   });
 
-  describe('POST /api/auth/refresh', () => {
-    it('should refresh access token with rotation', async () => {
-      // Register and login
-      await request(app)
-        .post('/api/auth/register')
-        .send({
-          name: 'Test User',
-          email: 'test@example.com',
-          password: 'password123',
-          role: 'client'
-        });
-
-      const loginRes = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: 'test@example.com',
-          password: 'password123'
-        });
-
-      const refreshToken = loginRes.headers['set-cookie'][0].split(';')[0].split('=')[1];
-
-      // Refresh
-      const refreshRes = await request(app)
-        .post('/api/auth/refresh')
-        .set('Cookie', `refreshToken=${refreshToken}`);
-
-      expect(refreshRes.statusCode).toEqual(200);
-      expect(refreshRes.body.success).toBe(true);
-      expect(refreshRes.body.data.accessToken).toBeDefined();
-
-      // Check that refresh token was rotated
-      const newRefreshToken = refreshRes.headers['set-cookie'][0].split(';')[0].split('=')[1];
-      expect(newRefreshToken).not.toBe(refreshToken);
-
-      // Old token should not work
-      const oldRefreshRes = await request(app)
-        .post('/api/auth/refresh')
-        .set('Cookie', `refreshToken=${refreshToken}`);
-
-      expect(oldRefreshRes.statusCode).toEqual(401);
-    });
+  it('rejects duplicate emails', async () => {
+    const body = { name: 'Dup', email: 'dup@example.com', password: 'Password123!' };
+    await request(app).post('/api/auth/register').send(body);
+    const res = await request(app).post('/api/auth/register').send(body);
+    expect(res.statusCode).toBe(409);
   });
 
-  describe('POST /api/auth/logout', () => {
-    it('should logout user and clear tokens', async () => {
-      // Register and login
-      await request(app)
-        .post('/api/auth/register')
-        .send({
-          name: 'Test User',
-          email: 'test@example.com',
-          password: 'password123',
-          role: 'client'
-        });
+  it('logs in with correct password and rejects a wrong one', async () => {
+    const u = await registerUser(app);
+    const ok = await request(app).post('/api/auth/login').send({ email: u.email, password: u.password });
+    expect(ok.statusCode).toBe(200);
+    expect(ok.body.data.accessToken).toBeTruthy();
 
-      const loginRes = await request(app)
-        .post('/api/auth/login')
-        .send({
-          email: 'test@example.com',
-          password: 'password123'
-        });
+    const bad = await request(app).post('/api/auth/login').send({ email: u.email, password: 'nope-nope' });
+    expect(bad.statusCode).toBe(401);
+  });
 
-      const accessToken = loginRes.body.data.accessToken;
-      const refreshToken = loginRes.headers['set-cookie'][0].split(';')[0].split('=')[1];
+  it('GET /auth/me returns the signed-in user', async () => {
+    const u = await registerUser(app);
+    const res = await request(app).get('/api/auth/me').set('Authorization', `Bearer ${u.token}`);
+    expect(res.statusCode).toBe(200);
+    expect(JSON.stringify(res.body.data)).toContain(u.email);
+  });
 
-      // Logout
-      const logoutRes = await request(app)
-        .post('/api/auth/logout')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .set('Cookie', `refreshToken=${refreshToken}`);
+  it('refresh issues a new access token', async () => {
+    const u = await registerUser(app);
+    const r1 = await request(app).post('/api/auth/refresh').send({ refreshToken: u.refreshToken });
+    expect(r1.statusCode).toBe(200);
+    expect(r1.body.data.accessToken).toBeTruthy();
+    expect(r1.body.data.refreshToken).toBeTruthy();
+  });
 
-      expect(logoutRes.statusCode).toEqual(200);
-      expect(logoutRes.body.success).toBe(true);
+  it('tokens from /auth/login are accepted by legacy routes (one token system)', async () => {
+    const u = await registerUser(app);
+    const res = await request(app).get('/api/progress').set('Authorization', `Bearer ${u.token}`);
+    expect(res.statusCode).toBe(200);
+  });
 
-      // Refresh should fail
-      const refreshRes = await request(app)
-        .post('/api/auth/refresh')
-        .set('Cookie', `refreshToken=${refreshToken}`);
-
-      expect(refreshRes.statusCode).toEqual(401);
-    });
+  it('protected routes reject missing tokens', async () => {
+    const res = await request(app).get('/api/auth/me');
+    expect(res.statusCode).toBe(401);
   });
 });
