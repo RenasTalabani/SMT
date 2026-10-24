@@ -16,7 +16,6 @@ const authRoutes        = require('./modules/auth/auth.routes');
 const userRoutes        = require('./modules/users/users.routes');
 const workoutRoutes     = require('./modules/workouts/workouts.routes');
 const exerciseRoutes    = require('./modules/exercises/exercises.routes');
-const aiRoutes          = require('./modules/ai/ai.routes');
 const bookingRoutes     = require('./modules/bookings/bookings.routes');
 const paymentRoutes     = require('./modules/payments/payments.routes');
 const chatRoutes        = require('./modules/chat/chat.routes');
@@ -29,6 +28,10 @@ const debugRoutes       = require('./modules/debug/debug.routes');
 const legacyAuthRoutes  = require('../routes/auth');   // social login (Google/Facebook/Apple)
 const uploadRoutes      = require('../routes/upload');
 const adminRoutes       = require('../routes/admin');
+// Full AI coach (chat history, profile, insights, workout/nutrition generators)
+// used by the mobile + web apps. Falls back to the built-in coach engine when
+// OPENAI_API_KEY is not set, so every AI screen works out of the box.
+const coachAiRoutes     = require('../routes/ai');
 
 const app = express();
 
@@ -78,7 +81,9 @@ app.use(`${v1}/auth`,          legacyAuthRoutes);  // social: /google, /facebook
 app.use(`${v1}/users`,         userRoutes);
 app.use(`${v1}/workouts`,      workoutRoutes);
 app.use(`${v1}/exercises`,     exerciseRoutes);
-app.use(`${v1}/ai`,            aiRoutes);
+app.use(`${v1}/ai`,            coachAiRoutes);
+// (src/modules/ai is kept as the service layer; its router is not mounted
+//  because routes/ai.js already serves every /ai/* endpoint the apps call.)
 app.use(`${v1}/bookings`,      bookingRoutes);
 app.use(`${v1}/payments`,      paymentRoutes);
 app.use(`${v1}/chat`,          chatRoutes);
@@ -97,7 +102,7 @@ app.use('/api/auth',           legacyAuthRoutes);  // social login legacy alias
 app.use('/api/users',          userRoutes);
 app.use('/api/workouts',       workoutRoutes);
 app.use('/api/exercises',      exerciseRoutes);
-app.use('/api/ai',             aiRoutes);
+app.use('/api/ai',             coachAiRoutes);
 app.use('/api/bookings',       bookingRoutes);
 app.use('/api/chat',           chatRoutes);
 app.use('/api/notifications',  notifRoutes);

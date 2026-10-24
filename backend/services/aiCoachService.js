@@ -205,9 +205,52 @@ async function generateChatResponse(message, history, user, profile) {
   return response.choices[0].message.content.trim();
 }
 
+// ── Built-in fallbacks: the coach keeps answering without an OpenAI key ─────
+const fallback = require('../src/modules/ai/ai.fallback');
+
+function fallbackInsight(user, profile) {
+  const b = profile?.behavior ?? {};
+  const c = profile?.trainingConsistency ?? {};
+  let motivation; let actions; let tip;
+  if (b.isInactive && b.inactiveDays >= 3) {
+    motivation = `We miss you, ${user?.name || 'champ'}! ${b.inactiveDays} days off is fine — today is a great day to restart.`;
+    actions = ['Do a 20-minute easy full-body session today', 'Book your next two sessions in your calendar now'];
+    tip = 'Restart lighter than before — about 70% of your old weights — and build back up.';
+  } else if (b.readyForProgression) {
+    motivation = `${c.currentStreak}-day streak — you are ready for the next level!`;
+    actions = ['Add 2.5 kg or 1-2 reps to your main lifts this week', 'Add one extra set to your weakest muscle group'];
+    tip = 'Track every set so progress is measurable, not guessed.';
+  } else {
+    motivation = 'Small steps every week add up to big results.';
+    actions = ['Train at least 3 times this week', 'Hit your protein target every day'];
+    tip = 'Sleep 7-9 hours — it is the cheapest performance booster there is.';
+  }
+  return {
+    motivation, action_plan: actions, tips: [tip],
+    coachingLevel: profile?.coachingLevel || 'moderate',
+    raw: [motivation, ...actions, tip].join('\n'), generatedAt: new Date(), source: 'built-in',
+  };
+}
+
+async function safeCoachInsight(user, profile) {
+  try { return await generateCoachInsight(user, profile); } catch { return fallbackInsight(user, profile); }
+}
+
+async function safeDailyTip(user, profile) {
+  try { return await generateDailyTip(user, profile); } catch {
+    return 'Consistency beats perfection — show up today, even for 20 minutes.';
+  }
+}
+
+async function safeChatResponse(message, history, user, profile) {
+  try { return await generateChatResponse(message, history, user, profile); } catch {
+    return fallback.chatReply(message);
+  }
+}
+
 module.exports = {
   buildEnrichedSystemPrompt,
-  generateCoachInsight,
-  generateDailyTip,
-  generateChatResponse
+  generateCoachInsight: safeCoachInsight,
+  generateDailyTip: safeDailyTip,
+  generateChatResponse: safeChatResponse,
 };

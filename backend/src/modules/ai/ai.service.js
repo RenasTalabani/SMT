@@ -1,15 +1,14 @@
 'use strict';
 
 const config = require('../../config');
-const { AppError } = require('../../middlewares/error.middleware');
 const logger = require('../../utils/logger');
+const fallback = require('./ai.fallback');
 
 let _openai = null;
 
+// Returns an OpenAI client, or null when no key is configured.
 function getOpenAI() {
-  if (!config.openai.apiKey) {
-    throw new AppError('AI service not configured. Please contact support.', 503);
-  }
+  if (!config.openai.apiKey) return null;
   if (!_openai) {
     const { default: OpenAI } = require('openai'); // lazy
     _openai = new OpenAI({ apiKey: config.openai.apiKey });
@@ -17,8 +16,13 @@ function getOpenAI() {
   return _openai;
 }
 
+function aiEnabled() {
+  return Boolean(config.openai.apiKey);
+}
+
 async function chat(messages, systemPrompt, maxTokens = 500) {
   const openai = getOpenAI();
+  if (!openai) throw new Error('OPENAI_API_KEY not configured');
   const response = await openai.chat.completions.create({
     model: config.openai.model,
     messages: [
@@ -42,15 +46,19 @@ Always personalize advice when you have context about the user.`;
     { role: 'user', content: userMessage },
   ];
 
+  if (!aiEnabled()) return fallback.chatReply(userMessage);
   try {
     return await chat(messages, systemPrompt, 300);
   } catch (err) {
     logger.error('AI chat error:', err.message);
-    throw new AppError('AI service temporarily unavailable', 503);
+    return fallback.chatReply(userMessage);
   }
 }
 
-async function generateWorkout({ goal, level, daysPerWeek, equipment = 'any', restrictions = '' }) {
+async function generateWorkout(input) {
+  const { goal, level, daysPerWeek, equipment = 'any', restrictions = '' } = input;
+  if (!aiEnabled()) return fallback.generateWorkout(input);
+
   const systemPrompt = `You are an expert personal trainer. Generate structured workout plans in valid JSON only.
 No markdown, no explanation, pure JSON.`;
 
@@ -64,32 +72,30 @@ Return JSON: { "title": "", "description": "", "days": [{ "day": 1, "name": "", 
     return JSON.parse(cleaned);
   } catch (err) {
     logger.error('Workout generation error:', err.message);
-    throw new AppError('Failed to generate workout plan', 503);
+    return fallback.generateWorkout(input);
   }
 }
 
-async function generateNutritionPlan({ weight, height, age, gender, goal, activityLevel }) {
-  const bmr = gender === 'female'
-    ? 447.6 + (9.25 * weight) + (3.1 * height) - (4.33 * (age || 25))
-    : 88.36 + (13.4 * weight) + (4.8 * height) - (5.68 * (age || 25));
+async function generateNutritionPlan(input) {
+  const base = fallback.nutrition(input); // exact numbers are always computed locally
+  if (!aiEnabled()) return base;
 
-  const activityMultipliers = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9 };
-  const tdee = Math.round(bmr * (activityMultipliers[activityLevel] || 1.55));
-
+  const { weight, height, age, gender, goal } = input;
   const systemPrompt = 'You are a certified nutritionist. Provide concise, practical nutrition plans.';
-  const prompt = `Create a nutrition plan for: weight ${weight}kg, height ${height}cm, age ${age}, gender ${gender}, goal: ${goal}, TDEE: ${tdee} kcal.
+  const prompt = `Create a nutrition plan for: weight ${weight}kg, height ${height}cm, age ${age}, gender ${gender}, goal: ${goal}, TDEE: ${base.tdee} kcal, target ${base.calories} kcal, macros P${base.macros.protein}/C${base.macros.carbs}/F${base.macros.fats} g.
 Include: daily calorie target, macros (protein/carbs/fats in grams), 3 meal examples, 3 practical tips. Keep under 400 words.`;
 
   try {
     const plan = await chat([{ role: 'user', content: prompt }], systemPrompt, 600);
-    return { plan, tdee, bmr: Math.round(bmr) };
+    return { ...base, plan, source: 'openai' };
   } catch (err) {
     logger.error('Nutrition plan error:', err.message);
-    throw new AppError('Failed to generate nutrition plan', 503);
+    return base;
   }
 }
 
 async function analyzeProgress(progressData) {
+  if (!aiEnabled()) return fallback.analyzeProgress(progressData);
   const systemPrompt = 'You are a data-driven fitness coach. Analyze workout data and give actionable insights.';
   const prompt = `Analyze this fitness data and give 3-5 specific recommendations:
 ${JSON.stringify(progressData, null, 2)}
@@ -101,14 +107,7 @@ Format response as JSON: { "analysis": "2-3 sentence summary", "suggestions": ["
     return JSON.parse(cleaned);
   } catch (err) {
     logger.error('Progress analysis error:', err.message);
-    return {
-      analysis: 'Keep up the great work! Consistency is the key to long-term results.',
-      suggestions: [
-        'Track your workouts 3+ times per week for best results',
-        'Ensure you are getting 7-9 hours of sleep for recovery',
-        'Stay hydrated — drink at least 8 glasses of water daily',
-      ],
-    };
+    return fallback.analyzeProgress(progressData);
   }
 }
 
@@ -117,17 +116,19 @@ async function getDailyTip() {
     'Consistency beats perfection. Show up today, even for 20 minutes.',
     'Progressive overload: increase weight or reps each week to keep growing.',
     'Rest days are growth days. Your muscles rebuild during recovery.',
-    'Protein at every meal — aim for 0.8-1g per pound of bodyweight.',
+    'Protein at every meal — aim for 1.6-2.2 g per kg of bodyweight.',
     'Compound movements (squat, deadlift, press) give the most return per minute.',
   ];
+  const pick = () => fallbacks[Math.floor(Math.random() * fallbacks.length)];
+  if (!aiEnabled()) return pick();
 
   try {
     const systemPrompt = 'You are a motivational fitness coach.';
     const prompt = 'Give one powerful, practical fitness tip in exactly 1-2 sentences. No fluff.';
     return await chat([{ role: 'user', content: prompt }], systemPrompt, 80);
   } catch {
-    return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+    return pick();
   }
 }
 
-module.exports = { sendChatMessage, generateWorkout, generateNutritionPlan, analyzeProgress, getDailyTip };
+module.exports = { sendChatMessage, generateWorkout, generateNutritionPlan, analyzeProgress, getDailyTip, aiEnabled };

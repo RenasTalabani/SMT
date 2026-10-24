@@ -8,6 +8,13 @@ const logger = require('../../utils/logger');
 
 const router = Router();
 
+// Development: open for quick troubleshooting. Production: admins only
+// (stops strangers from spending the OpenAI budget or reading config state).
+router.use((req, res, next) => {
+  if (config.isDev) return next();
+  return protect(req, res, (err) => (err ? next(err) : authorize('admin')(req, res, next)));
+});
+
 // ── Error knowledge base (works without OpenAI) ───────────────────────────
 const ERROR_KB = {
   'toPublicJSON is not a function': {

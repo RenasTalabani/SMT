@@ -334,17 +334,22 @@ router.get('/stats/overview', protect, async (req, res) => {
     }).sort({ date: 1 });
 
     // Calculate statistics
+    // Field names follow models/Progress.js (workoutData.*, metrics.* enums).
+    const SCALE = { poor: 1, low: 1, fair: 2, moderate: 2, good: 3, high: 3, excellent: 4, very_high: 4 };
+    const avgOf = (values) => {
+      const nums = values.map(v => SCALE[v]).filter(Boolean);
+      return nums.length ? Math.round((nums.reduce((a, b) => a + b, 0) / nums.length) * 10) / 10 : 0;
+    };
+    const workouts = progress.filter(p => p.type === 'workout_completion');
     const stats = {
-      totalWorkouts: progress.filter(p => p.type === 'workout').length,
-      totalDuration: progress.reduce((sum, p) => sum + (p.duration || 0), 0),
-      totalCalories: progress.reduce((sum, p) => sum + (p.caloriesBurned || 0), 0),
-      averageMood: progress.length > 0 ?
-        progress.reduce((sum, p) => sum + (p.mood || 0), 0) / progress.length : 0,
-      averageEnergy: progress.length > 0 ?
-        progress.reduce((sum, p) => sum + (p.energyLevel || 0), 0) / progress.length : 0,
+      totalWorkouts: workouts.length,
+      totalDuration: workouts.reduce((sum, p) => sum + (p.workoutData?.duration || 0), 0),
+      totalCalories: workouts.reduce((sum, p) => sum + (p.workoutData?.caloriesBurned || 0), 0),
+      averageMood: avgOf(progress.map(p => p.metrics?.mood)),       // 1 (poor) – 4 (excellent)
+      averageEnergy: avgOf(progress.map(p => p.metrics?.energy)),   // 1 (low) – 4 (very high)
       workoutStreak: calculateWorkoutStreak(progress),
       weightChange: calculateWeightChange(progress),
-      measurementsCount: progress.reduce((sum, p) => sum + (p.measurements?.length || 0), 0)
+      measurementsCount: progress.filter(p => p.measurements && Object.values(p.measurements.toObject ? p.measurements.toObject() : p.measurements).some(v => typeof v === 'number')).length
     };
 
     res.json({
@@ -464,47 +469,37 @@ router.delete('/:id', protect, validateObjectId, async (req, res) => {
 });
 
 // Helper functions
+// Longest run of consecutive calendar days with at least one completed workout.
 function calculateWorkoutStreak(progress) {
-  const workoutDays = progress
-    .filter(p => p.type === 'workout')
-    .map(p => p.date.toDateString())
-    .sort();
+  const dayNumbers = [...new Set(
+    progress
+      .filter(p => p.type === 'workout_completion' && p.date)
+      .map(p => {
+        const d = new Date(p.date);
+        return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
+      })
+  )].sort((a, b) => a - b);
 
-  if (workoutDays.length === 0) return 0;
+  if (dayNumbers.length === 0) return 0;
 
   let streak = 1;
-  let currentStreak = 1;
-
-  for (let i = 1; i < workoutDays.length; i++) {
-    const prevDate = new Date(workoutDays[i - 1]);
-    const currDate = new Date(workoutDays[i]);
-    const diffTime = currDate - prevDate;
-    const diffDays = diffTime / (1000 * 60 * 60 * 24);
-
-    if (diffDays === 1) {
-      currentStreak++;
-      streak = Math.max(streak, currentStreak);
-    } else {
-      currentStreak = 1;
-    }
+  let current = 1;
+  for (let i = 1; i < dayNumbers.length; i++) {
+    current = dayNumbers[i] - dayNumbers[i - 1] === 1 ? current + 1 : 1;
+    streak = Math.max(streak, current);
   }
-
   return streak;
 }
 
+// Weight difference (kg) between the first and last weigh-in of the period.
 function calculateWeightChange(progress) {
-  const measurements = progress
-    .filter(p => p.measurements && p.measurements.length > 0)
-    .sort((a, b) => a.date - b.date);
+  const weighIns = progress
+    .filter(p => p.measurements && typeof p.measurements.weight === 'number')
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-  if (measurements.length < 2) return 0;
-
-  const firstWeight = measurements[0].measurements[measurements[0].measurements.length - 1]?.weight;
-  const lastWeight = measurements[measurements.length - 1].measurements[measurements[measurements.length - 1].measurements.length - 1]?.weight;
-
-  if (!firstWeight || !lastWeight) return 0;
-
-  return lastWeight - firstWeight;
+  if (weighIns.length < 2) return 0;
+  const change = weighIns[weighIns.length - 1].measurements.weight - weighIns[0].measurements.weight;
+  return Math.round(change * 10) / 10;
 }
 
 module.exports = router;

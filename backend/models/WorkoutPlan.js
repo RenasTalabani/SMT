@@ -121,10 +121,17 @@ const workoutPlanSchema = new mongoose.Schema({
       max: [180, 'Duration cannot be more than 3 hours']
     },
     exercises: [{
+      // Link to the exercise library. Optional so AI-generated / free-text
+      // exercises can be saved; then `name` carries the exercise name.
       exercise: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Exercise',
-        required: true
+        required: function () { return !this.name; }
+      },
+      name: {
+        type: String,
+        trim: true,
+        maxlength: [100, 'Exercise name cannot be more than 100 characters']
       },
       sets: {
         type: Number,

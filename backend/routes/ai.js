@@ -58,6 +58,47 @@ const aiLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// ── Built-in coach engine (works with no OpenAI key) ────────────────────────
+const fallback = require('../src/modules/ai/ai.fallback');
+
+function repsToNumber(reps) {
+  const nums = String(reps).match(/\d+/g);
+  if (!nums) return 12;
+  const avg = Math.round(nums.map(Number).reduce((a, b) => a + b, 0) / nums.length);
+  return Math.min(Math.max(avg, 1), 100);
+}
+
+// Converts the fallback engine's plan into this route's plan JSON shape.
+function builtInPlan(goal, level, days, restrictions) {
+  const p = fallback.generateWorkout({ goal, level, daysPerWeek: days, restrictions });
+  const g = fallback.normalizeGoal(goal);
+  const category = { weight_loss: 'weight_loss', muscle_gain: 'muscle_gain', strength: 'strength', endurance: 'endurance' }[g] || 'mixed';
+  return {
+    title: p.title,
+    description: p.description,
+    difficulty: level,
+    category,
+    durationWeeks: 8,
+    frequency: days,
+    workouts: p.days.map((d) => ({
+      day: d.day,
+      name: d.name,
+      estimatedDuration: 45 + (d.exercises.length > 4 ? 10 : 0),
+      warmUp: '5-10 min easy cardio + dynamic stretches',
+      coolDown: '5 min walk + light stretching',
+      exercises: d.exercises.map((e) => ({
+        name: e.name,
+        sets: Math.min(Math.max(e.sets, 1), 10),
+        reps: repsToNumber(e.reps),
+        weight: 0,
+        restTime: e.restSeconds,
+        notes: `Target: ${e.reps}${e.muscle ? ' · ' + e.muscle : ''}${e.notes ? ' — ' + e.notes : ''}`,
+      })),
+    })),
+    source: 'built-in',
+  };
+}
+
 // ── Shared error helper ───────────────────────────────────────────────────────
 function aiError(res, error) {
   console.error('AI error:', error.message);
@@ -336,24 +377,23 @@ Return ONLY valid JSON (no markdown):
 }
 Include ${days} workout days, 4-6 exercises each. weight=0 means bodyweight.`;
 
-    const response = await getOpenAI().chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: 'You are a professional fitness coach. Output ONLY valid JSON, never wrap in markdown.' },
-        { role: 'user',   content: prompt }
-      ],
-      max_tokens: 2000,
-      temperature: 0.7,
-    });
-
-    const rawText = response.choices[0].message.content.trim()
-      .replace(/^```json?\n?/i, '').replace(/\n?```$/i, '').trim();
-
-    let planData;
+    let planData = null;
     try {
+      const response = await getOpenAI().chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: 'You are a professional fitness coach. Output ONLY valid JSON, never wrap in markdown.' },
+          { role: 'user',   content: prompt }
+        ],
+        max_tokens: 2000,
+        temperature: 0.7,
+      });
+      const rawText = response.choices[0].message.content.trim()
+        .replace(/^```json?\n?/i, '').replace(/\n?```$/i, '').trim();
       planData = JSON.parse(rawText);
-    } catch {
-      return res.status(500).json({ success: false, message: 'AI returned invalid plan format. Please try again.' });
+    } catch (err) {
+      // No OpenAI key, OpenAI down, or bad JSON → use the built-in coach engine.
+      planData = builtInPlan(goal, level, days, profile?.injuries?.join(', '));
     }
 
     const savedPlan = await WorkoutPlan.create({
@@ -374,12 +414,12 @@ Include ${days} workout days, 4-6 exercises each. weight=0 means bodyweight.`;
         warmUp:            day.warmUp   || '',
         coolDown:          day.coolDown || '',
         exercises: (day.exercises || []).map((ex, i) => ({
-          exercise: null,
-          sets:     ex.sets     || 3,
-          reps:     ex.reps     || 12,
-          weight:   ex.weight   || 0,
-          restTime: ex.restTime || 60,
-          notes:    ex.notes    || ex.name || '',
+          name:     String(ex.name || `Exercise ${i + 1}`).slice(0, 100),
+          sets:     Math.min(Math.max(parseInt(ex.sets, 10) || 3, 1), 10),
+          reps:     Math.min(Math.max(parseInt(ex.reps, 10) || 12, 1), 100),
+          weight:   Math.max(Number(ex.weight) || 0, 0),
+          restTime: Math.min(Math.max(parseInt(ex.restTime, 10) || 60, 0), 600),
+          notes:    String(ex.notes || '').slice(0, 200),
           order:    i
         }))
       }))
@@ -433,18 +473,31 @@ Include:
 
 Be practical and concise. Use emoji section headers.`;
 
-    const response = await getOpenAI().chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: buildEnrichedSystemPrompt(req.user, profile) },
-        { role: 'user',   content: prompt }
-      ],
-      max_tokens: 600,
-      temperature: 0.6,
+    const numbers = fallback.nutrition({
+      weight: w, height: h, age, gender,
+      goal: /loss|cut/.test(goal) ? 'weight_loss' : /gain|bulk/.test(goal) ? 'muscle_gain' : 'general_fitness',
+      activityLevel: activityLevel.replace(' ', '_'),
     });
 
-    const plan = response.choices[0].message.content.trim();
-    res.json({ success: true, data: { plan } });
+    let plan;
+    try {
+      const response = await getOpenAI().chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: buildEnrichedSystemPrompt(req.user, profile) },
+          { role: 'user',   content: prompt }
+        ],
+        max_tokens: 600,
+        temperature: 0.6,
+      });
+      plan = response.choices[0].message.content.trim();
+    } catch {
+      plan = numbers.plan; // built-in nutrition calculator
+    }
+    res.json({
+      success: true,
+      data: { plan, calories: numbers.calories, tdee: numbers.tdee, bmr: numbers.bmr, macros: numbers.macros },
+    });
   } catch (error) {
     aiError(res, error);
   }
@@ -486,17 +539,22 @@ router.post('/analyze-progress', protect, aiLimiter, async (req, res) => {
 - Notes: ${progressEntries.slice(0, 3).map(p => p.notes).filter(Boolean).join('; ') || 'none'}
 ${aiProfileSummary}`;
 
-    const response = await getOpenAI().chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: buildEnrichedSystemPrompt(req.user, profile) },
-        { role: 'user',   content: `Analyze this client's progress and give a motivating, honest 150-word assessment:\n\n${summary}\n\nInclude: 1) What's going well, 2) What to improve, 3) Three specific actions.` }
-      ],
-      max_tokens: 350,
-      temperature: 0.7,
-    });
-
-    const analysis   = response.choices[0].message.content.trim();
+    let analysis;
+    try {
+      const response = await getOpenAI().chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: buildEnrichedSystemPrompt(req.user, profile) },
+          { role: 'user',   content: `Analyze this client's progress and give a motivating, honest 150-word assessment:\n\n${summary}\n\nInclude: 1) What's going well, 2) What to improve, 3) Three specific actions.` }
+        ],
+        max_tokens: 350,
+        temperature: 0.7,
+      });
+      analysis = response.choices[0].message.content.trim();
+    } catch {
+      const fb = fallback.analyzeProgress({ totalWorkouts: workoutCount, weightChange: weightTrend });
+      analysis = [fb.analysis, ...fb.suggestions.map((s, i) => `${i + 1}) ${s}`)].join('\n');
+    }
     const lines      = analysis.split('\n').filter(l => l.trim());
     const suggestions = lines
       .filter(l => /^\d+[\).)]/.test(l.trim()) || l.trim().startsWith('-') || l.trim().startsWith('•'))
@@ -534,20 +592,32 @@ router.post('/analyze-video', protect, async (req, res) => {
 
     const profile = await AiUserProfile.findOne({ userId: req.user._id });
 
-    const response = await getOpenAI().chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: buildEnrichedSystemPrompt(req.user, profile) },
-        { role: 'user',   content: `Give 5 key form tips for ${exerciseName.trim()}. Each tip in one concise sentence.` }
-      ],
-      max_tokens: 300,
-      temperature: 0.6,
-    });
+    let feedback;
+    try {
+      const response = await getOpenAI().chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: buildEnrichedSystemPrompt(req.user, profile) },
+          { role: 'user',   content: `Give 5 key form tips for ${exerciseName.trim()}. Each tip in one concise sentence.` }
+        ],
+        max_tokens: 300,
+        temperature: 0.6,
+      });
+      feedback = response.choices[0].message.content.trim();
+    } catch {
+      feedback = [
+        `1. Warm up with 1-2 light sets of ${exerciseName.trim()} before working weight.`,
+        '2. Keep a neutral spine and brace your core before every rep.',
+        '3. Control the lowering phase (2-3 seconds) — do not drop the weight.',
+        '4. Use a full, pain-free range of motion; stop if a joint hurts.',
+        '5. Film yourself from the side and compare with your coach\'s demo.',
+      ].join('\n');
+    }
 
     res.json({
       success: true,
       data: {
-        feedback: response.choices[0].message.content.trim(),
+        feedback,
         note: 'Live video analysis coming in a future update'
       }
     });
