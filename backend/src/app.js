@@ -32,6 +32,8 @@ const adminRoutes       = require('../routes/admin');
 // used by the mobile + web apps. Falls back to the built-in coach engine when
 // OPENAI_API_KEY is not set, so every AI screen works out of the box.
 const coachAiRoutes     = require('../routes/ai');
+const shopRoutes        = require('./modules/shop/shop.routes');       // supplements & gear shop
+const classRoutes       = require('./modules/classes/classes.routes'); // group classes + attendance
 
 const app = express();
 
@@ -85,6 +87,8 @@ app.use(`${v1}/ai`,            coachAiRoutes);
 // (src/modules/ai is kept as the service layer; its router is not mounted
 //  because routes/ai.js already serves every /ai/* endpoint the apps call.)
 app.use(`${v1}/bookings`,      bookingRoutes);
+app.use(`${v1}/shop`,          shopRoutes);
+app.use(`${v1}/classes`,       classRoutes);
 app.use(`${v1}/payments`,      paymentRoutes);
 app.use(`${v1}/chat`,          chatRoutes);
 app.use(`${v1}/notifications`, notifRoutes);
@@ -104,6 +108,8 @@ app.use('/api/workouts',       workoutRoutes);
 app.use('/api/exercises',      exerciseRoutes);
 app.use('/api/ai',             coachAiRoutes);
 app.use('/api/bookings',       bookingRoutes);
+app.use('/api/shop',           shopRoutes);
+app.use('/api/classes',        classRoutes);
 app.use('/api/chat',           chatRoutes);
 app.use('/api/notifications',  notifRoutes);
 app.use('/api/progress',       progressRoutes);

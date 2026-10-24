@@ -37,7 +37,7 @@ describe('Coach availability + booking flow', () => {
       .set('Authorization', `Bearer ${coach.token}`);
     expect(mine.body.data.availability.sessionPrice).toBe(25);
 
-    const from = new Date(Date.now() + 60 * 1000);
+    const from = new Date(Date.now() - 5 * 1000); // a phone's "now", already slightly in the past
     const to = new Date(Date.now() + 3 * 86400000);
     const slots = await request(app)
       .get('/api/bookings/slots')

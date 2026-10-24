@@ -255,6 +255,70 @@ export async function approveUser(id: string) {
   await api.put(`/users/${id}/approve`, { isApproved: true });
 }
 
+// ── Shop ─────────────────────────────────────────────────────────────────────
+export type ProductCategory = 'supplement' | 'drink' | 'gear' | 'apparel' | 'membership' | 'other';
+export interface Product {
+  _id: string; name: string; nameAr?: string; nameKu?: string; description?: string;
+  category: ProductCategory; price: number; stock: number; imageUrl?: string; isActive?: boolean;
+  [key: string]: unknown;
+}
+export type OrderStatus = 'pending' | 'ready' | 'completed' | 'cancelled';
+export interface ShopOrder {
+  _id: string; items: { product: string; name: string; price: number; quantity: number }[];
+  total: number; status: OrderStatus; createdAt: string; note?: string;
+  user?: { name: string; email?: string; phone?: string };
+}
+
+export async function listProducts(): Promise<Product[]> {
+  return (await api.get('/shop/products')).data.data.products;
+}
+export async function listAllProducts(): Promise<Product[]> {
+  return (await api.get('/shop/products/all')).data.data.products;
+}
+export async function saveProduct(p: Partial<Product>, id?: string): Promise<Product> {
+  const body = { name: p.name, nameAr: p.nameAr || '', nameKu: p.nameKu || '', description: p.description || '', category: p.category, price: Number(p.price), stock: Number(p.stock), isActive: p.isActive ?? true };
+  const res = id ? await api.put(`/shop/products/${id}`, body) : await api.post('/shop/products', body);
+  return res.data.data.product;
+}
+export async function hideProduct(id: string) { await api.delete(`/shop/products/${id}`); }
+export async function placeOrder(items: { productId: string; quantity: number }[], note?: string): Promise<ShopOrder> {
+  return (await api.post('/shop/orders', { items, ...(note ? { note } : {}) })).data.data.order;
+}
+export async function myOrders(): Promise<ShopOrder[]> {
+  return (await api.get('/shop/orders/my')).data.data.orders;
+}
+export async function allOrders(): Promise<ShopOrder[]> {
+  return (await api.get('/shop/orders')).data.data.orders;
+}
+export async function setOrderStatus(id: string, status: OrderStatus) {
+  await api.put(`/shop/orders/${id}/status`, { status });
+}
+
+// ── Group classes ────────────────────────────────────────────────────────────
+export interface GymClass {
+  _id: string; title: string; titleAr?: string; titleKu?: string; description?: string;
+  category: string; coach: { _id: string; name: string } | string; startsAt: string;
+  durationMin: number; capacity: number; location?: string;
+  attendees: (string | { _id: string; name: string; email?: string; phone?: string })[];
+  attended: string[]; spotsLeft?: number;
+  [key: string]: unknown;
+}
+export async function listClasses(mine = false): Promise<GymClass[]> {
+  return (await api.get('/classes', { params: mine ? { mine: 'true' } : {} })).data.data.classes;
+}
+export async function createClass(body: Record<string, unknown>): Promise<GymClass[]> {
+  return (await api.post('/classes', body)).data.data.classes;
+}
+export async function joinClass(id: string) { await api.post(`/classes/${id}/join`); }
+export async function leaveClass(id: string) { await api.post(`/classes/${id}/leave`); }
+export async function cancelClass(id: string) { await api.delete(`/classes/${id}`); }
+export async function classRoster(id: string): Promise<GymClass> {
+  return (await api.get(`/classes/${id}/roster`)).data.data.class;
+}
+export async function markAttendance(id: string, userId: string, present: boolean): Promise<GymClass> {
+  return (await api.put(`/classes/${id}/attendance`, { userId, present })).data.data.class;
+}
+
 export function errorMessage(err: unknown, fallback: string): string {
   const e = err as { response?: { data?: { message?: string; errors?: { message: string }[] } } };
   const d = e?.response?.data;

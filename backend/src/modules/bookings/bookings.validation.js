@@ -27,7 +27,9 @@ const addRating = Joi.object({
 
 const availabilityQuery = Joi.object({
   coachId: objectId.required(),
-  from:    Joi.date().min('now').required(),
+  // "now" sent by a phone is already in the past when it arrives, so don't
+  // reject it — past times are filtered out of the result instead.
+  from:    Joi.date().required(),
   to:      Joi.date().min(Joi.ref('from')).required(),
 });
 

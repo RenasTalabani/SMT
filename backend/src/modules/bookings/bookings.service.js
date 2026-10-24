@@ -42,6 +42,13 @@ async function getAvailableSlots(coachId, from, to) {
   cursor.setHours(0,0,0,0);
   const end = new Date(to);
   end.setHours(23,59,59,999);
+  // Never look further ahead than the coach allows (default 30 days, hard cap 90).
+  const maxDays = Math.min(schedule.maxAdvanceDays || 30, 90);
+  const limit = new Date(Date.now() + maxDays * 86400000);
+  if (end > limit) end.setTime(limit.getTime());
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (cursor < today) cursor.setTime(today.getTime());
 
   while (cursor <= end) {
     const dateStr = cursor.toDateString();

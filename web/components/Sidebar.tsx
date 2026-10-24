@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { IconType } from 'react-icons';
 import {
   FiActivity, FiUsers, FiBookOpen, FiClipboard, FiMessageCircle, FiHome, FiBell, FiPlay, FiAward,
-  FiCalendar, FiClock, FiCpu, FiHeart, FiUser, FiCheckSquare, FiTarget, FiSearch,
+  FiCalendar, FiClock, FiCpu, FiHeart, FiUser, FiCheckSquare, FiTarget, FiSearch, FiShoppingBag, FiGrid,
 } from 'react-icons/fi';
 import { useI18n } from '@/lib/i18n';
 import { TranslationKey } from '@/lib/translations';
@@ -27,6 +27,8 @@ export const routesByRole: Record<string, MenuItem[]> = {
     { label: 'nav.dashboard', href: '/admin/dashboard', icon: FiHome },
     { label: 'nav.users', href: '/admin/users', icon: FiUsers },
     { label: 'nav.content', href: '/admin/content', icon: FiCheckSquare },
+    { label: 'nav.shopAdmin', href: '/admin/shop', icon: FiShoppingBag },
+    { label: 'nav.classes', href: '/coach/classes', icon: FiGrid },
     { label: 'nav.analytics', href: '/admin/analytics', icon: FiActivity },
     { label: 'nav.anatomy', href: '/client/anatomy', icon: FiTarget },
   ],
@@ -34,6 +36,7 @@ export const routesByRole: Record<string, MenuItem[]> = {
     { label: 'nav.dashboard', href: '/coach/dashboard', icon: FiHome },
     { label: 'nav.bookings', href: '/coach/bookings', icon: FiCalendar },
     { label: 'nav.schedule', href: '/coach/schedule', icon: FiClock },
+    { label: 'nav.classes', href: '/coach/classes', icon: FiGrid },
     { label: 'nav.clients', href: '/coach/clients', icon: FiUsers },
     { label: 'nav.workouts', href: '/coach/workouts', icon: FiClipboard },
     { label: 'nav.exercises', href: '/coach/exercises', icon: FiBookOpen },
@@ -48,6 +51,8 @@ export const routesByRole: Record<string, MenuItem[]> = {
     { label: 'nav.aiCoach', href: '/client/ai', icon: FiCpu },
     { label: 'nav.coaches', href: '/client/coaches', icon: FiSearch },
     { label: 'nav.bookings', href: '/client/bookings', icon: FiCalendar },
+    { label: 'nav.classes', href: '/client/classes', icon: FiGrid },
+    { label: 'nav.shop', href: '/client/shop', icon: FiShoppingBag },
     { label: 'nav.progress', href: '/client/progress', icon: FiActivity },
     { label: 'nav.health', href: '/client/health', icon: FiHeart },
     { label: 'nav.courses', href: '/client/courses', icon: FiPlay },
