@@ -78,3 +78,4 @@ flutter:
   assets:
     - assets/images/
     - assets/translations/
+    - assets/models/

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/gym_avatar.dart';
 
@@ -110,6 +111,31 @@ class CoachProfileScreen extends ConsumerWidget {
               label: 'Phone',
               value: user!.phone!,
             ),
+
+          const SizedBox(height: 16),
+          Card(
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: const BorderSide(color: Color(0xFFE2E8F0)),
+            ),
+            child: Column(children: [
+              ListTile(
+                leading: const Icon(Icons.schedule_rounded, color: Color(0xFF10B981)),
+                title: const Text('My weekly schedule'),
+                subtitle: const Text('Open the hours members can book'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/coach/schedule'),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.event_available_rounded, color: Color(0xFF10B981)),
+                title: const Text('Session requests'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/coach/bookings'),
+              ),
+            ]),
+          ),
 
           const SizedBox(height: 32),
 

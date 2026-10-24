@@ -393,7 +393,8 @@ class _ExerciseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ex = workoutEx.exercise;
-    final name = ex?.name ?? 'Exercise ${index + 1}';
+    // Library exercise name, else the free-text name saved by AI plans.
+    final name = ex?.name ?? workoutEx.name ?? 'Exercise ${index + 1}';
     final hasVideo = ex?.primaryVideoUrl != null;
     final hasImage = ex?.primaryImageUrl != null;
 

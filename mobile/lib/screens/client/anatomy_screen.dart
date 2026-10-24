@@ -8,9 +8,8 @@ import '../../core/theme/app_theme.dart';
 import '../../models/body_part_model.dart';
 import '../../providers/anatomy_provider.dart';
 
-// ── public URL for the 3D human body model (replace with your own GLB) ────────
-const _kModelUrl =
-    'https://modelviewer.dev/shared-assets/models/Astronaut.glb';
+// ── City Gym's real muscular body model, bundled with the app (works offline).
+const _kModelUrl = 'assets/models/male_muscular.glb';
 
 Future<void> _openUrl(String url) async {
   final uri = Uri.parse(url);
@@ -247,7 +246,9 @@ class _AnatomyModelSection extends ConsumerWidget {
                   child: ModelViewer(
                     src: _kModelUrl,
                     alt: 'Interactive 3D human body model',
-                    ar: false,
+                    // AR: "View in your space" on ARCore / ARKit phones.
+                    ar: true,
+                    arModes: ['scene-viewer', 'webxr', 'quick-look'],
                     autoRotate: true,
                     autoRotateDelay: 2000,
                     cameraControls: true,

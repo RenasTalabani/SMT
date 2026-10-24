@@ -8,6 +8,7 @@ class WorkoutExerciseModel {
   final String id;
   final ExerciseModel? exercise; // populated
   final String? exerciseId;      // raw ID when not populated
+  final String? name;            // free-text name (AI-generated plans)
   final int sets;
   final int? reps;
   final double? weight; // kg
@@ -21,6 +22,7 @@ class WorkoutExerciseModel {
     required this.id,
     this.exercise,
     this.exerciseId,
+    this.name,
     required this.sets,
     this.reps,
     this.weight,
@@ -45,6 +47,7 @@ class WorkoutExerciseModel {
       id: json['_id'] ?? json['id'] ?? '',
       exercise: ex,
       exerciseId: exId,
+      name: json['name'] as String?,
       sets: json['sets'] ?? 3,
       reps: json['reps'],
       weight: json['weight']?.toDouble(),

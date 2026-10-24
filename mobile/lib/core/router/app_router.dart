@@ -28,6 +28,8 @@ import '../../screens/client/booking_screen.dart';
 import '../../screens/client/anatomy_screen.dart';
 import '../../screens/client/change_password_screen.dart';
 import '../../screens/coach/coach_bookings_screen.dart';
+import '../../screens/coach/coach_schedule_screen.dart';
+import '../../screens/client/health_tools_screen.dart';
 import '../../screens/client/progress_screen.dart';
 import '../../screens/ai/ai_chat_screen.dart';
 import '../../screens/ai/ai_workout_screen.dart';
@@ -133,6 +135,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/client/progress',      builder: (_, __) => const ProgressScreen()),
           GoRoute(path: '/client/profile',          builder: (_, __) => const ProfileScreen()),
           GoRoute(path: '/client/change-password', builder: (_, __) => const ChangePasswordScreen()),
+          GoRoute(path: '/client/health',          builder: (_, __) => const HealthToolsScreen()),
           GoRoute(path: '/client/ai/chat',       builder: (_, __) => const AiChatScreen()),
           GoRoute(path: '/client/ai/workout',    builder: (_, __) => const AiWorkoutScreen()),
           GoRoute(path: '/client/ai/nutrition',  builder: (_, __) => const AiNutritionScreen()),
@@ -155,6 +158,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(path: '/coach/profile',          builder: (_, __) => const CoachProfileScreen()),
           GoRoute(path: '/coach/bookings',         builder: (_, __) => const CoachBookingsScreen()),
+          GoRoute(path: '/coach/schedule',         builder: (_, __) => const CoachScheduleScreen()),
           GoRoute(path: '/coach/notifications',    builder: (_, __) => const NotificationsScreen()),
           GoRoute(path: '/coach/exercises/create', builder: (_, __) => const CreateExerciseScreen()),
         ],
