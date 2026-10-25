@@ -1,3 +1,4 @@
+import '../core/i18n/trv.dart';
 class CourseModel {
   final String id;
   final String title;
@@ -56,15 +57,15 @@ class CourseModel {
       );
 
   String get instructorName =>
-      instructor?['name'] as String? ?? 'Unknown Instructor';
+      instructor?['name'] as String? ?? trv('Unknown Instructor');
   String? get instructorAvatar => instructor?['avatar'] as String?;
 
   String get levelLabel {
     switch (level) {
-      case 'beginner': return 'Beginner';
-      case 'intermediate': return 'Intermediate';
-      case 'advanced': return 'Advanced';
-      case 'all_levels': return 'All Levels';
+      case 'beginner': return trv('Beginner');
+      case 'intermediate': return trv('Intermediate');
+      case 'advanced': return trv('Advanced');
+      case 'all_levels': return trv('All Levels');
       default: return level ?? '';
     }
   }

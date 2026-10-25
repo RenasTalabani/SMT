@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -50,9 +51,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               color: Color(0xFF0F172A), size: 20),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
-          'Notifications',
-          style: TextStyle(
+        title: Text(
+          'notifications'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 20,
             color: Color(0xFF0F172A),
@@ -62,9 +63,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
           if (state.unreadCount > 0)
             TextButton(
               onPressed: _markAllRead,
-              child: const Text(
-                'Mark All Read',
-                style: TextStyle(
+              child: Text(
+                'mark_all_read'.tr(),
+                style: const TextStyle(
                   color: _primaryBlue,
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
@@ -99,10 +100,10 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     }
 
     if (state.notifications.isEmpty) {
-      return const EmptyState(
+      return EmptyState(
         icon: Icons.notifications_none_rounded,
-        title: 'No notifications',
-        subtitle: 'You\'re all caught up! Check back later.',
+        title: 'no_notifications'.tr(),
+        subtitle: 'you_re_all_caught_up_check'.tr(),
       );
     }
 
@@ -227,7 +228,7 @@ class _NotificationCard extends StatelessWidget {
                         Container(
                           width: 8,
                           height: 8,
-                          margin: const EdgeInsets.only(left: 8, top: 3),
+                          margin: const EdgeInsetsDirectional.only(start: 8, top: 3),
                           decoration: const BoxDecoration(
                             color: Color(0xFF26BDB8),
                             shape: BoxShape.circle,

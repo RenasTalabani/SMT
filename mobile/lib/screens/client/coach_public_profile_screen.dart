@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../widgets/error_view.dart';
@@ -62,10 +63,10 @@ class CoachPublicProfileScreen extends ConsumerWidget {
           surfaceTintColor: Colors.transparent,
           foregroundColor: const Color(0xFF0F172A),
         ),
-        body: const Center(
+        body: Center(
           child: Text(
-            'Coach not found.',
-            style: TextStyle(color: Color(0xFF64748B), fontSize: 15),
+            'coach_not_found'.tr(),
+            style: const TextStyle(color: Color(0xFF64748B), fontSize: 15),
           ),
         ),
       );
@@ -100,7 +101,7 @@ class CoachPublicProfileScreen extends ConsumerWidget {
 
                   // Specializations
                   if (coach.specialization.isNotEmpty) ...[
-                    const _SectionTitle(title: 'Specializations'),
+                    _SectionTitle(title: 'specializations'.tr()),
                     const SizedBox(height: 10),
                     Wrap(
                       spacing: 8,
@@ -136,7 +137,7 @@ class CoachPublicProfileScreen extends ConsumerWidget {
 
                   // Bio
                   if (coach.bio != null && coach.bio!.isNotEmpty) ...[
-                    const _SectionTitle(title: 'About'),
+                    _SectionTitle(title: 'about'.tr()),
                     const SizedBox(height: 10),
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -164,7 +165,7 @@ class CoachPublicProfileScreen extends ConsumerWidget {
 
                   // Rating breakdown
                   if (coach.rating > 0) ...[
-                    const _SectionTitle(title: 'Rating'),
+                    _SectionTitle(title: 'rating'.tr()),
                     const SizedBox(height: 10),
                     _RatingCard(coach: coach),
                     const SizedBox(height: 20),
@@ -250,7 +251,7 @@ class _HeroHeader extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '${coach.experienceYears} years experience',
+                            'x_years_experience'.tr(namedArgs: {'n0': '${coach.experienceYears}'}),
                             style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 12,
@@ -288,7 +289,7 @@ class _StatsRow extends StatelessWidget {
               icon: Icons.star_rounded,
               iconColor: const Color(0xFFF59E0B),
               value: coach.rating.toStringAsFixed(1),
-              label: 'Rating',
+              label: 'rating'.tr(),
             ),
           ),
           const SizedBox(width: 10),
@@ -299,7 +300,7 @@ class _StatsRow extends StatelessWidget {
               icon: Icons.workspace_premium_rounded,
               iconColor: const Color(0xFF26BDB8),
               value: '${coach.experienceYears}+',
-              label: 'Years Exp.',
+              label: 'years_exp'.tr(),
             ),
           ),
           const SizedBox(width: 10),
@@ -310,7 +311,7 @@ class _StatsRow extends StatelessWidget {
               icon: Icons.people_rounded,
               iconColor: const Color(0xFF7C3AED),
               value: '${coach.reviewCount}',
-              label: 'Reviews',
+              label: 'reviews'.tr(),
             ),
           ),
       ],
@@ -421,7 +422,7 @@ class _RatingCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Based on ${coach.reviewCount} review${coach.reviewCount == 1 ? '' : 's'}',
+                (coach.reviewCount == 1 ? 'based_on_one_review'.tr() : 'based_on_x_reviews'.tr(namedArgs: {'n0': '${coach.reviewCount}'})),
                 style: const TextStyle(
                   fontSize: 12,
                   color: Color(0xFF64748B),
@@ -465,9 +466,9 @@ class _ConnectButton extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Text(
-            'Ready to Train?',
-            style: TextStyle(
+          Text(
+            'ready_to_train'.tr(),
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -475,7 +476,7 @@ class _ConnectButton extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Connect with ${coach.name.split(' ').first} and start your transformation.',
+            'connect_with_x_and_start_your_transformation'.tr(namedArgs: {'n0': coach.name.split(' ').first}),
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.white70,
@@ -501,9 +502,9 @@ class _ConnectButton extends StatelessWidget {
                 ),
                 elevation: 0,
               ),
-              child: const Text(
-                'Book a Session',
-                style: TextStyle(
+              child: Text(
+                'book_a_session'.tr(),
+                style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
                 ),

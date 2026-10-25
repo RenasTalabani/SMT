@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../core/network/api_client.dart';
 import '../../core/storage/secure_storage.dart';
@@ -50,7 +51,7 @@ class _ClassesScreenState extends State<ClassesScreen> {
   }
 
   String _fmt(DateTime d) {
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final days = ['mon'.tr(), 'tue'.tr(), 'wed'.tr(), 'thu'.tr(), 'fri'.tr(), 'sat'.tr(), 'sun'.tr()];
     final hh = d.hour.toString().padLeft(2, '0');
     final mm = d.minute.toString().padLeft(2, '0');
     return '${days[d.weekday - 1]} ${d.day}/${d.month} · $hh:$mm';
@@ -59,7 +60,7 @@ class _ClassesScreenState extends State<ClassesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Group classes')),
+      appBar: AppBar(title: Text('group_classes'.tr())),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -68,7 +69,7 @@ class _ClassesScreenState extends State<ClassesScreen> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
-                  if (_classes.isEmpty && _error == null) const Text('No classes scheduled yet.'),
+                  if (_classes.isEmpty && _error == null) Text('no_classes_scheduled_yet'.tr()),
                   ..._classes.map((c) {
                     final attendees = (c['attendees'] ?? []) as List;
                     final joined = attendees.any((a) => (a is String ? a : a['_id']) == _myId);
@@ -83,15 +84,15 @@ class _ClassesScreenState extends State<ClassesScreen> {
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Row(children: [
                             Expanded(child: Text(c['title'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16))),
-                            Chip(label: Text(left > 0 ? '$left spots' : 'Full')),
+                            Chip(label: Text(left > 0 ? 'x_spots'.tr(namedArgs: {'left': '$left'}) : 'full'.tr())),
                           ]),
                           Text('${_fmt(starts)} · ${c['durationMin']} min · $coach', style: const TextStyle(color: Color(0xFF64748B))),
                           const SizedBox(height: 8),
                           SizedBox(
                             width: double.infinity,
                             child: joined
-                                ? OutlinedButton(onPressed: _busy == c['_id'] ? null : () => _toggle(c, true), child: const Text('Joined ✓ · Leave'))
-                                : FilledButton(onPressed: _busy == c['_id'] || left <= 0 ? null : () => _toggle(c, false), child: const Text('Join')),
+                                ? OutlinedButton(onPressed: _busy == c['_id'] ? null : () => _toggle(c, true), child: Text('joined_leave'.tr()))
+                                : FilledButton(onPressed: _busy == c['_id'] || left <= 0 ? null : () => _toggle(c, false), child: Text('join'.tr())),
                           ),
                         ]),
                       ),

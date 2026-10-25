@@ -1,3 +1,5 @@
+import '../../core/i18n/trv.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -90,9 +92,9 @@ class _TipsScreenState extends ConsumerState<TipsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Tips & Advice',
-          style: TextStyle(
+        title: Text(
+          'tips_advice'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 20,
             color: Color(0xFF0F172A),
@@ -116,7 +118,7 @@ class _TipsScreenState extends ConsumerState<TipsScreen> {
                   },
                   onSubmitted: (_) => _applyFilters(),
                   decoration: InputDecoration(
-                    hintText: 'Search tips...',
+                    hintText: 'search_tips'.tr(),
                     hintStyle:
                         const TextStyle(color: Color(0xFFCBD5E1)),
                     prefixIcon: const Icon(Icons.search_rounded,
@@ -190,7 +192,7 @@ class _TipsScreenState extends ConsumerState<TipsScreen> {
                             ),
                           ),
                           child: Text(
-                            cat,
+                            trv(cat),
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -221,11 +223,11 @@ class _TipsScreenState extends ConsumerState<TipsScreen> {
                         onRetry: _applyFilters,
                       )
                     : state.tips.isEmpty
-                        ? const EmptyState(
+                        ? EmptyState(
                             icon: Icons.lightbulb_rounded,
-                            title: 'No tips found',
+                            title: 'no_tips_found'.tr(),
                             subtitle:
-                                'Try a different search or category.',
+                                'try_a_different_search_or_category'.tr(),
                           )
                         : RefreshIndicator(
                             color: const Color(0xFF26BDB8),
@@ -286,17 +288,17 @@ class _TipCard extends ConsumerWidget {
     if (date == null) return '';
     final diff = DateTime.now().difference(date);
     if (diff.inDays > 365) {
-      return '${(diff.inDays / 365).floor()}y ago';
+      return 'x_y_ago'.tr(namedArgs: {'n0': '${(diff.inDays / 365).floor()}'});
     } else if (diff.inDays > 30) {
-      return '${(diff.inDays / 30).floor()}mo ago';
+      return 'x_mo_ago'.tr(namedArgs: {'n0': '${(diff.inDays / 30).floor()}'});
     } else if (diff.inDays > 0) {
-      return '${diff.inDays}d ago';
+      return 'x_d_ago'.tr(namedArgs: {'n0': '${diff.inDays}'});
     } else if (diff.inHours > 0) {
-      return '${diff.inHours}h ago';
+      return 'x_h_ago'.tr(namedArgs: {'n0': '${diff.inHours}'});
     } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes}m ago';
+      return 'x_m_ago'.tr(namedArgs: {'n0': '${diff.inMinutes}'});
     }
-    return 'Just now';
+    return 'just_now'.tr();
   }
 
   @override

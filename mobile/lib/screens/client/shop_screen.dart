@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../core/network/api_client.dart';
 
@@ -56,7 +57,7 @@ class _ShopScreenState extends State<ShopScreen> {
       _cart.clear();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Order placed! Pay and collect at reception.')));
+            SnackBar(content: Text('order_placed_pay_and_collect_at'.tr())));
       }
       await _load();
     } catch (e) {
@@ -78,7 +79,7 @@ class _ShopScreenState extends State<ShopScreen> {
   Widget build(BuildContext context) {
     final count = _cart.values.fold<int>(0, (a, b) => a + b);
     return Scaffold(
-      appBar: AppBar(title: const Text('City Gym shop')),
+      appBar: AppBar(title: Text('city_gym_shop'.tr())),
       bottomNavigationBar: count == 0
           ? null
           : SafeArea(
@@ -86,7 +87,7 @@ class _ShopScreenState extends State<ShopScreen> {
                 padding: const EdgeInsets.all(12),
                 child: FilledButton(
                   onPressed: _ordering ? null : _order,
-                  child: Text(_ordering ? 'Ordering…' : 'Place order · $count items · ${_money(_total)}'),
+                  child: Text(_ordering ? 'ordering'.tr() : 'place_order_x_items_x'.tr(namedArgs: {'count': '$count', 'n0': _money(_total)})),
                 ),
               ),
             ),
@@ -98,7 +99,7 @@ class _ShopScreenState extends State<ShopScreen> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
-                  const Text('Pay and collect at reception.', style: TextStyle(color: Color(0xFF64748B))),
+                  Text('pay_and_collect_at_reception'.tr(), style: const TextStyle(color: Color(0xFF64748B))),
                   const SizedBox(height: 8),
                   ..._products.map((p) {
                     final id = p['_id'] as String;
@@ -110,9 +111,9 @@ class _ShopScreenState extends State<ShopScreen> {
                       child: ListTile(
                         leading: CircleAvatar(backgroundColor: const Color(0xFFFFEDD5), child: Icon(_icon(p['category'] ?? ''), color: const Color(0xFFEA580C))),
                         title: Text(p['name'] ?? ''),
-                        subtitle: Text('${_money(p['price'] ?? 0)} · ${stock > 0 ? '$stock left' : 'Out of stock'}'),
+                        subtitle: Text('${_money(p['price'] ?? 0)} · ${stock > 0 ? 'x_left'.tr(namedArgs: {'stock': '$stock'}) : 'out_of_stock'.tr()}'),
                         trailing: q == 0
-                            ? TextButton(onPressed: stock > 0 ? () => setState(() => _cart[id] = 1) : null, child: const Text('Add'))
+                            ? TextButton(onPressed: stock > 0 ? () => setState(() => _cart[id] = 1) : null, child: Text('add'.tr()))
                             : Row(mainAxisSize: MainAxisSize.min, children: [
                                 IconButton(icon: const Icon(Icons.remove_circle_outline), onPressed: () => setState(() => _cart[id] = q - 1)),
                                 Text('$q'),
@@ -123,7 +124,7 @@ class _ShopScreenState extends State<ShopScreen> {
                   }),
                   if (_orders.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    const Text('My orders', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                    Text('my_orders'.tr(), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                     ..._orders.take(10).map((o) => ListTile(
                           contentPadding: EdgeInsets.zero,
                           title: Text(((o['items'] ?? []) as List).map((i) => '${i['quantity']}× ${i['name']}').join(', ')),

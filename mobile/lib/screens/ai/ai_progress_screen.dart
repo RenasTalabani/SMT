@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/ai_provider.dart';
@@ -15,8 +16,8 @@ class AiProgressScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('AI Progress Analysis',
-            style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('ai_progress_analysis'.tr(),
+            style: const TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF0F172A),
         elevation: 0,
@@ -25,7 +26,7 @@ class AiProgressScreen extends ConsumerWidget {
             IconButton(
               onPressed: () => ref.read(aiProgressProvider.notifier).analyze(),
               icon: const Icon(Icons.refresh_rounded, color: _teal),
-              tooltip: 'Re-analyze',
+              tooltip: 're_analyze'.tr(),
             ),
         ],
       ),
@@ -63,14 +64,14 @@ class _Loading extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          const Text('Analyzing your progress...',
-              style: TextStyle(
+          Text('analyzing_your_progress'.tr(),
+              style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF0F172A))),
           const SizedBox(height: 8),
-          const Text('This takes a few seconds',
-              style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
+          Text('this_takes_a_few_seconds'.tr(),
+              style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8))),
         ],
       ),
     );
@@ -100,22 +101,22 @@ class _Prompt extends StatelessWidget {
             ),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: const Row(children: [
-            Text('📊', style: TextStyle(fontSize: 36)),
-            SizedBox(width: 14),
+          child: Row(children: [
+            const Text('📊', style: TextStyle(fontSize: 36)),
+            const SizedBox(width: 14),
             Expanded(
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                  Text('Progress Analysis',
-                      style: TextStyle(
+                  Text('progress_analysis'.tr(),
+                      style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
                           fontSize: 17)),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                      'AI reviews your last 30 days and tells you exactly what to improve',
-                      style: TextStyle(
+                      'ai_reviews_your_last_30_days'.tr(),
+                      style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 12,
                           height: 1.4)),
@@ -125,19 +126,19 @@ class _Prompt extends StatelessWidget {
         const SizedBox(height: 28),
 
         // What you'll get
-        const Text('What you get',
-            style: TextStyle(
+        Text('what_you_get'.tr(),
+            style: const TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 15,
                 color: Color(0xFF0F172A))),
         const SizedBox(height: 12),
         ...[
-          ('📈', 'Performance Analysis',
-              'Deep look at your workout completion rate, consistency, and trends'),
-          ('💡', 'Personalised Suggestions',
-              'Specific actions to improve your results this week'),
-          ('🏆', 'Strengths & Weaknesses',
-              'Know exactly what you\'re doing right and what to fix'),
+          ('📈', 'performance_analysis'.tr(),
+              'deep_look_at_your_workout_completion'.tr()),
+          ('💡', 'personalised_suggestions'.tr(),
+              'specific_actions_to_improve_your_results'.tr()),
+          ('🏆', 'strengths_weaknesses'.tr(),
+              'know_exactly_what_you_re_doing'.tr()),
         ].map((item) => Container(
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(14),
@@ -197,9 +198,9 @@ class _Prompt extends StatelessWidget {
         ElevatedButton.icon(
           onPressed: onAnalyze,
           icon: const Text('📊', style: TextStyle(fontSize: 18)),
-          label: const Text('Analyse My Progress',
+          label: Text('analyse_my_progress'.tr(),
               style:
-                  TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           style: ElevatedButton.styleFrom(
             backgroundColor: _purple,
             foregroundColor: Colors.white,
@@ -209,9 +210,9 @@ class _Prompt extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        const Text('Analyses your last 30 days of activity',
+        Text('analyses_your_last_30_days_of'.tr(),
             textAlign: TextAlign.center,
-            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
+            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
         const SizedBox(height: 32),
       ],
     );
@@ -238,19 +239,19 @@ class _Result extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: _purple.withValues(alpha: 0.3)),
           ),
-          child: const Row(children: [
-            Icon(Icons.check_circle_rounded, color: _purple, size: 20),
-            SizedBox(width: 8),
-            Text('Analysis Complete',
-                style: TextStyle(
+          child: Row(children: [
+            const Icon(Icons.check_circle_rounded, color: _purple, size: 20),
+            const SizedBox(width: 8),
+            Text('analysis_complete'.tr(),
+                style: const TextStyle(
                     color: _purple, fontWeight: FontWeight.w600)),
           ]),
         ),
         const SizedBox(height: 16),
 
         // Analysis text
-        const Text('Your Progress Report',
-            style: TextStyle(
+        Text('your_progress_report'.tr(),
+            style: const TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 15,
                 color: Color(0xFF0F172A))),
@@ -272,8 +273,8 @@ class _Result extends StatelessWidget {
         // Suggestions
         if (suggestions.isNotEmpty) ...[
           const SizedBox(height: 20),
-          const Text('Action Plan',
-              style: TextStyle(
+          Text('action_plan'.tr(),
+              style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
                   color: Color(0xFF0F172A))),

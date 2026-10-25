@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -38,8 +39,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
           .changePassword(_currentCtrl.text.trim(), _newCtrl.text.trim());
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Password updated successfully'),
+          SnackBar(
+            content: Text('password_updated_successfully'.tr()),
             backgroundColor: AppColors.success,
           ),
         );
@@ -54,7 +55,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     final error = ref.watch(authProvider.select((s) => s.error));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Change Password')),
+      appBar: AppBar(title: Text('change_password'.tr())),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -86,32 +87,32 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
               ],
               _PassField(
                 controller: _currentCtrl,
-                label: 'Current Password',
+                label: 'current_password'.tr(),
                 show: _showCurrent,
                 onToggle: () => setState(() => _showCurrent = !_showCurrent),
                 validator: (v) =>
-                    (v == null || v.isEmpty) ? 'Required' : null,
+                    (v == null || v.isEmpty) ? 'required'.tr() : null,
               ),
               const SizedBox(height: 16),
               _PassField(
                 controller: _newCtrl,
-                label: 'New Password',
+                label: 'new_password'.tr(),
                 show: _showNew,
                 onToggle: () => setState(() => _showNew = !_showNew),
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Required';
-                  if (v.length < 6) return 'At least 6 characters';
+                  if (v == null || v.isEmpty) return 'required'.tr();
+                  if (v.length < 6) return 'at_least_6_characters'.tr();
                   return null;
                 },
               ),
               const SizedBox(height: 16),
               _PassField(
                 controller: _confirmCtrl,
-                label: 'Confirm New Password',
+                label: 'confirm_new_password'.tr(),
                 show: _showConfirm,
                 onToggle: () => setState(() => _showConfirm = !_showConfirm),
                 validator: (v) {
-                  if (v != _newCtrl.text) return 'Passwords do not match';
+                  if (v != _newCtrl.text) return 'passwords_not_match'.tr();
                   return null;
                 },
               ),
@@ -127,7 +128,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                           child: CircularProgressIndicator(
                               color: Colors.white, strokeWidth: 2),
                         )
-                      : const Text('Update Password'),
+                      : Text('update_password'.tr()),
                 ),
               ),
             ],

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 /// A centred error widget displaying an error icon, a message, and an
@@ -53,7 +54,7 @@ class ErrorView extends StatelessWidget {
 
             // Title
             Text(
-              'Something went wrong',
+              'error'.tr(),
               textAlign: TextAlign.center,
               style: textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
@@ -79,7 +80,7 @@ class ErrorView extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded, size: 20),
-                label: const Text('Try Again'),
+                label: Text('try_again'.tr()),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFF26BDB8),
                   side: const BorderSide(color: Color(0xFF26BDB8), width: 1.5),

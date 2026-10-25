@@ -1,3 +1,4 @@
+import '../core/i18n/trv.dart';
 class BodyPartModel {
   final String id;
   final String partId;
@@ -77,22 +78,22 @@ class BodyPartModel {
 
   String get typeLabel {
     switch (type) {
-      case 'muscle': return 'Muscle';
-      case 'joint':  return 'Joint';
-      case 'artery': return 'Artery';
-      case 'nerve':  return 'Nerve';
-      case 'organ':  return 'Organ';
+      case 'muscle': return trv('Muscle');
+      case 'joint':  return trv('Joint');
+      case 'artery': return trv('Artery');
+      case 'nerve':  return trv('Nerve');
+      case 'organ':  return trv('Organ');
       default:       return type;
     }
   }
 
   String get regionLabel {
     switch (region) {
-      case 'upper_body': return 'Upper Body';
-      case 'lower_body': return 'Lower Body';
-      case 'core':       return 'Core';
-      case 'head_neck':  return 'Head & Neck';
-      case 'full_body':  return 'Full Body';
+      case 'upper_body': return trv('Upper Body');
+      case 'lower_body': return trv('Lower Body');
+      case 'core':       return trv('Core');
+      case 'head_neck':  return trv('Head & Neck');
+      case 'full_body':  return trv('Full Body');
       default:           return region ?? '';
     }
   }

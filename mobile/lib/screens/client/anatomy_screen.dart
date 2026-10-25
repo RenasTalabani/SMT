@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -36,7 +37,7 @@ class _AnatomyScreenState extends ConsumerState<AnatomyScreen>
   bool _show3D = true;
 
   static const _types = ['all', 'muscle', 'joint', 'artery', 'nerve'];
-  static const _typeLabels = ['All', 'Muscles', 'Joints', 'Arteries', 'Nerves'];
+  static List<String> get _typeLabels => ['all'.tr(), 'muscles'.tr(), 'joints'.tr(), 'arteries'.tr(), 'nerves'.tr()];
 
   @override
   void initState() {
@@ -69,16 +70,16 @@ class _AnatomyScreenState extends ConsumerState<AnatomyScreen>
             backgroundColor: const Color(0xFF0D1B2A),
             foregroundColor: Colors.white,
             surfaceTintColor: Colors.transparent,
-            title: const Text(
-              'Human Anatomy',
-              style: TextStyle(
+            title: Text(
+              'human_anatomy'.tr(),
+              style: const TextStyle(
                   color: Colors.white,
                   fontSize: 20,
                   fontWeight: FontWeight.w800),
             ),
             actions: [
               IconButton(
-                tooltip: _show3D ? 'Hide 3D model' : 'Show 3D model',
+                tooltip: _show3D ? 'hide_3d_model'.tr() : 'show_3d_model'.tr(),
                 icon: Icon(
                   _show3D
                       ? Icons.view_in_ar_rounded
@@ -134,7 +135,7 @@ class _AnatomyScreenState extends ConsumerState<AnatomyScreen>
                   TextField(
                     controller: _search,
                     decoration: InputDecoration(
-                      hintText: 'Search muscles, joints, nerves…',
+                      hintText: 'search_muscles_joints_nerves'.tr(),
                       prefixIcon: const Icon(Icons.search_rounded,
                           color: AppColors.textHint),
                       suffixIcon: _search.text.isNotEmpty
@@ -164,7 +165,7 @@ class _AnatomyScreenState extends ConsumerState<AnatomyScreen>
                   const _RegionChips(),
                   const SizedBox(height: 14),
                   Text(
-                    '${state.filtered.length} body parts',
+                    'x_body_parts'.tr(namedArgs: {'n0': '${state.filtered.length}'}),
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppColors.textHint,
@@ -242,18 +243,18 @@ class _AnatomyModelSection extends ConsumerWidget {
             child: Stack(
               children: [
                 // Model viewer — explicit size prevents web overflow
-                const Positioned.fill(
+                Positioned.fill(
                   child: ModelViewer(
                     src: _kModelUrl,
-                    alt: 'Interactive 3D human body model',
+                    alt: 'interactive_3d_human_body_model'.tr(),
                     // AR: "View in your space" on ARCore / ARKit phones.
                     ar: true,
-                    arModes: ['scene-viewer', 'webxr', 'quick-look'],
+                    arModes: const ['scene-viewer', 'webxr', 'quick-look'],
                     autoRotate: true,
                     autoRotateDelay: 2000,
                     cameraControls: true,
                     disableZoom: false,
-                    backgroundColor: Color(0xFF0D1B2A),
+                    backgroundColor: const Color(0xFF0D1B2A),
                     rotationPerSecond: '20deg',
                     shadowIntensity: 0.6,
                   ),
@@ -271,15 +272,15 @@ class _AnatomyModelSection extends ConsumerWidget {
                         color: Colors.black54,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.touch_app_rounded,
+                          const Icon(Icons.touch_app_rounded,
                               color: Colors.white70, size: 14),
-                          SizedBox(width: 6),
+                          const SizedBox(width: 6),
                           Text(
-                            'Drag to rotate • Pinch to zoom',
-                            style: TextStyle(
+                            'drag_to_rotate_pinch_to_zoom'.tr(),
+                            style: const TextStyle(
                                 color: Colors.white70, fontSize: 11),
                           ),
                         ],
@@ -295,7 +296,7 @@ class _AnatomyModelSection extends ConsumerWidget {
           if (parts.isNotEmpty)
             Container(
               height: 52,
-              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 10),
+              padding: const EdgeInsetsDirectional.only(start: 16, end: 16, bottom: 10),
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: parts.length > 8 ? 8 : parts.length,
@@ -357,8 +358,8 @@ class _RegionChips extends ConsumerWidget {
   static const _regions = [
     'all', 'upper_body', 'lower_body', 'core', 'head_neck'
   ];
-  static const _labels = [
-    'All Regions', 'Upper Body', 'Lower Body', 'Core', 'Head & Neck'
+  static List<String> get _labels => [
+    'all_regions'.tr(), 'upper_body'.tr(), 'lower_body'.tr(), 'core'.tr(), 'head_neck'.tr()
   ];
 
   @override
@@ -522,11 +523,11 @@ class BodyPartDetailScreen extends ConsumerWidget {
             (_) => ref.read(anatomyProvider.notifier).fetchAll());
       }
       return Scaffold(
-        appBar: AppBar(title: const Text('Body Part')),
+        appBar: AppBar(title: Text('body_part'.tr())),
         body: Center(
           child: state.isLoading
               ? const CircularProgressIndicator()
-              : const Text('Part not found'),
+              : Text('part_not_found'.tr()),
         ),
       );
     }
@@ -644,37 +645,37 @@ class BodyPartDetailScreen extends ConsumerWidget {
                     _InfoCard(
                       icon: Icons.info_outline_rounded,
                       color: color,
-                      title: 'Overview',
+                      title: 'overview'.tr(),
                       child: Text(part.description!, style: _bodyStyle),
                     ),
                   if (part.function != null)
                     _InfoCard(
                       icon: Icons.settings_rounded,
                       color: color,
-                      title: 'Function',
+                      title: 'function'.tr(),
                       child: Text(part.function!, style: _bodyStyle),
                     ),
                   if (part.origin != null || part.insertion != null)
                     _InfoCard(
                       icon: Icons.timeline_rounded,
                       color: color,
-                      title: 'Anatomy',
+                      title: 'anatomy'.tr(),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (part.origin != null) ...[
                             _AnatomyRow(
-                                label: 'Origin', value: part.origin!),
+                                label: 'origin'.tr(), value: part.origin!),
                             const SizedBox(height: 6),
                           ],
                           if (part.insertion != null)
                             _AnatomyRow(
-                                label: 'Insertion',
+                                label: 'insertion'.tr(),
                                 value: part.insertion!),
                           if (part.innervation != null) ...[
                             const SizedBox(height: 6),
                             _AnatomyRow(
-                                label: 'Innervation',
+                                label: 'innervation'.tr(),
                                 value: part.innervation!),
                           ],
                         ],
@@ -684,7 +685,7 @@ class BodyPartDetailScreen extends ConsumerWidget {
                     _InfoCard(
                       icon: Icons.fitness_center_rounded,
                       color: color,
-                      title: 'Related Exercises',
+                      title: 'related_exercises'.tr(),
                       child: Wrap(
                         spacing: 8,
                         runSpacing: 8,
@@ -698,13 +699,13 @@ class BodyPartDetailScreen extends ConsumerWidget {
                     _InfoCard(
                       icon: Icons.compare_arrows_rounded,
                       color: color,
-                      title: 'Muscle Relationships',
+                      title: 'muscle_relationships'.tr(),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (part.synergistMuscles.isNotEmpty) ...[
-                            const Text('Synergists',
-                                style: TextStyle(
+                            Text('synergists'.tr(),
+                                style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.textSecondary)),
@@ -721,8 +722,8 @@ class BodyPartDetailScreen extends ConsumerWidget {
                             const SizedBox(height: 10),
                           ],
                           if (part.antagonistMuscles.isNotEmpty) ...[
-                            const Text('Antagonists',
-                                style: TextStyle(
+                            Text('antagonists'.tr(),
+                                style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.textSecondary)),
@@ -744,7 +745,7 @@ class BodyPartDetailScreen extends ConsumerWidget {
                     _InfoCard(
                       icon: Icons.warning_amber_rounded,
                       color: const Color(0xFFEF4444),
-                      title: 'Injury Risks',
+                      title: 'injury_risks'.tr(),
                       child: Column(
                         children: part.injuryRisks
                             .map((r) => _BulletRow(
@@ -756,7 +757,7 @@ class BodyPartDetailScreen extends ConsumerWidget {
                     _InfoCard(
                       icon: Icons.sick_rounded,
                       color: const Color(0xFFEF4444),
-                      title: 'Symptoms',
+                      title: 'symptoms'.tr(),
                       child: Column(
                         children: part.symptoms
                             .map((s) => _BulletRow(
@@ -768,7 +769,7 @@ class BodyPartDetailScreen extends ConsumerWidget {
                     _InfoCard(
                       icon: Icons.healing_rounded,
                       color: const Color(0xFF10B981),
-                      title: 'Recovery Tips',
+                      title: 'recovery_tips'.tr(),
                       child: Column(
                         children: part.recoveryTips
                             .map((t) => _BulletRow(
@@ -780,7 +781,7 @@ class BodyPartDetailScreen extends ConsumerWidget {
                     _InfoCard(
                       icon: Icons.local_fire_department_rounded,
                       color: const Color(0xFFF59E0B),
-                      title: 'Warm-up Tips',
+                      title: 'warm_up_tips'.tr(),
                       child: Column(
                         children: part.warmUpTips
                             .map((t) => _BulletRow(
@@ -794,7 +795,7 @@ class BodyPartDetailScreen extends ConsumerWidget {
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         icon: const Icon(Icons.play_circle_fill_rounded),
-                        label: const Text('Watch Explanation Video'),
+                        label: Text('watch_explanation_video'.tr()),
                         onPressed: () => _openUrl(part!.videoUrl!),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: color,
@@ -964,7 +965,7 @@ class _ErrorState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(color: AppColors.textSecondary)),
           const SizedBox(height: 20),
-          ElevatedButton(onPressed: onRetry, child: const Text('Try Again')),
+          ElevatedButton(onPressed: onRetry, child: Text('try_again'.tr())),
         ]),
       ),
     );
@@ -975,13 +976,13 @@ class _EmptyState extends StatelessWidget {
   const _EmptyState();
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.search_off_rounded, size: 56, color: AppColors.textHint),
-        SizedBox(height: 12),
-        Text('No results found',
+        const Icon(Icons.search_off_rounded, size: 56, color: AppColors.textHint),
+        const SizedBox(height: 12),
+        Text('no_results_found'.tr(),
             style:
-                TextStyle(color: AppColors.textSecondary, fontSize: 15)),
+                const TextStyle(color: AppColors.textSecondary, fontSize: 15)),
       ]),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -36,9 +37,9 @@ class _CoachesScreenState extends ConsumerState<CoachesScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Our Coaches',
-          style: TextStyle(
+        title: Text(
+          'our_coaches'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 20,
             color: Color(0xFF0F172A),
@@ -97,22 +98,22 @@ class _TeamBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Meet Our Expert Team',
-                  style: TextStyle(
+                  'meet_our_expert_team'.tr(),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 Text(
-                  'Professional coaches dedicated to your fitness journey.',
-                  style: TextStyle(
+                  'professional_coaches_dedicated_to_your_fitness'.tr(),
+                  style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 13,
                     height: 1.4,
@@ -212,7 +213,7 @@ class _CoachCard extends StatelessWidget {
                         _Stat(
                           icon: Icons.workspace_premium_rounded,
                           iconColor: const Color(0xFF26BDB8),
-                          label: '${coach.experienceYears}yr exp',
+                          label: 'x_yr_exp'.tr(namedArgs: {'n0': '${coach.experienceYears}'}),
                         ),
                         const SizedBox(width: 14),
                       ],
@@ -220,7 +221,7 @@ class _CoachCard extends StatelessWidget {
                         _Stat(
                           icon: Icons.people_outline_rounded,
                           iconColor: const Color(0xFF64748B),
-                          label: '${coach.reviewCount} reviews',
+                          label: 'x_reviews'.tr(namedArgs: {'n0': '${coach.reviewCount}'}),
                         ),
                     ],
                   ),
@@ -412,7 +413,7 @@ class _ErrorState extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Retry'),
+              child: Text('retry'.tr()),
             ),
           ],
         ),
@@ -426,10 +427,10 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Text(
-        'No coaches available right now.',
-        style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
+        'no_coaches_available_right_now'.tr(),
+        style: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
       ),
     );
   }

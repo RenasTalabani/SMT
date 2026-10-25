@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -165,16 +166,16 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Admin Panel',
-                  style: TextStyle(
+                Text(
+                  'admin_panel'.tr(),
+                  style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 16,
                     color: Color(0xFF0F172A),
                   ),
                 ),
                 Text(
-                  user?.name ?? 'Administrator',
+                  user?.name ?? 'administrator'.tr(),
                   style: const TextStyle(
                     fontSize: 11,
                     color: Color(0xFF64748B),
@@ -188,7 +189,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           IconButton(
             icon: const Icon(Icons.logout_rounded,
                 color: Color(0xFFEF4444), size: 22),
-            tooltip: 'Logout',
+            tooltip: 'logout'.tr(),
             onPressed: _logout,
           ),
           const SizedBox(width: 4),
@@ -222,15 +223,15 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: const Color(0xFFFCA5A5)),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.warning_amber_rounded,
+                const Icon(Icons.warning_amber_rounded,
                     color: Color(0xFFEF4444), size: 18),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Could not load live data. Showing cached values.',
-                    style: TextStyle(
+                    'could_not_load_live_data_showing'.tr(),
+                    style: const TextStyle(
                       fontSize: 12,
                       color: Color(0xFF991B1B),
                     ),
@@ -243,37 +244,37 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
         ],
 
         // Platform overview
-        const _SectionHeader(title: 'Platform Overview'),
+        _SectionHeader(title: 'platform_overview'.tr()),
         const SizedBox(height: 12),
         _OverviewGrid(analytics: analytics),
         const SizedBox(height: 20),
 
         // Users by role
-        const _SectionHeader(title: 'Users by Role'),
+        _SectionHeader(title: 'users_by_role'.tr()),
         const SizedBox(height: 12),
         _UsersByRoleCard(analytics: analytics),
         const SizedBox(height: 20),
 
         // Quick actions
-        const _SectionHeader(title: 'Quick Actions'),
+        _SectionHeader(title: 'quick_actions'.tr()),
         const SizedBox(height: 12),
         _QuickActionsTile(
           icon: Icons.manage_accounts_rounded,
-          label: 'Manage Users',
+          label: 'manage_users'.tr(),
           color: const Color(0xFF2563EB),
           onTap: () => context.push('/admin/users'),
         ),
         const SizedBox(height: 10),
         _QuickActionsTile(
           icon: Icons.campaign_rounded,
-          label: 'Send Announcement',
+          label: 'send_announcement'.tr(),
           color: const Color(0xFF7C3AED),
           onTap: _showAnnouncement,
         ),
         const SizedBox(height: 10),
         _QuickActionsTile(
           icon: Icons.bar_chart_rounded,
-          label: 'View Reports',
+          label: 'view_reports'.tr(),
           color: const Color(0xFF10B981),
           onTap: () => context.push('/admin/reports'),
         ),
@@ -303,25 +304,25 @@ class _OverviewGrid extends StatelessWidget {
       children: [
         _StatCard(
           icon: Icons.people_rounded,
-          label: 'Total Users',
+          label: 'total_users'.tr(),
           value: '${analytics.totalUsers}',
           color: const Color(0xFF2563EB),
         ),
         _StatCard(
           icon: Icons.fitness_center_rounded,
-          label: 'Workout Plans',
+          label: 'workout_plans'.tr(),
           value: '${analytics.totalWorkouts}',
           color: const Color(0xFF7C3AED),
         ),
         _StatCard(
           icon: Icons.subscriptions_rounded,
-          label: 'Active Subs',
+          label: 'active_subs'.tr(),
           value: '${analytics.activeSubscriptions}',
           color: const Color(0xFF10B981),
         ),
         _StatCard(
           icon: Icons.admin_panel_settings_rounded,
-          label: 'Admins',
+          label: 'admins'.tr(),
           value: '${analytics.totalAdmins}',
           color: const Color(0xFFF59E0B),
         ),
@@ -422,21 +423,21 @@ class _UsersByRoleCard extends StatelessWidget {
       child: Column(
         children: [
           _RoleRow(
-            label: 'Clients',
+            label: 'clients'.tr(),
             count: analytics.totalClients,
             total: total,
             color: const Color(0xFF2563EB),
           ),
           const SizedBox(height: 12),
           _RoleRow(
-            label: 'Coaches',
+            label: 'nav_coaches'.tr(),
             count: analytics.totalCoaches,
             total: total,
             color: const Color(0xFF10B981),
           ),
           const SizedBox(height: 12),
           _RoleRow(
-            label: 'Admins',
+            label: 'admins'.tr(),
             count: analytics.totalAdmins,
             total: total,
             color: const Color(0xFFF59E0B),
@@ -626,10 +627,10 @@ class _AnnouncementDialogState extends State<_AnnouncementDialog> {
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Announcement sent successfully'),
+          SnackBar(
+            content: Text('announcement_sent_successfully'.tr()),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: Color(0xFF10B981),
+            backgroundColor: const Color(0xFF10B981),
           ),
         );
       }
@@ -653,9 +654,9 @@ class _AnnouncementDialogState extends State<_AnnouncementDialog> {
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text(
-        'Send Announcement',
-        style: TextStyle(
+      title: Text(
+        'send_announcement'.tr(),
+        style: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: Color(0xFF0F172A),
@@ -667,8 +668,8 @@ class _AnnouncementDialogState extends State<_AnnouncementDialog> {
           TextField(
             controller: _titleController,
             decoration: InputDecoration(
-              labelText: 'Title',
-              hintText: 'Enter announcement title',
+              labelText: 'title'.tr(),
+              hintText: 'enter_announcement_title'.tr(),
               filled: true,
               fillColor: const Color(0xFFF8FAFC),
               border: OutlineInputBorder(
@@ -686,8 +687,8 @@ class _AnnouncementDialogState extends State<_AnnouncementDialog> {
             controller: _messageController,
             maxLines: 4,
             decoration: InputDecoration(
-              labelText: 'Message',
-              hintText: 'Enter your message...',
+              labelText: 'message'.tr(),
+              hintText: 'enter_your_message'.tr(),
               filled: true,
               fillColor: const Color(0xFFF8FAFC),
               border: OutlineInputBorder(
@@ -706,9 +707,9 @@ class _AnnouncementDialogState extends State<_AnnouncementDialog> {
         TextButton(
           onPressed:
               _isSending ? null : () => Navigator.of(context).pop(),
-          child: const Text(
-            'Cancel',
-            style: TextStyle(color: Color(0xFF64748B)),
+          child: Text(
+            'cancel'.tr(),
+            style: const TextStyle(color: Color(0xFF64748B)),
           ),
         ),
         FilledButton(
@@ -728,7 +729,7 @@ class _AnnouncementDialogState extends State<_AnnouncementDialog> {
                     color: Colors.white,
                   ),
                 )
-              : const Text('Send'),
+              : Text('send'.tr()),
         ),
       ],
     );

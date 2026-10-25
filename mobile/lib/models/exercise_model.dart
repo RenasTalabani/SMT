@@ -1,3 +1,4 @@
+import '../core/i18n/trv.dart';
 class ExerciseModel {
   final String id;
   final String name;
@@ -67,21 +68,21 @@ class ExerciseModel {
 
   String get difficultyLabel {
     switch (difficulty) {
-      case 'beginner': return 'Beginner';
-      case 'intermediate': return 'Intermediate';
-      case 'advanced': return 'Advanced';
+      case 'beginner': return trv('Beginner');
+      case 'intermediate': return trv('Intermediate');
+      case 'advanced': return trv('Advanced');
       default: return difficulty;
     }
   }
 
   String get categoryLabel {
     switch (category) {
-      case 'strength': return 'Strength';
-      case 'cardio': return 'Cardio';
-      case 'flexibility': return 'Flexibility';
-      case 'balance': return 'Balance';
-      case 'sports': return 'Sports';
-      case 'functional': return 'Functional';
+      case 'strength': return trv('Strength');
+      case 'cardio': return trv('Cardio');
+      case 'flexibility': return trv('Flexibility');
+      case 'balance': return trv('Balance');
+      case 'sports': return trv('Sports');
+      case 'functional': return trv('Functional');
       default: return category;
     }
   }

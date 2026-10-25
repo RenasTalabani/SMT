@@ -1,6 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../../core/theme/app_theme.dart';
 import '../../providers/booking_provider.dart';
 import '../../models/booking_model.dart';
@@ -16,7 +16,7 @@ class CoachBookingsScreen extends ConsumerStatefulWidget {
 class _CoachBookingsScreenState extends ConsumerState<CoachBookingsScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabs;
-  static const _labels = ['All', 'Pending', 'Confirmed', 'Completed'];
+  static List<String> get _labels => ['all'.tr(), 'pending'.tr(), 'confirmed'.tr(), 'completed'.tr()];
   static const _statuses = ['', 'pending', 'confirmed', 'completed'];
 
   @override
@@ -40,7 +40,7 @@ class _CoachBookingsScreenState extends ConsumerState<CoachBookingsScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bookings'),
+        title: Text('bookings'.tr()),
         bottom: TabBar(
           controller: _tabs,
           isScrollable: true,
@@ -73,20 +73,20 @@ class _CoachBookingsScreenState extends ConsumerState<CoachBookingsScreen>
                       TextButton(
                           onPressed: () =>
                               ref.read(bookingProvider.notifier).fetchMine(),
-                          child: const Text('Retry')),
+                          child: Text('retry'.tr())),
                     ],
                   ),
                 )
               : state.items.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.calendar_today_outlined,
+                          const Icon(Icons.calendar_today_outlined,
                               size: 56, color: AppColors.textHint),
-                          SizedBox(height: 12),
-                          Text('No bookings yet',
-                              style: TextStyle(
+                          const SizedBox(height: 12),
+                          Text('no_bookings_yet'.tr(),
+                              style: const TextStyle(
                                   color: AppColors.textSecondary,
                                   fontSize: 16)),
                         ],
@@ -145,7 +145,7 @@ class _CoachBookingCard extends ConsumerWidget {
             children: [
               Expanded(
                 child: Text(
-                  booking.clientName ?? 'Client',
+                  booking.clientName ?? 'client'.tr(),
                   style: const TextStyle(
                       fontSize: 15, fontWeight: FontWeight.w700),
                 ),
@@ -221,7 +221,7 @@ class _CoachBookingCard extends ConsumerWidget {
                       side: const BorderSide(color: AppColors.error),
                       minimumSize: const Size(0, 40),
                     ),
-                    child: const Text('Decline'),
+                    child: Text('decline'.tr()),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -232,7 +232,7 @@ class _CoachBookingCard extends ConsumerWidget {
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(0, 40),
                     ),
-                    child: const Text('Confirm'),
+                    child: Text('confirm'.tr()),
                   ),
                 ),
               ],
@@ -247,7 +247,7 @@ class _CoachBookingCard extends ConsumerWidget {
                 onPressed: () =>
                     _updateStatus(context, ref, 'completed'),
                 icon: const Icon(Icons.check_circle_outline, size: 18),
-                label: const Text('Mark Complete'),
+                label: Text('mark_complete'.tr()),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.success,
                   minimumSize: const Size(0, 40),

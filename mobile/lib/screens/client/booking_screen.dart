@@ -1,6 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../../providers/booking_provider.dart';
 import '../../models/booking_model.dart';
 import '../../core/theme/app_theme.dart';
@@ -33,11 +33,11 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   final _notesCtrl = TextEditingController();
   bool _submitting = false;
 
-  static const _types = [
-    ('personal_training', 'Personal Training'),
-    ('nutrition_consult', 'Nutrition Consult'),
-    ('assessment',        'Assessment'),
-    ('online',            'Online Session'),
+  static List<(String, String)> get _types => [
+    ('personal_training', 'personal_training'.tr()),
+    ('nutrition_consult', 'nutrition_consult'.tr()),
+    ('assessment',        'assessment'.tr()),
+    ('online',            'online_session'.tr()),
   ];
 
   @override
@@ -49,7 +49,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   Future<void> _book() async {
     if (_selectedSlot == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a time slot')),
+        SnackBar(content: Text('please_select_a_time_slot'.tr())),
       );
       return;
     }
@@ -67,13 +67,13 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     if (ok) {
       Navigator.of(context).pop(true);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Booking request sent!'),
+        SnackBar(
+          content: Text('booking_request_sent'.tr()),
           backgroundColor: AppColors.success,
         ),
       );
     } else {
-      final err = ref.read(bookingProvider).error ?? 'Booking failed';
+      final err = ref.read(bookingProvider).error ?? 'booking_failed'.tr();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(err), backgroundColor: AppColors.error),
       );
@@ -88,7 +88,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Book with ${widget.coachName}'),
+        title: Text('book_with_x'.tr(namedArgs: {'n0': widget.coachName})),
       ),
       body: slotsState.isLoading
           ? const Padding(
@@ -110,7 +110,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                             padding: const EdgeInsets.all(16),
                             children: [
                               // Session type picker
-                              const _SectionHeader('Session Type'),
+                              _SectionHeader('session_type'.tr()),
                               const SizedBox(height: 8),
                               Wrap(
                                 spacing: 8,
@@ -132,7 +132,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                               const SizedBox(height: 24),
 
                               // Day selector
-                              const _SectionHeader('Select a Date'),
+                              _SectionHeader('select_a_date'.tr()),
                               const SizedBox(height: 8),
                               SizedBox(
                                 height: 80,
@@ -183,7 +183,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                                               ),
                                             ),
                                             Text(
-                                              '${day.slots.length} slots',
+                                              'x_slots'.tr(namedArgs: {'n0': '${day.slots.length}'}),
                                               style: TextStyle(
                                                 fontSize: 9,
                                                 color: isSelected
@@ -203,7 +203,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                               // Time slots
                               if (_selectedDay != null) ...[
                                 _SectionHeader(
-                                  'Available Times — ${DateFormat('EEEE, MMM d').format(_selectedDay!.date)}',
+                                  'available_times_x'.tr(namedArgs: {'n0': DateFormat('EEEE, MMM d').format(_selectedDay!.date)}),
                                 ),
                                 const SizedBox(height: 8),
                                 Wrap(
@@ -245,14 +245,14 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                               ],
 
                               // Notes
-                              const _SectionHeader('Notes (optional)'),
+                              _SectionHeader('notes_optional'.tr()),
                               const SizedBox(height: 8),
                               TextField(
                                 controller: _notesCtrl,
                                 maxLines: 3,
                                 maxLength: 300,
-                                decoration: const InputDecoration(
-                                  hintText: 'Any specific goals or requests for the coach...',
+                                decoration: InputDecoration(
+                                  hintText: 'any_specific_goals_or_requests_for'.tr(),
                                 ),
                               ),
                               const SizedBox(height: 100),
@@ -286,7 +286,7 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabs;
   static const _statuses = ['', 'pending', 'confirmed', 'completed', 'cancelled'];
-  static const _labels   = ['All', 'Pending', 'Confirmed', 'Completed', 'Cancelled'];
+  static List<String> get _labels => ['all'.tr(), 'pending'.tr(), 'confirmed'.tr(), 'completed'.tr(), 'cancelled'.tr()];
 
   @override
   void initState() {
@@ -309,7 +309,7 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Bookings'),
+        title: Text('my_bookings'.tr()),
         bottom: TabBar(
           controller: _tabs,
           isScrollable: true,
@@ -331,15 +331,15 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
               child: LoadingShimmer(count: 5, height: 90),
             )
           : state.items.isEmpty
-              ? const Center(
+              ? Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.calendar_today_rounded,
+                      const Icon(Icons.calendar_today_rounded,
                           size: 56, color: AppColors.textHint),
-                      SizedBox(height: 12),
-                      Text('No bookings yet',
-                          style: TextStyle(
+                      const SizedBox(height: 12),
+                      Text('no_bookings_yet'.tr(),
+                          style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               color: AppColors.textHint)),
@@ -432,8 +432,8 @@ class _BookingBar extends StatelessWidget {
                         fontSize: 15),
                   ),
                 ] else
-                  const Text('No slot selected',
-                      style: TextStyle(color: AppColors.textHint, fontSize: 13)),
+                  Text('no_slot_selected'.tr(),
+                      style: const TextStyle(color: AppColors.textHint, fontSize: 13)),
                 if (price > 0)
                   Text('\$${price.toStringAsFixed(0)}',
                       style: const TextStyle(
@@ -454,7 +454,7 @@ class _BookingBar extends StatelessWidget {
                       height: 20,
                       child: CircularProgressIndicator(
                           color: Colors.white, strokeWidth: 2))
-                  : const Text('Book Now'),
+                  : Text('book_now'.tr()),
             ),
           ),
         ],
@@ -502,7 +502,7 @@ class _BookingCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  booking.coachName ?? 'Coach',
+                  booking.coachName ?? 'coach'.tr(),
                   style: const TextStyle(
                       fontWeight: FontWeight.w700, fontSize: 15),
                 ),
@@ -576,7 +576,7 @@ class _BookingCard extends StatelessWidget {
                 side: const BorderSide(color: AppColors.error),
                 foregroundColor: AppColors.error,
               ),
-              child: const Text('Cancel Booking'),
+              child: Text('cancel_booking'.tr()),
             ),
           ],
           if (booking.canRate) ...[
@@ -584,7 +584,7 @@ class _BookingCard extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: () => _showRatingDialog(context),
               icon: const Icon(Icons.star_rounded, size: 16),
-              label: const Text('Rate Session'),
+              label: Text('rate_session'.tr()),
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 40),
                 backgroundColor: AppColors.accent,
@@ -616,24 +616,24 @@ class _BookingCard extends StatelessWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Cancel Booking'),
+        title: Text('cancel_booking'.tr()),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Please provide a reason for cancellation:'),
+            Text('please_provide_a_reason_for_cancellation'.tr()),
             const SizedBox(height: 12),
             TextField(
               controller: ctrl,
               maxLines: 2,
               decoration:
-                  const InputDecoration(hintText: 'Reason...'),
+                  InputDecoration(hintText: 'reason'.tr()),
             ),
           ],
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Back')),
+              child: Text('back'.tr())),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.error),
@@ -643,7 +643,7 @@ class _BookingCard extends StatelessWidget {
                 onCancel(ctrl.text.trim());
               }
             },
-            child: const Text('Confirm Cancel'),
+            child: Text('confirm_cancel'.tr()),
           ),
         ],
       ),
@@ -657,7 +657,7 @@ class _BookingCard extends StatelessWidget {
       context: context,
       builder: (_) => StatefulBuilder(
         builder: (ctx, setState) => AlertDialog(
-          title: const Text('Rate Your Session'),
+          title: Text('rate_your_session'.tr()),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -684,21 +684,21 @@ class _BookingCard extends StatelessWidget {
               TextField(
                 controller: ctrl,
                 maxLines: 2,
-                decoration: const InputDecoration(
-                    hintText: 'Write a review (optional)...'),
+                decoration: InputDecoration(
+                    hintText: 'write_a_review_optional'.tr()),
               ),
             ],
           ),
           actions: [
             TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Skip')),
+                child: Text('skip'.tr())),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
                 onRate(score, ctrl.text.trim().isEmpty ? null : ctrl.text.trim());
               },
-              child: const Text('Submit'),
+              child: Text('submit'.tr()),
             ),
           ],
         ),
@@ -711,27 +711,27 @@ class _NoSlots extends StatelessWidget {
   const _NoSlots();
 
   @override
-  Widget build(BuildContext context) => const Center(
+  Widget build(BuildContext context) => Center(
         child: Padding(
-          padding: EdgeInsets.all(32),
+          padding: const EdgeInsets.all(32),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.event_busy_rounded,
+              const Icon(Icons.event_busy_rounded,
                   size: 56, color: AppColors.textHint),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Text(
-                'No available slots',
-                style: TextStyle(
+                'no_available_slots'.tr(),
+                style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textSecondary),
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Text(
-                'This coach has no open slots in the next 2 weeks.',
+                'this_coach_has_no_open_slots'.tr(),
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: AppColors.textHint),
+                style: const TextStyle(fontSize: 13, color: AppColors.textHint),
               ),
             ],
           ),
@@ -758,7 +758,7 @@ class _ErrorView extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: AppColors.textSecondary)),
               const SizedBox(height: 16),
-              ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+              ElevatedButton(onPressed: onRetry, child: Text('retry'.tr())),
             ],
           ),
         ),

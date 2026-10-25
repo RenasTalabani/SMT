@@ -37,9 +37,9 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Profile',
-          style: TextStyle(
+        title: Text(
+          'nav_profile'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 20,
             color: Color(0xFF0F172A),
@@ -72,7 +72,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  user?.name ?? 'Loading...',
+                  user?.name ?? 'loading'.tr(),
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -118,7 +118,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                 if (user.height != null)
                   Expanded(
                     child: _StatTile(
-                      label: 'Height',
+                      label: 'height'.tr(),
                       value: '${user.height!.toStringAsFixed(0)} cm',
                     ),
                   ),
@@ -127,7 +127,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                 if (user.weight != null)
                   Expanded(
                     child: _StatTile(
-                      label: 'Weight',
+                      label: 'weight'.tr(),
                       value: '${user.weight!.toStringAsFixed(0)} kg',
                     ),
                   ),
@@ -151,9 +151,9 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Fitness Goals',
-                    style: TextStyle(
+                  Text(
+                    'fitness_goals'.tr(),
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF0F172A),
@@ -215,19 +215,19 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
           const SizedBox(height: 8),
           _ActionTile(
             icon: Icons.monitor_heart_outlined,
-            label: 'Health tools',
+            label: 'health_tools'.tr(),
             onTap: () => context.push('/client/health'),
           ),
           const SizedBox(height: 8),
           _ActionTile(
             icon: Icons.event_note_outlined,
-            label: 'My bookings',
+            label: 'my_bookings_2'.tr(),
             onTap: () => context.push('/client/bookings'),
           ),
           const SizedBox(height: 8),
           _ActionTile(
             icon: Icons.groups_outlined,
-            label: 'Group classes',
+            label: 'group_classes'.tr(),
             onTap: () => context.push('/client/classes'),
           ),
           const SizedBox(height: 8),

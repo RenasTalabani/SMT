@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -127,7 +128,7 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_muscleGroups.isEmpty) {
-      setState(() { _error = 'Select at least one muscle group'; });
+      setState(() { _error = 'select_at_least_one_muscle_group'.tr(); });
       return;
     }
     setState(() { _submitting = true; _error = null; });
@@ -149,7 +150,7 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Exercise created!'), backgroundColor: _teal),
+        SnackBar(content: Text('exercise_created'.tr()), backgroundColor: _teal),
       );
       Navigator.of(context).pop(true);
     } catch (e) {
@@ -164,7 +165,7 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('Create Exercise', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('create_exercise'.tr(), style: const TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF0F172A),
         elevation: 0,
@@ -174,23 +175,23 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _section('Basic Info'),
+            _section('basic_info'.tr()),
             _card(Column(children: [
-              _field(_nameCtrl, 'Exercise Name', 'e.g. Barbell Squat', required: true),
+              _field(_nameCtrl, 'exercise_name'.tr(), 'e_g_barbell_squat'.tr(), required: true),
               const SizedBox(height: 12),
-              _field(_descCtrl, 'Description', 'Describe the exercise...', required: true, maxLines: 3),
+              _field(_descCtrl, 'description'.tr(), 'describe_the_exercise'.tr(), required: true, maxLines: 3),
             ])),
             const SizedBox(height: 16),
 
-            _section('Category & Difficulty'),
+            _section('category_difficulty'.tr()),
             _card(Column(children: [
-              _dropdown('Category', _categories, _category, (v) => setState(() => _category = v!)),
+              _dropdown('category'.tr(), _categories, _category, (v) => setState(() => _category = v!)),
               const SizedBox(height: 12),
-              _dropdown('Difficulty', _difficulties, _difficulty, (v) => setState(() => _difficulty = v!)),
+              _dropdown('difficulty'.tr(), _difficulties, _difficulty, (v) => setState(() => _difficulty = v!)),
             ])),
             const SizedBox(height: 16),
 
-            _section('Muscle Groups'),
+            _section('muscle_groups'.tr()),
             _card(Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -215,7 +216,7 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
             )),
             const SizedBox(height: 16),
 
-            _section('Instructions'),
+            _section('instructions'.tr()),
             _card(Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -237,7 +238,7 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
                   Expanded(child: TextFormField(
                     controller: _instructionCtrl,
                     decoration: InputDecoration(
-                      hintText: 'Add step...',
+                      hintText: 'add_step'.tr(),
                       hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10),
                           borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
@@ -265,7 +266,7 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
             )),
             const SizedBox(height: 16),
 
-            _section('Exercise Video (optional)'),
+            _section('exercise_video_optional'.tr()),
             _card(Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -283,14 +284,14 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
                   LinearProgressIndicator(value: _uploadProgress, color: _teal,
                       backgroundColor: const Color(0xFFE2E8F0)),
                   const SizedBox(height: 8),
-                  const Text('Uploading...', style: TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+                  Text('uploading'.tr(), style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
                   const SizedBox(height: 12),
                 ],
                 if (_uploadedVideoUrl != null) ...[
-                  const Row(children: [
-                    Icon(Icons.check_circle_rounded, color: _teal, size: 18),
-                    SizedBox(width: 6),
-                    Text('Video uploaded', style: TextStyle(color: _teal, fontWeight: FontWeight.w600)),
+                  Row(children: [
+                    const Icon(Icons.check_circle_rounded, color: _teal, size: 18),
+                    const SizedBox(width: 6),
+                    Text('video_uploaded'.tr(), style: const TextStyle(color: _teal, fontWeight: FontWeight.w600)),
                   ]),
                   const SizedBox(height: 12),
                 ],
@@ -299,7 +300,7 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
                     child: OutlinedButton.icon(
                       onPressed: _uploading ? null : _pickVideo,
                       icon: const Icon(Icons.video_library_rounded, size: 18),
-                      label: Text(_videoPath == null ? 'Pick Video' : 'Change Video'),
+                      label: Text(_videoPath == null ? 'pick_video'.tr() : 'change_video'.tr()),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: _teal,
                         side: const BorderSide(color: _teal),
@@ -314,7 +315,7 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
                       child: ElevatedButton.icon(
                         onPressed: _uploading ? null : _uploadVideo,
                         icon: const Icon(Icons.upload_rounded, size: 18),
-                        label: const Text('Upload'),
+                        label: Text('upload'.tr()),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _teal, foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -355,8 +356,8 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
               child: _submitting
                   ? const SizedBox(width: 22, height: 22,
                       child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
-                  : const Text('Create Exercise',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  : Text('create_exercise'.tr(),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             ),
             const SizedBox(height: 32),
           ],
@@ -387,7 +388,7 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
       TextFormField(
         controller: ctrl,
         maxLines: maxLines,
-        validator: required ? (v) => (v == null || v.trim().isEmpty) ? '$label is required' : null : null,
+        validator: required ? (v) => (v == null || v.trim().isEmpty) ? 'x_is_required'.tr(namedArgs: {'label': label}) : null : null,
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,

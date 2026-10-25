@@ -1,3 +1,4 @@
+import '../core/i18n/trv.dart';
 import 'exercise_model.dart';
 
 // ---------------------------------------------------------------------------
@@ -108,7 +109,7 @@ class WorkoutDayModel {
       WorkoutDayModel(
         id: json['_id'] ?? json['id'] ?? '',
         day: json['day'] ?? 1,
-        name: json['name'] ?? 'Workout',
+        name: json['name'] ?? trv('Workout'),
         description: json['description'],
         estimatedDuration: json['estimatedDuration'],
         exercises: (json['exercises'] as List<dynamic>? ?? [])
@@ -193,26 +194,26 @@ class WorkoutPlanModel {
   double get overallProgress =>
       totalExercises == 0 ? 0.0 : completedExercises / totalExercises;
 
-  String get coachName => (createdBy?['name'] as String?) ?? 'Coach';
+  String get coachName => (createdBy?['name'] as String?) ?? trv('Coach');
 
   String get difficultyLabel {
     switch (difficulty) {
-      case 'beginner': return 'Beginner';
-      case 'intermediate': return 'Intermediate';
-      case 'advanced': return 'Advanced';
+      case 'beginner': return trv('Beginner');
+      case 'intermediate': return trv('Intermediate');
+      case 'advanced': return trv('Advanced');
       default: return difficulty ?? '';
     }
   }
 
   String get categoryLabel {
     switch (category) {
-      case 'strength': return 'Strength';
-      case 'cardio': return 'Cardio';
-      case 'mixed': return 'Mixed';
-      case 'weight_loss': return 'Weight Loss';
-      case 'muscle_gain': return 'Muscle Gain';
-      case 'endurance': return 'Endurance';
-      case 'flexibility': return 'Flexibility';
+      case 'strength': return trv('Strength');
+      case 'cardio': return trv('Cardio');
+      case 'mixed': return trv('Mixed');
+      case 'weight_loss': return trv('Weight Loss');
+      case 'muscle_gain': return trv('Muscle Gain');
+      case 'endurance': return trv('Endurance');
+      case 'flexibility': return trv('Flexibility');
       default: return category ?? '';
     }
   }

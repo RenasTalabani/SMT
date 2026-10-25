@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -51,9 +52,9 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Messages',
-          style: TextStyle(
+        title: Text(
+          'messages'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 20,
             color: Color(0xFF0F172A),
@@ -63,7 +64,7 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
           IconButton(
             onPressed: _showNewConversationDialog,
             icon: const Icon(Icons.edit_square, color: Color(0xFF475569)),
-            tooltip: 'New conversation',
+            tooltip: 'new_conversation'.tr(),
           ),
           const SizedBox(width: 4),
         ],
@@ -92,10 +93,10 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
     }
 
     if (chatState.conversations.isEmpty) {
-      return const EmptyState(
+      return EmptyState(
         icon: Icons.chat_bubble_outline_rounded,
-        title: 'No conversations yet',
-        subtitle: 'Start a new conversation by tapping the compose button.',
+        title: 'no_conversations_yet'.tr(),
+        subtitle: 'start_a_new_conversation_by_tapping'.tr(),
       );
     }
 
@@ -295,9 +296,9 @@ class _NewConversationDialogState extends State<_NewConversationDialog> {
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text(
-        'New Conversation',
-        style: TextStyle(
+      title: Text(
+        'new_conversation_2'.tr(),
+        style: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: Color(0xFF0F172A),
@@ -312,7 +313,7 @@ class _NewConversationDialogState extends State<_NewConversationDialog> {
               controller: _searchController,
               autofocus: true,
               decoration: InputDecoration(
-                hintText: 'Search by name...',
+                hintText: 'search_by_name'.tr(),
                 hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
                 prefixIcon: const Icon(Icons.search_rounded,
                     color: Color(0xFF94A3B8)),
@@ -327,20 +328,20 @@ class _NewConversationDialogState extends State<_NewConversationDialog> {
             ),
             const SizedBox(height: 12),
             if (_query.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Text(
-                  'Type a name to search for users.',
-                  style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                  'type_a_name_to_search_for'.tr(),
+                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
                   textAlign: TextAlign.center,
                 ),
               )
             else
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Text(
-                  'Search functionality coming soon.',
-                  style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                  'search_functionality_coming_soon'.tr(),
+                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -350,9 +351,9 @@ class _NewConversationDialogState extends State<_NewConversationDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text(
-            'Cancel',
-            style: TextStyle(color: Color(0xFF64748B)),
+          child: Text(
+            'cancel'.tr(),
+            style: const TextStyle(color: Color(0xFF64748B)),
           ),
         ),
       ],

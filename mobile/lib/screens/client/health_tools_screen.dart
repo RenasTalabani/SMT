@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 /// BMI, calories (BMR/TDEE), protein and water calculators.
@@ -17,22 +18,22 @@ class _HealthToolsScreenState extends State<HealthToolsScreen> {
   double _activity = 1.55;
   double _trainingHours = 1;
 
-  static const _activities = <(double, String)>[
-    (1.2, 'Sedentary'),
-    (1.375, 'Light'),
-    (1.55, 'Moderate'),
-    (1.725, 'Active'),
-    (1.9, 'Very active'),
+  static List<(double, String)> get _activities => <(double, String)>[
+    (1.2, 'sedentary'.tr()),
+    (1.375, 'light'.tr()),
+    (1.55, 'moderate'.tr()),
+    (1.725, 'active'.tr()),
+    (1.9, 'very_active'.tr()),
   ];
 
   double get _bmi => _height > 0 ? _weight / ((_height / 100) * (_height / 100)) : 0;
 
   String get _bmiLabel {
     final b = _bmi;
-    if (b < 18.5) return 'Underweight';
-    if (b < 25) return 'Healthy weight';
-    if (b < 30) return 'Overweight';
-    return 'Obese';
+    if (b < 18.5) return 'underweight'.tr();
+    if (b < 25) return 'healthy_weight'.tr();
+    if (b < 30) return 'overweight'.tr();
+    return 'obese'.tr();
   }
 
   /// Mifflin–St Jeor
@@ -79,24 +80,24 @@ class _HealthToolsScreenState extends State<HealthToolsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Health tools')),
+      appBar: AppBar(title: Text('health_tools'.tr())),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           Row(children: [
-            Expanded(child: _num('Weight (kg)', _weight, (v) => _weight = v)),
+            Expanded(child: _num('weight_kg'.tr(), _weight, (v) => _weight = v)),
             const SizedBox(width: 12),
-            Expanded(child: _num('Height (cm)', _height, (v) => _height = v)),
+            Expanded(child: _num('height_cm'.tr(), _height, (v) => _height = v)),
           ]),
           const SizedBox(height: 12),
           Row(children: [
-            Expanded(child: _num('Age', _age.toDouble(), (v) => _age = v.round())),
+            Expanded(child: _num('age'.tr(), _age.toDouble(), (v) => _age = v.round())),
             const SizedBox(width: 12),
             Expanded(
               child: SegmentedButton<bool>(
-                segments: const [
-                  ButtonSegment(value: true, label: Text('Male')),
-                  ButtonSegment(value: false, label: Text('Female')),
+                segments: [
+                  ButtonSegment(value: true, label: Text('male_2'.tr())),
+                  ButtonSegment(value: false, label: Text('female_2'.tr())),
                 ],
                 selected: {_male},
                 onSelectionChanged: (s) => setState(() => _male = s.first),
@@ -106,17 +107,17 @@ class _HealthToolsScreenState extends State<HealthToolsScreen> {
           const SizedBox(height: 12),
           DropdownButtonFormField<double>(
             initialValue: _activity,
-            decoration: const InputDecoration(labelText: 'Activity', border: OutlineInputBorder(), isDense: true),
+            decoration: InputDecoration(labelText: 'activity'.tr(), border: const OutlineInputBorder(), isDense: true),
             items: _activities.map((e) => DropdownMenuItem(value: e.$1, child: Text(e.$2))).toList(),
             onChanged: (v) => setState(() => _activity = v ?? 1.55),
           ),
           const SizedBox(height: 12),
-          _num('Training hours per day', _trainingHours, (v) => _trainingHours = v),
+          _num('training_hours_per_day'.tr(), _trainingHours, (v) => _trainingHours = v),
           const SizedBox(height: 16),
           _card('BMI', '${_bmi.toStringAsFixed(1)} — $_bmiLabel'),
-          _card('Calories', 'Resting: $_bmr kcal · With activity: $_tdee kcal'),
-          _card('Daily protein', '${(_weight * 1.6).round()}–${(_weight * 2.2).round()} g per day'),
-          _card('Daily water', 'About $_water litres per day'),
+          _card('calories'.tr(), 'resting_x_kcal_with_activity_x'.tr(namedArgs: {'_bmr': '$_bmr', '_tdee': '$_tdee'})),
+          _card('daily_protein'.tr(), 'x_x_g_per_day'.tr(namedArgs: {'n0': '${(_weight * 1.6).round()}', 'n1': '${(_weight * 2.2).round()}'})),
+          _card('daily_water'.tr(), 'about_x_litres_per_day'.tr(namedArgs: {'_water': '$_water'})),
         ],
       ),
     );

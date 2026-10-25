@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -21,15 +22,15 @@ class _PlanType {
   const _PlanType(this.value, this.label, this.emoji);
 }
 
-const List<_PlanType> _planTypes = [
-  _PlanType('HIIT', 'HIIT', '⚡'),
-  _PlanType('Strength', 'Strength', '🏋️'),
-  _PlanType('Muscle', 'Muscle', '💪'),
-  _PlanType('Cutting', 'Cutting', '🔥'),
-  _PlanType('Bulking', 'Bulking', '📈'),
-  _PlanType('Endurance', 'Endurance', '🏃'),
-  _PlanType('Flexibility', 'Flexibility', '🧘'),
-  _PlanType('General', 'General', '🌟'),
+List<_PlanType> get _planTypes => [
+  _PlanType('HIIT', 'hiit'.tr(), '⚡'),
+  _PlanType('Strength', 'strength'.tr(), '🏋️'),
+  _PlanType('Muscle', 'muscle'.tr(), '💪'),
+  _PlanType('Cutting', 'cutting'.tr(), '🔥'),
+  _PlanType('Bulking', 'bulking'.tr(), '📈'),
+  _PlanType('Endurance', 'endurance'.tr(), '🏃'),
+  _PlanType('Flexibility', 'flexibility'.tr(), '🧘'),
+  _PlanType('General', 'general'.tr(), '🌟'),
 ];
 
 // ---------------------------------------------------------------------------
@@ -65,9 +66,9 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'My Plan',
-          style: TextStyle(
+        title: Text(
+          'my_plan'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 20,
             color: Color(0xFF0F172A),
@@ -81,7 +82,7 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                 setState(() => _showRequestWizard = true);
               },
               icon: const Icon(Icons.add_rounded, color: Color(0xFF26BDB8)),
-              tooltip: 'Request a Plan',
+              tooltip: 'request_a_plan'.tr(),
             ),
           if (_showRequestWizard)
             IconButton(
@@ -160,7 +161,7 @@ class _PlansList extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: onRequestNew,
               icon: const Icon(Icons.add_rounded),
-              label: const Text('Request Another Plan'),
+              label: Text('request_another_plan'.tr()),
               style: OutlinedButton.styleFrom(
                 foregroundColor: const Color(0xFF26BDB8),
                 side:
@@ -287,12 +288,12 @@ class _PlanListCard extends StatelessWidget {
                 ),
               if (plan.duration != null)
                 _Chip(
-                  label: '${plan.duration} weeks',
+                  label: 'x_weeks'.tr(namedArgs: {'n0': '${plan.duration}'}),
                   color: const Color(0xFF64748B),
                 ),
               if (plan.frequency != null)
                 _Chip(
-                  label: '${plan.frequency}x/week',
+                  label: 'x_x_week'.tr(namedArgs: {'n0': '${plan.frequency}'}),
                   color: const Color(0xFF64748B),
                 ),
             ],
@@ -341,18 +342,18 @@ class _NoPlansView extends StatelessWidget {
               const Icon(Icons.fitness_center_rounded,
                   color: Colors.white, size: 32),
               const SizedBox(height: 12),
-              const Text(
-                'No plan yet',
-                style: TextStyle(
+              Text(
+                'no_plan_yet'.tr(),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
-                'Request a personalised workout plan from one of our coaches.',
-                style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
+              Text(
+                'request_a_personalised_workout_plan_from_2'.tr(),
+                style: const TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
               ),
               const SizedBox(height: 16),
               SizedBox(
@@ -366,8 +367,8 @@ class _NoPlansView extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Request a Plan',
-                      style: TextStyle(fontWeight: FontWeight.w700)),
+                  child: Text('request_a_plan'.tr(),
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
                 ),
               ),
             ],
@@ -381,18 +382,18 @@ class _NoPlansView extends StatelessWidget {
               child: CircularProgressIndicator(color: Color(0xFF26BDB8))),
         ] else if (templates.isNotEmpty) ...[
           const SizedBox(height: 24),
-          const Text(
-            'Explore Templates',
-            style: TextStyle(
+          Text(
+            'explore_templates'.tr(),
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: Color(0xFF0F172A),
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Browse ready-made plans to get started right away.',
-            style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+          Text(
+            'browse_ready_made_plans_to_get'.tr(),
+            style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
           ),
           const SizedBox(height: 12),
           ...templates.map((t) => _TemplateCard(plan: t)),
@@ -468,7 +469,7 @@ class _TemplateCard extends StatelessWidget {
                         _Chip(label: plan.difficultyLabel, color: _difficultyColor(plan.difficulty)),
                       if (plan.workouts.isNotEmpty)
                         _Chip(
-                          label: '${plan.workouts.length} days',
+                          label: 'x_days'.tr(namedArgs: {'n0': '${plan.workouts.length}'}),
                           color: const Color(0xFF64748B),
                         ),
                     ],
@@ -642,7 +643,7 @@ class _PlanRequestWizardState extends ConsumerState<_PlanRequestWizard> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Back'),
+                    child: Text('back'.tr()),
                   ),
                 ),
               if (_step > 0) const SizedBox(width: 12),
@@ -653,17 +654,17 @@ class _PlanRequestWizardState extends ConsumerState<_PlanRequestWizard> {
                       : () {
                           if (_step == 0 && _selectedCoachId == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                   content:
-                                      Text('Please select a coach first.')),
+                                      Text('please_select_a_coach_first'.tr())),
                             );
                             return;
                           }
                           if (_step == 1 && _selectedPlanType == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                   content:
-                                      Text('Please select a plan type.')),
+                                      Text('please_select_a_plan_type'.tr())),
                             );
                             return;
                           }
@@ -689,7 +690,7 @@ class _PlanRequestWizardState extends ConsumerState<_PlanRequestWizard> {
                             strokeWidth: 2,
                           ),
                         )
-                      : Text(_step == 2 ? 'Submit Request' : 'Next'),
+                      : Text(_step == 2 ? 'submit_request'.tr() : 'next'.tr()),
                 ),
               ),
             ],
@@ -727,17 +728,17 @@ class _StepChooseCoach extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Choose a Coach',
-          style: TextStyle(
+        Text(
+          'choose_a_coach'.tr(),
+          style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: Color(0xFF0F172A)),
         ),
         const SizedBox(height: 4),
-        const Text(
-          'Pick the coach who will create your plan.',
-          style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+        Text(
+          'pick_the_coach_who_will_create'.tr(),
+          style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
         ),
         const SizedBox(height: 16),
         if (isLoading)
@@ -747,9 +748,9 @@ class _StepChooseCoach extends StatelessWidget {
         else if (error != null)
           ErrorView(message: error!, onRetry: onRetry)
         else if (coaches.isEmpty)
-          const Center(
-              child: Text('No coaches available.',
-                  style: TextStyle(color: Color(0xFF94A3B8))))
+          Center(
+              child: Text('no_coaches_available'.tr(),
+                  style: const TextStyle(color: Color(0xFF94A3B8))))
         else
           GridView.builder(
             shrinkWrap: true,
@@ -844,17 +845,17 @@ class _StepChoosePlanType extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Choose Plan Type',
-          style: TextStyle(
+        Text(
+          'choose_plan_type'.tr(),
+          style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: Color(0xFF0F172A)),
         ),
         const SizedBox(height: 4),
-        const Text(
-          'What kind of training are you going for?',
-          style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+        Text(
+          'what_kind_of_training_are_you'.tr(),
+          style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
         ),
         const SizedBox(height: 16),
         GridView.builder(
@@ -940,17 +941,17 @@ class _StepNotes extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Additional Notes',
-          style: TextStyle(
+        Text(
+          'additional_notes'.tr(),
+          style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: Color(0xFF0F172A)),
         ),
         const SizedBox(height: 4),
-        const Text(
-          'Tell your coach about your goals, injuries, or preferences.',
-          style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+        Text(
+          'tell_your_coach_about_your_goals'.tr(),
+          style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
         ),
         const SizedBox(height: 16),
 
@@ -965,9 +966,9 @@ class _StepNotes extends StatelessWidget {
           ),
           child: Column(
             children: [
-              _SummaryRow(label: 'Coach', value: coachName),
+              _SummaryRow(label: 'coach'.tr(), value: coachName),
               const SizedBox(height: 6),
-              _SummaryRow(label: 'Plan Type', value: planType),
+              _SummaryRow(label: 'plan_type'.tr(), value: planType),
             ],
           ),
         ),
@@ -978,7 +979,7 @@ class _StepNotes extends StatelessWidget {
           maxLines: 5,
           decoration: InputDecoration(
             hintText:
-                'e.g. I want to lose 5kg, I have a knee injury...',
+                'e_g_i_want_to_lose'.tr(),
             hintStyle: const TextStyle(color: Color(0xFFCBD5E1)),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -1085,19 +1086,19 @@ class _SuccessCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Request Sent!',
-              style: TextStyle(
+            Text(
+              'request_sent'.tr(),
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF0F172A),
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Your coach will review your request and create a personalised plan for you.',
+            Text(
+              'your_coach_will_review_your_request'.tr(),
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 color: Color(0xFF64748B),
                 height: 1.5,
@@ -1115,8 +1116,8 @@ class _SuccessCard extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('Back to Plans',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
+                child: Text('back_to_plans'.tr(),
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
               ),
             ),
           ],

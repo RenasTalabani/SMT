@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,9 +19,9 @@ class CoachProfileScreen extends ConsumerWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Profile',
-          style: TextStyle(
+        title: Text(
+          'nav_profile'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 20,
             color: Color(0xFF0F172A),
@@ -29,7 +30,7 @@ class CoachProfileScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444)),
-            tooltip: 'Logout',
+            tooltip: 'logout'.tr(),
             onPressed: () async {
               await ref.read(authProvider.notifier).logout();
             },
@@ -51,7 +52,7 @@ class CoachProfileScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  user?.name ?? 'Coach',
+                  user?.name ?? 'coach'.tr(),
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -74,9 +75,9 @@ class CoachProfileScreen extends ConsumerWidget {
                     color: const Color(0xFF10B981).withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text(
-                    'COACH',
-                    style: TextStyle(
+                  child: Text(
+                    'coach_2'.tr(),
+                    style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF10B981),
@@ -91,24 +92,24 @@ class CoachProfileScreen extends ConsumerWidget {
           // Info tiles
           _InfoTile(
             icon: Icons.person_outline_rounded,
-            label: 'Full Name',
+            label: 'full_name'.tr(),
             value: user?.name ?? '—',
           ),
           _InfoTile(
             icon: Icons.email_outlined,
-            label: 'Email',
+            label: 'email'.tr(),
             value: user?.email ?? '—',
           ),
           if (user?.specialization != null)
             _InfoTile(
               icon: Icons.star_outline_rounded,
-              label: 'Specialization',
+              label: 'specialization'.tr(),
               value: user!.specialization!,
             ),
           if (user?.phone != null)
             _InfoTile(
               icon: Icons.phone_outlined,
-              label: 'Phone',
+              label: 'phone'.tr(),
               value: user!.phone!,
             ),
 
@@ -122,15 +123,15 @@ class CoachProfileScreen extends ConsumerWidget {
             child: Column(children: [
               ListTile(
                 leading: const Icon(Icons.schedule_rounded, color: Color(0xFF10B981)),
-                title: const Text('My weekly schedule'),
-                subtitle: const Text('Open the hours members can book'),
+                title: Text('my_weekly_schedule'.tr()),
+                subtitle: Text('open_the_hours_members_can_book'.tr()),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/coach/schedule'),
               ),
               const Divider(height: 1),
               ListTile(
                 leading: const Icon(Icons.event_available_rounded, color: Color(0xFF10B981)),
-                title: const Text('Session requests'),
+                title: Text('session_requests'.tr()),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/coach/bookings'),
               ),
@@ -151,7 +152,7 @@ class CoachProfileScreen extends ConsumerWidget {
               icon: const Icon(Icons.logout_rounded,
                   color: Color(0xFFEF4444), size: 20),
               label: Text(
-                authState.isLoading ? 'Logging out...' : 'Logout',
+                authState.isLoading ? 'logging_out'.tr() : 'logout'.tr(),
                 style: const TextStyle(
                   color: Color(0xFFEF4444),
                   fontWeight: FontWeight.w600,

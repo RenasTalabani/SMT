@@ -1,3 +1,5 @@
+import '../../core/i18n/trv.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,7 +42,7 @@ class _AiNutritionScreenState extends ConsumerState<AiNutritionScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('AI Nutrition Advisor', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('ai_nutrition_advisor'.tr(), style: const TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF0F172A),
         elevation: 0,
@@ -49,7 +51,7 @@ class _AiNutritionScreenState extends ConsumerState<AiNutritionScreen> {
             TextButton.icon(
               onPressed: () => ref.read(aiNutritionProvider.notifier).reset(),
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Reset'),
+              label: Text('reset'.tr()),
               style: TextButton.styleFrom(foregroundColor: _teal),
             ),
         ],
@@ -75,7 +77,7 @@ class _AiNutritionScreenState extends ConsumerState<AiNutritionScreen> {
                 final h = double.tryParse(_heightCtrl.text);
                 if (w == null || h == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Enter valid weight and height')),
+                    SnackBar(content: Text('enter_valid_weight_and_height'.tr())),
                   );
                   return;
                 }
@@ -144,40 +146,40 @@ class _InputForm extends StatelessWidget {
             ),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: const Row(children: [
-            Text('🥗', style: TextStyle(fontSize: 32)),
-            SizedBox(width: 14),
+          child: Row(children: [
+            const Text('🥗', style: TextStyle(fontSize: 32)),
+            const SizedBox(width: 14),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Nutrition Advisor', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 17)),
-              SizedBox(height: 4),
-              Text('Get a personalized diet plan based on your body and goals',
-                  style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.4)),
+              Text('nutrition_advisor'.tr(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 17)),
+              const SizedBox(height: 4),
+              Text('get_a_personalized_diet_plan_based'.tr(),
+                  style: const TextStyle(color: Colors.white70, fontSize: 12, height: 1.4)),
             ])),
           ]),
         ),
         const SizedBox(height: 24),
 
-        _sectionLabel('Your Body'),
+        _sectionLabel('your_body'.tr()),
         const SizedBox(height: 10),
         Row(children: [
-          Expanded(child: _field(weightCtrl, 'Weight (kg)', TextInputType.number)),
+          Expanded(child: _field(weightCtrl, 'weight_kg'.tr(), TextInputType.number)),
           const SizedBox(width: 10),
-          Expanded(child: _field(heightCtrl, 'Height (cm)', TextInputType.number)),
+          Expanded(child: _field(heightCtrl, 'height_cm'.tr(), TextInputType.number)),
           const SizedBox(width: 10),
-          Expanded(child: _field(ageCtrl, 'Age', TextInputType.number)),
+          Expanded(child: _field(ageCtrl, 'age'.tr(), TextInputType.number)),
         ]),
         const SizedBox(height: 18),
 
-        _sectionLabel('Gender'),
+        _sectionLabel('gender'.tr()),
         const SizedBox(height: 10),
         Row(children: [
-          _genderChip('male', '♂ Male', gender, onGenderChanged),
+          _genderChip('male', 'male'.tr(), gender, onGenderChanged),
           const SizedBox(width: 10),
-          _genderChip('female', '♀ Female', gender, onGenderChanged),
+          _genderChip('female', 'female'.tr(), gender, onGenderChanged),
         ]),
         const SizedBox(height: 18),
 
-        _sectionLabel('Goal'),
+        _sectionLabel('goal'.tr()),
         const SizedBox(height: 10),
         Wrap(spacing: 8, runSpacing: 8, children: goals.map((g) {
           final selected = g == goal;
@@ -191,7 +193,7 @@ class _InputForm extends StatelessWidget {
                 border: Border.all(color: selected ? _teal : const Color(0xFFE2E8F0)),
               ),
               child: Text(
-                g[0].toUpperCase() + g.substring(1),
+                trv(g),
                 style: TextStyle(
                   color: selected ? Colors.white : const Color(0xFF475569),
                   fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
@@ -203,7 +205,7 @@ class _InputForm extends StatelessWidget {
         }).toList()),
         const SizedBox(height: 18),
 
-        _sectionLabel('Activity Level'),
+        _sectionLabel('activity_level'.tr()),
         const SizedBox(height: 10),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
@@ -219,7 +221,7 @@ class _InputForm extends StatelessWidget {
               onChanged: (v) => v != null ? onActivityChanged(v) : null,
               items: activities.map((a) => DropdownMenuItem(
                 value: a,
-                child: Text(a[0].toUpperCase() + a.substring(1),
+                child: Text(trv(a),
                     style: const TextStyle(fontSize: 14)),
               )).toList(),
             ),
@@ -249,7 +251,7 @@ class _InputForm extends StatelessWidget {
               ? const SizedBox(width: 18, height: 18,
                   child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
               : const Text('🥗', style: TextStyle(fontSize: 18)),
-          label: Text(isLoading ? 'Analyzing...' : 'Get My Nutrition Plan',
+          label: Text(isLoading ? 'analyzing'.tr() : 'get_my_nutrition_plan'.tr(),
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF10B981),
@@ -315,16 +317,16 @@ class _PlanResult extends StatelessWidget {
   void _copy(BuildContext context) {
     Clipboard.setData(ClipboardData(text: plan));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Nutrition plan copied to clipboard'),
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: Text('nutrition_plan_copied_to_clipboard'.tr()),
+        duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
       ),
     );
   }
 
   void _share() {
-    Share.share('My City GYM Nutrition Plan:\n\n$plan', subject: 'City GYM Nutrition Plan');
+    Share.share('my_city_gym_nutrition_plan_x'.tr(namedArgs: {'plan': plan}), subject: 'city_gym_nutrition_plan'.tr());
   }
 
   @override
@@ -339,11 +341,11 @@ class _PlanResult extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
           ),
-          child: const Row(children: [
-            Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 20),
-            SizedBox(width: 8),
-            Text('Your Personalized Nutrition Plan',
-                style: TextStyle(color: Color(0xFF065F46), fontWeight: FontWeight.w600)),
+          child: Row(children: [
+            const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 20),
+            const SizedBox(width: 8),
+            Text('your_personalized_nutrition_plan'.tr(),
+                style: const TextStyle(color: Color(0xFF065F46), fontWeight: FontWeight.w600)),
           ]),
         ),
         const SizedBox(height: 16),
@@ -365,7 +367,7 @@ class _PlanResult extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () => _copy(context),
               icon: const Icon(Icons.copy_rounded, size: 18),
-              label: const Text('Copy'),
+              label: Text('copy'.tr()),
               style: OutlinedButton.styleFrom(
                 foregroundColor: _teal,
                 side: const BorderSide(color: _teal),
@@ -379,7 +381,7 @@ class _PlanResult extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: _share,
               icon: const Icon(Icons.share_rounded, size: 18),
-              label: const Text('Share'),
+              label: Text('share'.tr()),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _teal,
                 foregroundColor: Colors.white,

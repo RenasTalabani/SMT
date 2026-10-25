@@ -56,10 +56,10 @@ class _ClientShellState extends ConsumerState<ClientShell> {
         selectedIcon: const Icon(Icons.fitness_center_rounded),
         label: 'nav_plan'.tr(),
       ),
-      const NavigationDestination(
-        icon: Icon(Icons.biotech_outlined),
-        selectedIcon: Icon(Icons.biotech_rounded),
-        label: 'Anatomy',
+      NavigationDestination(
+        icon: const Icon(Icons.biotech_outlined),
+        selectedIcon: const Icon(Icons.biotech_rounded),
+        label: 'anatomy'.tr(),
       ),
       NavigationDestination(
         icon: const Icon(Icons.people_outline_rounded),
@@ -94,15 +94,15 @@ class _ClientShellState extends ConsumerState<ClientShell> {
             color: const Color(0xFFF97316),
             child: isOnline
                 ? const SizedBox.shrink()
-                : const Row(
+                : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.wifi_off_rounded,
+                      const Icon(Icons.wifi_off_rounded,
                           size: 14, color: Colors.white),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Text(
-                        'You are offline — showing cached data',
-                        style: TextStyle(
+                        'you_are_offline_showing_cached_data'.tr(),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,

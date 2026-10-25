@@ -1,3 +1,4 @@
+import '../i18n/trv.dart';
 import 'package:dio/dio.dart';
 import '../constants/api_constants.dart';
 import '../storage/secure_storage.dart';
@@ -146,15 +147,15 @@ class ApiClient {
         case DioExceptionType.connectionTimeout:
         case DioExceptionType.sendTimeout:
         case DioExceptionType.receiveTimeout:
-          return 'Connection timed out. Check your internet and try again.';
+          return trv('Connection timed out. Check your internet and try again.');
         case DioExceptionType.connectionError:
-          return 'Cannot reach server. Make sure you are on the same network.';
+          return trv('Cannot reach server. Make sure you are on the same network.');
         case DioExceptionType.badResponse:
-          return e.response?.data?['message'] as String? ?? 'Server error';
+          return e.response?.data?['message'] as String? ?? trv('Server error');
         default:
           return e.response?.data?['message'] as String? ??
               e.message ??
-              'Something went wrong';
+              trv('Something went wrong');
       }
     }
     return e.toString();

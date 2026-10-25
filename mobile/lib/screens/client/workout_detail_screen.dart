@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
@@ -32,7 +33,7 @@ class WorkoutDetailScreen extends ConsumerWidget {
 
     return planAsync.when(
       loading: () => Scaffold(
-        appBar: AppBar(title: const Text('Loading...')),
+        appBar: AppBar(title: Text('loading'.tr())),
         body: const Padding(
           padding: EdgeInsets.all(16),
           child: LoadingShimmer(count: 4, height: 90),
@@ -40,7 +41,7 @@ class WorkoutDetailScreen extends ConsumerWidget {
       ),
       error: (e, _) => Scaffold(
         appBar: AppBar(
-          title: const Text('Error'),
+          title: Text('error_2'.tr()),
           backgroundColor: Colors.white,
           foregroundColor: const Color(0xFF0F172A),
           elevation: 0,
@@ -156,10 +157,10 @@ class _PlanDetailState extends State<_PlanDetail> {
                             _InfoPill(icon: Icons.fitness_center_rounded, label: plan.difficultyLabel),
                             const SizedBox(width: 8),
                             if (plan.duration != null)
-                              _InfoPill(icon: Icons.calendar_today_rounded, label: '${plan.duration}w'),
+                              _InfoPill(icon: Icons.calendar_today_rounded, label: 'x_w'.tr(namedArgs: {'n0': '${plan.duration}'})),
                             const SizedBox(width: 8),
                             if (plan.frequency != null)
-                              _InfoPill(icon: Icons.repeat_rounded, label: '${plan.frequency}×/wk'),
+                              _InfoPill(icon: Icons.repeat_rounded, label: 'x_wk'.tr(namedArgs: {'n0': '${plan.frequency}'})),
                             const SizedBox(width: 8),
                             _InfoPill(icon: Icons.person_rounded, label: plan.coachName),
                           ],
@@ -229,8 +230,8 @@ class _PlanDetailState extends State<_PlanDetail> {
               ),
             )
           else
-            const SliverFillRemaining(
-              child: Center(child: Text('No workouts in this plan yet.')),
+            SliverFillRemaining(
+              child: Center(child: Text('no_workouts_in_this_plan_yet'.tr())),
             ),
 
           const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
@@ -285,7 +286,7 @@ class _DaySelectorDelegate extends SliverPersistentHeaderDelegate {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                'Day ${days[i].day}',
+                'day_x'.tr(namedArgs: {'n0': '${days[i].day}'}),
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -335,9 +336,9 @@ class _ProgressCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Overall Progress',
-                style: TextStyle(
+              Text(
+                'overall_progress'.tr(),
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF475569),
@@ -365,7 +366,7 @@ class _ProgressCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '$completed of $total exercises completed',
+            'x_of_x_exercises_completed'.tr(namedArgs: {'completed': '$completed', 'total': '$total'}),
             style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
           ),
         ],
@@ -394,7 +395,7 @@ class _ExerciseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ex = workoutEx.exercise;
     // Library exercise name, else the free-text name saved by AI plans.
-    final name = ex?.name ?? workoutEx.name ?? 'Exercise ${index + 1}';
+    final name = ex?.name ?? workoutEx.name ?? 'exercise_x'.tr(namedArgs: {'n0': '${index + 1}'});
     final hasVideo = ex?.primaryVideoUrl != null;
     final hasImage = ex?.primaryImageUrl != null;
 
@@ -546,7 +547,7 @@ class _ExerciseCard extends StatelessWidget {
                     Expanded(
                       child: _ActionButton(
                         icon: Icons.play_circle_rounded,
-                        label: 'Watch Video',
+                        label: 'watch_video'.tr(),
                         color: const Color(0xFF26BDB8),
                         onTap: () => _showVideoDialog(context, ex),
                       ),
@@ -557,7 +558,7 @@ class _ExerciseCard extends StatelessWidget {
                     Expanded(
                       child: _ActionButton(
                         icon: Icons.list_alt_rounded,
-                        label: 'Instructions',
+                        label: 'instructions'.tr(),
                         color: const Color(0xFF10B981),
                         onTap: () => _showInstructionsSheet(context, ex),
                       ),
@@ -740,9 +741,9 @@ class _InstructionsSheet extends StatelessWidget {
                     const SizedBox(height: 16),
                   ],
                   if (exercise.instructions.isNotEmpty) ...[
-                    const Text(
-                      'How to do it',
-                      style: TextStyle(
+                    Text(
+                      'how_to_do_it'.tr(),
+                      style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF0F172A),
@@ -788,9 +789,9 @@ class _InstructionsSheet extends StatelessWidget {
                   ],
                   if (exercise.tips.isNotEmpty) ...[
                     const SizedBox(height: 8),
-                    const Text(
-                      'Pro Tips',
-                      style: TextStyle(
+                    Text(
+                      'pro_tips'.tr(),
+                      style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF0F172A),
@@ -863,7 +864,7 @@ class _WarmupCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isWarmup ? 'Warm-Up' : 'Cool-Down',
+                  isWarmup ? 'warm_up'.tr() : 'cool_down'.tr(),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,

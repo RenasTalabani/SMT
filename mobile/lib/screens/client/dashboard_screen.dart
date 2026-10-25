@@ -57,9 +57,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Dashboard',
-          style: TextStyle(
+        title: Text(
+          'nav_dashboard'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 20,
             color: Color(0xFF0F172A),
@@ -99,7 +99,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsetsDirectional.only(end: 12),
             child: GestureDetector(
               onTap: () => context.push('/client/profile'),
               child: GymAvatar(
@@ -162,9 +162,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
             // Our Coaches
             if (coachState.coaches.isNotEmpty) ...[
-              const _SectionHeader(
-                title: 'Our Coaches',
-                actionLabel: 'See All',
+              _SectionHeader(
+                title: 'our_coaches'.tr(),
+                actionLabel: 'see_all_2'.tr(),
                 actionRoute: '/client/coaches',
               ),
               const SizedBox(height: 12),
@@ -173,9 +173,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ],
 
             // Latest Tips
-            const _SectionHeader(
-              title: 'Latest Tips',
-              actionLabel: 'See All',
+            _SectionHeader(
+              title: 'latest_tips'.tr(),
+              actionLabel: 'see_all_2'.tr(),
               actionRoute: '/client/tips',
             ),
             const SizedBox(height: 12),
@@ -232,9 +232,9 @@ class _WelcomeCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Good day!',
-            style: TextStyle(
+          Text(
+            'good_day'.tr(),
+            style: const TextStyle(
               color: Colors.white70,
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -242,7 +242,7 @@ class _WelcomeCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Welcome back, $name!',
+            'welcome_back_x'.tr(namedArgs: {'name': name}),
             style: const TextStyle(
               color: Colors.white,
               fontSize: 22,
@@ -250,9 +250,9 @@ class _WelcomeCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Keep pushing your limits. Every rep counts.',
-            style: TextStyle(
+          Text(
+            'keep_pushing_your_limits_every_rep'.tr(),
+            style: const TextStyle(
               color: Colors.white70,
               fontSize: 13,
               height: 1.4,
@@ -286,7 +286,7 @@ class _StatsRow extends StatelessWidget {
         Expanded(
           child: _StatCard(
             icon: Icons.fitness_center_rounded,
-            label: 'Workouts',
+            label: 'workouts'.tr(),
             value: '$workoutsCount',
             color: const Color(0xFF26BDB8),
           ),
@@ -295,7 +295,7 @@ class _StatsRow extends StatelessWidget {
         Expanded(
           child: _StatCard(
             icon: Icons.play_circle_rounded,
-            label: 'Courses',
+            label: 'nav_courses'.tr(),
             value: '$coursesCount',
             color: const Color(0xFF7C3AED),
           ),
@@ -304,7 +304,7 @@ class _StatsRow extends StatelessWidget {
         Expanded(
           child: _StatCard(
             icon: Icons.lightbulb_rounded,
-            label: 'Tips',
+            label: 'nav_tips'.tr(),
             value: '$tipsCount',
             color: const Color(0xFFF59E0B),
           ),
@@ -395,8 +395,8 @@ class _PlanPreviewCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _SectionHeader(
-          title: 'My Plan',
-          actionLabel: plans.isNotEmpty ? 'See All' : null,
+          title: 'my_plan'.tr(),
+          actionLabel: plans.isNotEmpty ? 'see_all_2'.tr() : null,
           actionRoute: '/client/plan',
         ),
         const SizedBox(height: 12),
@@ -430,19 +430,19 @@ class _NoPlanCard extends StatelessWidget {
           const Icon(Icons.fitness_center_rounded,
               size: 40, color: Color(0xFFCBD5E1)),
           const SizedBox(height: 12),
-          const Text(
-            'No plan yet',
-            style: TextStyle(
+          Text(
+            'no_plan_yet'.tr(),
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: Color(0xFF475569),
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Request a personalised workout plan from a coach.',
+          Text(
+            'request_a_personalised_workout_plan_from'.tr(),
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+            style: const TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -456,8 +456,8 @@ class _NoPlanCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12)),
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
-              child: const Text('Request Plan',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              child: Text('request_plan'.tr(),
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
             ),
           ),
         ],
@@ -576,11 +576,11 @@ class _LatestTipsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (tips.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 120,
         child: Center(
-          child: Text('No tips yet.',
-              style: TextStyle(color: Color(0xFF94A3B8))),
+          child: Text('no_tips_yet'.tr(),
+              style: const TextStyle(color: Color(0xFF94A3B8))),
         ),
       );
     }
@@ -664,7 +664,7 @@ class _AiCoachSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _SectionHeader(title: 'AI Coach'),
+        _SectionHeader(title: 'ai_coach'.tr()),
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(16),
@@ -688,36 +688,36 @@ class _AiCoachSection extends StatelessWidget {
                   child: const Icon(Icons.smart_toy_rounded, color: Color(0xFF26BDB8), size: 22),
                 ),
                 const SizedBox(width: 10),
-                const Expanded(
+                Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('Powered by AI', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
-                    Text('Your personal fitness assistant', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                    Text('powered_by_ai'.tr(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
+                    Text('your_personal_fitness_assistant'.tr(), style: const TextStyle(color: Colors.white54, fontSize: 12)),
                   ]),
                 ),
               ]),
               const SizedBox(height: 14),
-              const Row(children: [
+              Row(children: [
                 Expanded(child: _AiTile(
                   icon: Icons.chat_bubble_outline_rounded,
-                  label: 'Chat',
+                  label: 'chat'.tr(),
                   route: '/client/ai/chat',
                 )),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(child: _AiTile(
                   icon: Icons.auto_awesome_rounded,
-                  label: 'Workout',
+                  label: 'workout'.tr(),
                   route: '/client/ai/workout',
                 )),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(child: _AiTile(
                   icon: Icons.restaurant_menu_rounded,
-                  label: 'Nutrition',
+                  label: 'nutrition'.tr(),
                   route: '/client/ai/nutrition',
                 )),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(child: _AiTile(
                   icon: Icons.bar_chart_rounded,
-                  label: 'Progress',
+                  label: 'nav_progress'.tr(),
                   route: '/client/ai/progress',
                 )),
               ]),
@@ -814,9 +814,9 @@ class _DailyTipCard extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Daily Tip',
-                  style: TextStyle(
+                Text(
+                  'daily_tip'.tr(),
+                  style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF0F766E),
@@ -874,9 +874,9 @@ class _CoachInsightCard extends ConsumerWidget {
 
   String _levelLabel(String level) {
     switch (level) {
-      case 'intense': return 'PUSH MODE';
-      case 'gentle':  return 'GENTLE MODE';
-      default:        return 'COACH MODE';
+      case 'intense': return 'push_mode'.tr();
+      case 'gentle':  return 'gentle_mode'.tr();
+      default:        return 'coach_mode'.tr();
     }
   }
 
@@ -940,9 +940,9 @@ class _CoachInsightCard extends ConsumerWidget {
                     color: color, size: 16),
               ),
               const SizedBox(width: 8),
-              const Text(
-                'AI Coach Insights',
-                style: TextStyle(
+              Text(
+                'ai_coach_insights'.tr(),
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFF0F172A),
@@ -1042,15 +1042,15 @@ class _CoachInsightCard extends ConsumerWidget {
               ref.read(aiInsightsProvider.notifier).refresh();
               ref.read(aiInsightsProvider.notifier).loadInsights();
             },
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Icon(Icons.refresh_rounded,
+                const Icon(Icons.refresh_rounded,
                     size: 13, color: Color(0xFF94A3B8)),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Text(
-                  'Refresh insights',
-                  style: TextStyle(
+                  'refresh_insights'.tr(),
+                  style: const TextStyle(
                     fontSize: 11,
                     color: Color(0xFF94A3B8),
                   ),

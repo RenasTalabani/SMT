@@ -4,27 +4,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'core/i18n/kurdish_localizations.dart';
 import 'core/network/api_client.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
-
-// Provides English MaterialLocalizations for any locale not supported by
-// GlobalMaterialLocalizations (e.g. Kurdish 'ku'). Without this, every
-// Material widget (AppBar, RefreshIndicator, dialogs) throws at runtime.
-class _FallbackMaterialLocalizationsDelegate
-    extends LocalizationsDelegate<MaterialLocalizations> {
-  const _FallbackMaterialLocalizationsDelegate();
-
-  @override
-  bool isSupported(Locale locale) => true;
-
-  @override
-  Future<MaterialLocalizations> load(Locale locale) =>
-      DefaultMaterialLocalizations.delegate.load(const Locale('en'));
-
-  @override
-  bool shouldReload(_FallbackMaterialLocalizationsDelegate old) => false;
-}
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -57,6 +40,20 @@ void main() async {
   );
 }
 
+/// The localization delegates the app uses. Kept in one list so tests
+/// render screens exactly like the app does (incl. Kurdish right-to-left).
+List<LocalizationsDelegate<dynamic>> appLocalizationDelegates(BuildContext context) => [
+      ...context.localizationDelegates,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+      // Kurdish: Flutter has no built-in support. Right-to-left widgets,
+      // English labels for the built-in Material/Cupertino texts.
+      const KurdishWidgetsLocalizationsDelegate(),
+      const FallbackMaterialLocalizationsDelegate(),
+      const FallbackCupertinoLocalizationsDelegate(),
+    ];
+
 class GymApp extends ConsumerWidget {
   const GymApp({super.key});
 
@@ -72,13 +69,7 @@ class GymApp extends ConsumerWidget {
       themeMode: ThemeMode.system,
       routerConfig: router,
       locale: context.locale,
-      localizationsDelegates: [
-        ...context.localizationDelegates,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        const _FallbackMaterialLocalizationsDelegate(),
-      ],
+      localizationsDelegates: appLocalizationDelegates(context),
       supportedLocales: context.supportedLocales,
     );
   }

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -122,7 +123,7 @@ class _TipDetailScreenState extends ConsumerState<TipDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to post comment: ${ApiClient.extractError(e)}'),
+            content: Text('failed_to_post_comment_x'.tr(namedArgs: {'n0': ApiClient.extractError(e)})),
             backgroundColor: const Color(0xFFEF4444),
           ),
         );
@@ -197,9 +198,9 @@ class _TipDetailScreenState extends ConsumerState<TipDetailScreen> {
         surfaceTintColor: Colors.transparent,
         iconTheme:
             const IconThemeData(color: Color(0xFF475569)),
-        title: const Text(
-          'Tip',
-          style: TextStyle(
+        title: Text(
+          'tip'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 18,
             color: Color(0xFF0F172A),
@@ -244,7 +245,7 @@ class _TipDetailScreenState extends ConsumerState<TipDetailScreen> {
                   onRetry: _loadTip,
                 )
               : _tip == null
-                  ? const Center(child: Text('Tip not found.'))
+                  ? Center(child: Text('tip_not_found'.tr()))
                   : Column(
                       children: [
                         Expanded(
@@ -358,7 +359,7 @@ class _TipDetailScreenState extends ConsumerState<TipDetailScreen> {
                                             const EdgeInsets.symmetric(
                                                 vertical: 12),
                                         child: Text(
-                                          'Comments (${_comments.length})',
+                                          'comments_x'.tr(namedArgs: {'n0': '${_comments.length}'}),
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight:
@@ -386,14 +387,14 @@ class _TipDetailScreenState extends ConsumerState<TipDetailScreen> {
                                   ),
                                 )
                               else if (_comments.isEmpty)
-                                const SliverToBoxAdapter(
+                                SliverToBoxAdapter(
                                   child: Padding(
-                                    padding: EdgeInsets.fromLTRB(
+                                    padding: const EdgeInsets.fromLTRB(
                                         16, 0, 16, 24),
                                     child: Center(
                                       child: Text(
-                                        'No comments yet. Be the first to comment!',
-                                        style: TextStyle(
+                                        'no_comments_yet_be_the_first'.tr(),
+                                        style: const TextStyle(
                                           fontSize: 13,
                                           color: Color(0xFF94A3B8),
                                         ),
@@ -528,17 +529,17 @@ class _AuthorRow extends StatelessWidget {
     if (date == null) return '';
     final diff = DateTime.now().difference(date);
     if (diff.inDays > 365) {
-      return '${(diff.inDays / 365).floor()}y ago';
+      return 'x_y_ago'.tr(namedArgs: {'n0': '${(diff.inDays / 365).floor()}'});
     } else if (diff.inDays > 30) {
-      return '${(diff.inDays / 30).floor()}mo ago';
+      return 'x_mo_ago'.tr(namedArgs: {'n0': '${(diff.inDays / 30).floor()}'});
     } else if (diff.inDays > 0) {
-      return '${diff.inDays}d ago';
+      return 'x_d_ago'.tr(namedArgs: {'n0': '${diff.inDays}'});
     } else if (diff.inHours > 0) {
-      return '${diff.inHours}h ago';
+      return 'x_h_ago'.tr(namedArgs: {'n0': '${diff.inHours}'});
     } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes}m ago';
+      return 'x_m_ago'.tr(namedArgs: {'n0': '${diff.inMinutes}'});
     }
-    return 'Just now';
+    return 'just_now'.tr();
   }
 
   @override
@@ -610,10 +611,10 @@ class _CommentCard extends StatelessWidget {
   String _timeAgo(DateTime? date) {
     if (date == null) return '';
     final diff = DateTime.now().difference(date);
-    if (diff.inDays > 0) return '${diff.inDays}d ago';
-    if (diff.inHours > 0) return '${diff.inHours}h ago';
-    if (diff.inMinutes > 0) return '${diff.inMinutes}m ago';
-    return 'Just now';
+    if (diff.inDays > 0) return 'x_d_ago'.tr(namedArgs: {'n0': '${diff.inDays}'});
+    if (diff.inHours > 0) return 'x_h_ago'.tr(namedArgs: {'n0': '${diff.inHours}'});
+    if (diff.inMinutes > 0) return 'x_m_ago'.tr(namedArgs: {'n0': '${diff.inMinutes}'});
+    return 'just_now'.tr();
   }
 
   @override
@@ -721,7 +722,7 @@ class _CommentInput extends ConsumerWidget {
             child: TextField(
               controller: controller,
               decoration: InputDecoration(
-                hintText: 'Add a comment...',
+                hintText: 'add_a_comment'.tr(),
                 hintStyle:
                     const TextStyle(color: Color(0xFFCBD5E1)),
                 border: OutlineInputBorder(

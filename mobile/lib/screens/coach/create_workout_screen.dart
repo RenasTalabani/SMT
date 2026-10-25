@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -83,13 +84,13 @@ class _CreateWorkoutScreenState extends ConsumerState<CreateWorkoutScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Create Workout Plan',
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18, color: Color(0xFF0F172A)),
+        title: Text(
+          'create_workout_plan'.tr(),
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18, color: Color(0xFF0F172A)),
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsetsDirectional.only(end: 12),
             child: _submitting
                 ? const SizedBox(
                     width: 20, height: 20,
@@ -97,7 +98,7 @@ class _CreateWorkoutScreenState extends ConsumerState<CreateWorkoutScreen> {
                   )
                 : TextButton(
                     onPressed: _submit,
-                    child: const Text('Save', style: TextStyle(color: _blue, fontWeight: FontWeight.w700)),
+                    child: Text('save'.tr(), style: const TextStyle(color: _blue, fontWeight: FontWeight.w700)),
                   ),
           ),
         ],
@@ -108,27 +109,27 @@ class _CreateWorkoutScreenState extends ConsumerState<CreateWorkoutScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             _sectionCard(
-              title: 'Plan Details',
+              title: 'plan_details'.tr(),
               child: Column(
                 children: [
-                  _field(_titleCtrl, 'Plan Title', validator: (v) =>
-                      v == null || v.trim().length < 3 ? 'Min 3 characters' : null),
+                  _field(_titleCtrl, 'plan_title'.tr(), validator: (v) =>
+                      v == null || v.trim().length < 3 ? 'min_3_characters'.tr() : null),
                   const SizedBox(height: 12),
-                  _field(_descCtrl, 'Description', maxLines: 3, validator: (v) =>
-                      v == null || v.trim().length < 10 ? 'Min 10 characters' : null),
+                  _field(_descCtrl, 'description'.tr(), maxLines: 3, validator: (v) =>
+                      v == null || v.trim().length < 10 ? 'min_10_characters'.tr() : null),
                   const SizedBox(height: 12),
-                  _dropdown('Difficulty', _difficulty, ['beginner', 'intermediate', 'advanced'],
+                  _dropdown('difficulty'.tr(), _difficulty, ['beginner', 'intermediate', 'advanced'],
                       (v) => setState(() => _difficulty = v!)),
                   const SizedBox(height: 12),
-                  _dropdown('Category', _category,
+                  _dropdown('category'.tr(), _category,
                       ['strength', 'cardio', 'mixed', 'weight_loss', 'muscle_gain', 'endurance', 'flexibility'],
                       (v) => setState(() => _category = v!)),
                   const SizedBox(height: 12),
                   Row(children: [
-                    Expanded(child: _numberField('Duration (weeks)', _durationWeeks,
+                    Expanded(child: _numberField('duration_weeks'.tr(), _durationWeeks,
                         (v) => setState(() => _durationWeeks = v), 1, 52)),
                     const SizedBox(width: 12),
-                    Expanded(child: _numberField('Days / week', _frequency,
+                    Expanded(child: _numberField('days_week'.tr(), _frequency,
                         (v) => setState(() => _frequency = v), 1, 7)),
                   ]),
                 ],
@@ -149,9 +150,9 @@ class _CreateWorkoutScreenState extends ConsumerState<CreateWorkoutScreen> {
             if (_days.length < 7)
               OutlinedButton.icon(
                 onPressed: () => setState(() =>
-                    _days.add(_DayEntry(name: 'Day ${_days.length + 1}'))),
+                    _days.add(_DayEntry(name: 'day_x'.tr(namedArgs: {'n0': '${_days.length + 1}'})))),
                 icon: const Icon(Icons.add_rounded, color: _blue),
-                label: const Text('Add Workout Day', style: TextStyle(color: _blue)),
+                label: Text('add_workout_day'.tr(), style: const TextStyle(color: _blue)),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: _blue),
                   padding: const EdgeInsets.symmetric(vertical: 14),
@@ -171,7 +172,7 @@ class _CreateWorkoutScreenState extends ConsumerState<CreateWorkoutScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_days.isEmpty) {
-      _snack('Add at least one workout day.');
+      _snack('add_at_least_one_workout_day'.tr());
       return;
     }
 
@@ -179,7 +180,7 @@ class _CreateWorkoutScreenState extends ConsumerState<CreateWorkoutScreen> {
     try {
       final workoutsPayload = _days.asMap().entries.map((e) => {
         'day': e.key + 1,
-        'name': e.value.name.trim().isEmpty ? 'Day ${e.key + 1}' : e.value.name.trim(),
+        'name': e.value.name.trim().isEmpty ? 'day_x'.tr(namedArgs: {'n0': '${e.key + 1}'}) : e.value.name.trim(),
         'exercises': e.value.exercises.asMap().entries.map((ex) => {
           'exercise': ex.value.exercise.id,
           'sets': ex.value.sets,
@@ -203,7 +204,7 @@ class _CreateWorkoutScreenState extends ConsumerState<CreateWorkoutScreen> {
       });
 
       if (mounted) {
-        _snack('Workout plan created!');
+        _snack('workout_plan_created'.tr());
         context.pop();
       }
     } catch (e) {
@@ -374,11 +375,11 @@ class _DayCardState extends State<_DayCard> {
               child: TextField(
                 controller: _nameCtrl,
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF0F172A)),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   isDense: true,
                   border: InputBorder.none,
-                  hintText: 'Day name...',
-                  hintStyle: TextStyle(color: Color(0xFF94A3B8)),
+                  hintText: 'day_name'.tr(),
+                  hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
                 ),
               ),
             ),
@@ -419,12 +420,12 @@ class _DayCardState extends State<_DayCard> {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: const Color(0xFF2563EB).withValues(alpha: 0.3)),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.add_rounded, size: 16, color: Color(0xFF2563EB)),
-                    SizedBox(width: 6),
-                    Text('Add Exercise', style: TextStyle(
+                    const Icon(Icons.add_rounded, size: 16, color: Color(0xFF2563EB)),
+                    const SizedBox(width: 6),
+                    Text('add_exercise'.tr(), style: const TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF2563EB))),
                   ],
                 ),
@@ -518,21 +519,21 @@ class _ExerciseEntryState extends State<_ExerciseEntry> {
         ]),
         const SizedBox(height: 8),
         Row(children: [
-          _NumField('Sets', e.sets, (v) => setState(() { e.sets = v; widget.onChanged(); }), 1, 10),
+          _NumField('sets'.tr(), e.sets, (v) => setState(() { e.sets = v; widget.onChanged(); }), 1, 10),
           const SizedBox(width: 8),
-          _NumField('Reps', e.reps, (v) => setState(() { e.reps = v; widget.onChanged(); }), 1, 100),
+          _NumField('reps'.tr(), e.reps, (v) => setState(() { e.reps = v; widget.onChanged(); }), 1, 100),
           const SizedBox(width: 8),
           _NumField('kg', e.weight.toInt(), (v) => setState(() { e.weight = v.toDouble(); widget.onChanged(); }), 0, 500),
           const SizedBox(width: 8),
-          _NumField('Rest(s)', e.restTime, (v) => setState(() { e.restTime = v; widget.onChanged(); }), 0, 600),
+          _NumField('rest_s'.tr(), e.restTime, (v) => setState(() { e.restTime = v; widget.onChanged(); }), 0, 600),
         ]),
         const SizedBox(height: 6),
         TextField(
           controller: _notesCtrl,
           style: const TextStyle(fontSize: 12, color: Color(0xFF475569)),
-          decoration: const InputDecoration(
-            hintText: 'Notes (optional)',
-            hintStyle: TextStyle(color: Color(0xFFCBD5E1), fontSize: 12),
+          decoration: InputDecoration(
+            hintText: 'notes_optional'.tr(),
+            hintStyle: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 12),
             isDense: true,
             border: InputBorder.none,
           ),
@@ -620,9 +621,9 @@ class _ExercisePickerState extends State<_ExercisePicker> {
               decoration: BoxDecoration(color: const Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(2)),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text('Select Exercise', style: TextStyle(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text('select_exercise'.tr(), style: const TextStyle(
               fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
           ),
           const SizedBox(height: 12),
@@ -631,7 +632,7 @@ class _ExercisePickerState extends State<_ExercisePicker> {
             child: TextField(
               onChanged: (v) => setState(() => _search = v),
               decoration: InputDecoration(
-                hintText: 'Search exercises...',
+                hintText: 'search_exercises'.tr(),
                 prefixIcon: const Icon(Icons.search_rounded, size: 20),
                 filled: true,
                 fillColor: const Color(0xFFF8FAFC),
@@ -658,14 +659,14 @@ class _ExercisePickerState extends State<_ExercisePicker> {
                   .map((c) => GestureDetector(
                     onTap: () => setState(() => _filter = c),
                     child: Container(
-                      margin: const EdgeInsets.only(right: 8),
+                      margin: const EdgeInsetsDirectional.only(end: 8),
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                       decoration: BoxDecoration(
                         color: _filter == c ? const Color(0xFF2563EB) : const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        c == 'all' ? 'All' : c[0].toUpperCase() + c.substring(1),
+                        c == 'all' ? 'all'.tr() : c[0].toUpperCase() + c.substring(1),
                         style: TextStyle(
                           fontSize: 12, fontWeight: FontWeight.w600,
                           color: _filter == c ? Colors.white : const Color(0xFF475569),

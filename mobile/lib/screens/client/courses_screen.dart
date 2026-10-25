@@ -1,3 +1,5 @@
+import '../../core/i18n/trv.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -87,9 +89,9 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Courses',
-          style: TextStyle(
+        title: Text(
+          'nav_courses'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 20,
             color: Color(0xFF0F172A),
@@ -113,7 +115,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
                   },
                   onSubmitted: (_) => _applyFilters(),
                   decoration: InputDecoration(
-                    hintText: 'Search courses...',
+                    hintText: 'search_courses'.tr(),
                     hintStyle: const TextStyle(color: Color(0xFFCBD5E1)),
                     prefixIcon: const Icon(Icons.search_rounded,
                         color: Color(0xFF94A3B8)),
@@ -180,7 +182,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
                             ),
                           ),
                           child: Text(
-                            cat,
+                            trv(cat),
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -208,11 +210,11 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
                         onRetry: _applyFilters,
                       )
                     : state.courses.isEmpty
-                        ? const EmptyState(
+                        ? EmptyState(
                             icon: Icons.play_circle_rounded,
-                            title: 'No courses found',
+                            title: 'no_courses_found'.tr(),
                             subtitle:
-                                'Try adjusting your search or category filter.',
+                                'try_adjusting_your_search_or_category'.tr(),
                           )
                         : RefreshIndicator(
                             color: const Color(0xFF26BDB8),
@@ -350,7 +352,7 @@ class _CourseCard extends ConsumerWidget {
                       ),
                       child: Text(
                         course.levelLabel.isEmpty
-                            ? 'Course'
+                            ? 'course'.tr()
                             : course.levelLabel,
                         style: TextStyle(
                           fontSize: 9,
@@ -435,9 +437,9 @@ class _CourseCard extends ConsumerWidget {
                               color: const Color(0xFF26BDB8),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Text(
-                              'Enroll',
-                              style: TextStyle(
+                            child: Text(
+                              'enroll'.tr(),
+                              style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
@@ -463,7 +465,7 @@ class _CourseCard extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Enrolled in ${course.title}!'),
+            content: Text('enrolled_in_x'.tr(namedArgs: {'n0': course.title})),
             backgroundColor: const Color(0xFF22C55E),
           ),
         );
@@ -472,7 +474,7 @@ class _CourseCard extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to enroll: ${e.toString()}'),
+            content: Text('failed_to_enroll_x'.tr(namedArgs: {'n0': e.toString()})),
             backgroundColor: const Color(0xFFEF4444),
           ),
         );

@@ -1,3 +1,4 @@
+import '../core/i18n/trv.dart';
 class CoachModel {
   final String id;
   final String name;
@@ -30,7 +31,7 @@ class CoachModel {
   }
 
   String get primarySpecialty {
-    if (specialization.isEmpty) return 'General Fitness';
+    if (specialization.isEmpty) return trv('General Fitness');
     return _formatSpec(specialization[0]);
   }
 

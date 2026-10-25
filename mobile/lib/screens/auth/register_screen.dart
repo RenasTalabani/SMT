@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,41 +36,41 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   String? _validateName(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Full name is required';
+      return 'full_name_is_required'.tr();
     }
     if (value.trim().length < 2) {
-      return 'Name must be at least 2 characters';
+      return 'name_min'.tr();
     }
     return null;
   }
 
   String? _validateEmail(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Email is required';
+      return 'email_required'.tr();
     }
     final emailRegex = RegExp(r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,}$');
     if (!emailRegex.hasMatch(value.trim())) {
-      return 'Enter a valid email address';
+      return 'email_invalid'.tr();
     }
     return null;
   }
 
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Password is required';
+      return 'password_required'.tr();
     }
     if (value.length < 6) {
-      return 'Password must be at least 6 characters';
+      return 'password_min'.tr();
     }
     return null;
   }
 
   String? _validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please confirm your password';
+      return 'please_confirm_your_password'.tr();
     }
     if (value != _passwordController.text) {
-      return 'Passwords do not match';
+      return 'passwords_not_match'.tr();
     }
     return null;
   }
@@ -129,7 +130,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   const SizedBox(height: 16),
 
                   Text(
-                    'Create Account',
+                    'create_account'.tr(),
                     textAlign: TextAlign.center,
                     style: textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w700,
@@ -143,7 +144,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   const SizedBox(height: 6),
 
                   Text(
-                    'Join us and start your fitness journey today',
+                    'join_us_and_start_your_fitness'.tr(),
                     textAlign: TextAlign.center,
                     style: textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurface.withValues(alpha: 0.6),
@@ -163,8 +164,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     textCapitalization: TextCapitalization.words,
                     validator: _validateName,
                     decoration: InputDecoration(
-                      labelText: 'Full Name',
-                      hintText: 'John Doe',
+                      labelText: 'full_name'.tr(),
+                      hintText: 'john_doe'.tr(),
                       prefixIcon: const Icon(Icons.person_outline_rounded),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -185,7 +186,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     autocorrect: false,
                     validator: _validateEmail,
                     decoration: InputDecoration(
-                      labelText: 'Email',
+                      labelText: 'email'.tr(),
                       hintText: 'you@example.com',
                       prefixIcon: const Icon(Icons.email_outlined),
                       border: OutlineInputBorder(
@@ -206,7 +207,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     textInputAction: TextInputAction.next,
                     validator: _validatePassword,
                     decoration: InputDecoration(
-                      labelText: 'Password',
+                      labelText: 'password'.tr(),
                       hintText: '••••••••',
                       prefixIcon: const Icon(Icons.lock_outline_rounded),
                       suffixIcon: IconButton(
@@ -217,9 +218,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                         onPressed: () =>
                             setState(() => _obscurePassword = !_obscurePassword),
-                        tooltip: _obscurePassword ? 'Show password' : 'Hide password',
+                        tooltip: _obscurePassword ? 'show_password'.tr() : 'hide_password'.tr(),
                       ),
-                      helperText: 'Minimum 6 characters',
+                      helperText: 'minimum_6_characters'.tr(),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -239,7 +240,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     onFieldSubmitted: (_) => _submit(),
                     validator: _validateConfirmPassword,
                     decoration: InputDecoration(
-                      labelText: 'Confirm Password',
+                      labelText: 'confirm_password'.tr(),
                       hintText: '••••••••',
                       prefixIcon: const Icon(Icons.lock_outline_rounded),
                       suffixIcon: IconButton(
@@ -250,7 +251,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         ),
                         onPressed: () => setState(
                             () => _obscureConfirmPassword = !_obscureConfirmPassword),
-                        tooltip: _obscureConfirmPassword ? 'Show password' : 'Hide password',
+                        tooltip: _obscureConfirmPassword ? 'show_password'.tr() : 'hide_password'.tr(),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -265,7 +266,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                   // ── Role selection ───────────────────────────────────────────
                   Text(
-                    'I am a...',
+                    'i_am_a'.tr(),
                     style: textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: colorScheme.onSurface.withValues(alpha: 0.75),
@@ -278,7 +279,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     children: [
                       Expanded(
                         child: _RoleCard(
-                          label: 'Client',
+                          label: 'client'.tr(),
                           icon: Icons.person_rounded,
                           selected: _selectedRole == 'client',
                           onTap: () => setState(() => _selectedRole = 'client'),
@@ -287,7 +288,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _RoleCard(
-                          label: 'Coach',
+                          label: 'coach'.tr(),
                           icon: Icons.sports_gymnastics_rounded,
                           selected: _selectedRole == 'coach',
                           onTap: () => setState(() => _selectedRole = 'coach'),
@@ -355,9 +356,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text(
-                              'Create Account',
-                              style: TextStyle(
+                          : Text(
+                              'create_account'.tr(),
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -375,16 +376,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Already have an account?',
+                        'already_account'.tr(),
                         style: textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                       TextButton(
                         onPressed: () => context.pop(),
-                        child: const Text(
-                          'Login',
-                          style: TextStyle(fontWeight: FontWeight.w600),
+                        child: Text(
+                          'login'.tr(),
+                          style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],

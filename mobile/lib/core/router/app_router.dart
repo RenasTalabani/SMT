@@ -1,3 +1,4 @@
+import '../i18n/trv.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -112,7 +113,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/client/bookings/new/:coachId',
             builder: (_, s) => BookingScreen(
               coachId: s.pathParameters['coachId']!,
-              coachName: s.uri.queryParameters['name'] ?? 'Coach',
+              coachName: s.uri.queryParameters['name'] ?? trv('Coach'),
             ),
           ),
           GoRoute(path: '/client/anatomy', builder: (_, __) => const AnatomyScreen()),
@@ -130,7 +131,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/client/chat/:id',
             builder: (_, s) => ChatScreen(
               conversationId: s.pathParameters['id']!,
-              conversationName: s.uri.queryParameters['name'] ?? 'Chat',
+              conversationName: s.uri.queryParameters['name'] ?? trv('Chat'),
             ),
           ),
           GoRoute(path: '/client/notifications', builder: (_, __) => const NotificationsScreen()),

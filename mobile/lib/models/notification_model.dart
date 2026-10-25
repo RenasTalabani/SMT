@@ -1,3 +1,4 @@
+import '../core/i18n/trv.dart';
 class NotificationModel {
   final String id;
   final String type;
@@ -39,6 +40,6 @@ class NotificationModel {
         actionUrl: json['actionUrl'],
       );
 
-  String get senderName => sender?['name'] as String? ?? 'System';
+  String get senderName => sender?['name'] as String? ?? trv('System');
   String? get senderAvatar => sender?['avatar'] as String?;
 }

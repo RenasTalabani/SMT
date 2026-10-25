@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -209,11 +210,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     child: CircularProgressIndicator(color: _primaryBlue),
                   )
                 : chatState.messages.isEmpty
-                    ? const Center(
+                    ? Center(
                         child: Text(
-                          'No messages yet.\nSay hello!',
+                          'no_messages_yet_say_hello'.tr(),
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Color(0xFF94A3B8),
                             fontSize: 15,
                           ),
@@ -373,8 +374,8 @@ class _DateSeparator extends StatelessWidget {
     final yesterday = today.subtract(const Duration(days: 1));
     final d = DateTime(date.year, date.month, date.day);
 
-    if (d == today) return 'Today';
-    if (d == yesterday) return 'Yesterday';
+    if (d == today) return 'today'.tr();
+    if (d == yesterday) return 'yesterday'.tr();
     return '${date.day}/${date.month}/${date.year}';
   }
 
@@ -452,14 +453,14 @@ class _MessageInputBar extends StatelessWidget {
                     fontSize: 14,
                     color: Color(0xFF1E293B),
                   ),
-                  decoration: const InputDecoration(
-                    hintText: 'Type a message...',
-                    hintStyle: TextStyle(
+                  decoration: InputDecoration(
+                    hintText: 'type_message'.tr(),
+                    hintStyle: const TextStyle(
                       color: Color(0xFF94A3B8),
                       fontSize: 14,
                     ),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(
+                    contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 10,
                     ),

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
@@ -114,9 +115,9 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'My Clients',
-          style: TextStyle(
+        title: Text(
+          'my_clients'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 20,
             color: Color(0xFF0F172A),
@@ -175,7 +176,7 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: const Text('Retry'),
+                child: Text('retry'.tr()),
               ),
             ],
           ),
@@ -184,11 +185,11 @@ class _ClientsScreenState extends ConsumerState<ClientsScreen> {
     }
 
     if (state.clients.isEmpty) {
-      return const EmptyState(
+      return EmptyState(
         icon: Icons.people_outline_rounded,
-        title: 'No clients yet',
+        title: 'no_clients_yet'.tr(),
         subtitle:
-            'Once clients are assigned to you, they will appear here.',
+            'once_clients_are_assigned_to_you'.tr(),
       );
     }
 
@@ -267,13 +268,13 @@ class _ClientCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               _ActionButton(
-                label: 'Chat',
+                label: 'chat'.tr(),
                 icon: Icons.chat_bubble_outline_rounded,
                 color: const Color(0xFF26BDB8),
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Chat coming soon'),
+                    SnackBar(
+                      content: Text('chat_coming_soon'.tr()),
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
@@ -281,14 +282,14 @@ class _ClientCard extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               _ActionButton(
-                label: 'Progress',
+                label: 'nav_progress'.tr(),
                 icon: Icons.bar_chart_rounded,
                 color: const Color(0xFF10B981),
                 onTap: () {
                   // Placeholder
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Progress view coming soon'),
+                    SnackBar(
+                      content: Text('progress_view_coming_soon'.tr()),
                       behavior: SnackBarBehavior.floating,
                     ),
                   );

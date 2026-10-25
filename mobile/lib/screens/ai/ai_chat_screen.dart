@@ -1,7 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import '../../providers/ai_provider.dart';
 import '../../widgets/auth_guard_modal.dart';
 
@@ -52,14 +52,14 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Clear Chat'),
-        content: const Text('Delete all chat history with AI Coach?'),
+        title: Text('clear_chat'.tr()),
+        content: Text('delete_all_chat_history_with_ai'.tr()),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('cancel'.tr())),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: const Color(0xFFEF4444)),
-            child: const Text('Clear'),
+            child: Text('clear'.tr()),
           ),
         ],
       ),
@@ -104,9 +104,9 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('AI Coach', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+              Text('ai_coach'.tr(), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
               Text(
-                state.isLoadingHistory ? 'Loading history...' : 'Always here to help',
+                state.isLoadingHistory ? 'loading_history'.tr() : 'always_here_to_help'.tr(),
                 style: const TextStyle(fontSize: 11, color: Colors.white70),
               ),
             ],
@@ -116,7 +116,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
           if (state.messages.length > 1)
             IconButton(
               icon: const Icon(Icons.delete_outline_rounded, size: 22),
-              tooltip: 'Clear chat',
+              tooltip: 'clear_chat_2'.tr(),
               onPressed: () => _confirmClear(context),
             ),
         ],
@@ -177,7 +177,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                   textInputAction: TextInputAction.send,
                   onSubmitted: (_) => _send(),
                   decoration: InputDecoration(
-                    hintText: 'Ask your AI coach...',
+                    hintText: 'ask_your_ai_coach'.tr(),
                     hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
                     filled: true,
                     fillColor: const Color(0xFFF8FAFC),
@@ -356,11 +356,11 @@ class _QuickSuggestions extends StatelessWidget {
   final ValueChanged<String> onTap;
   const _QuickSuggestions({required this.onTap});
 
-  static const _suggestions = [
-    'Give me a chest workout',
-    'How much protein do I need?',
-    'Best exercises for weight loss',
-    'How to improve my squat form?',
+  static List<String> get _suggestions => [
+    'give_me_a_chest_workout'.tr(),
+    'how_much_protein_do_i_need'.tr(),
+    'best_exercises_for_weight_loss'.tr(),
+    'how_to_improve_my_squat_form'.tr(),
   ];
 
   @override
@@ -372,7 +372,7 @@ class _QuickSuggestions extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: _suggestions.map((s) => Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: GestureDetector(
               onTap: () => onTap(s),
               child: Container(

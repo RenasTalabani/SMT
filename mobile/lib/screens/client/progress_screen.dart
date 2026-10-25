@@ -1,7 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/constants/api_constants.dart';
@@ -77,7 +77,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen>
       ref.invalidate(_progressListProvider);
       ref.invalidate(_progressStatsProvider);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Progress logged!'), backgroundColor: _teal),
+        SnackBar(content: Text('progress_logged'.tr()), backgroundColor: _teal),
       );
       _tabs.animateTo(0);
     } catch (e) {
@@ -94,7 +94,7 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('My Progress', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('my_progress'.tr(), style: const TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF0F172A),
         elevation: 0,
@@ -103,9 +103,9 @@ class _ProgressScreenState extends ConsumerState<ProgressScreen>
           labelColor: _teal,
           unselectedLabelColor: const Color(0xFF64748B),
           indicatorColor: _teal,
-          tabs: const [
-            Tab(text: 'History'),
-            Tab(text: 'Log Progress'),
+          tabs: [
+            Tab(text: 'history'.tr()),
+            Tab(text: 'log_progress'.tr()),
           ],
         ),
       ),
@@ -154,8 +154,8 @@ class _HistoryTab extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // History list
-          const Text('Recent Entries',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Color(0xFF0F172A))),
+          Text('recent_entries'.tr(),
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Color(0xFF0F172A))),
           const SizedBox(height: 10),
 
           listAsync.when(
@@ -191,14 +191,14 @@ class _StatsRow extends StatelessWidget {
     return Row(children: [
       Expanded(child: _StatCard(
         icon: Icons.fitness_center_rounded,
-        label: 'Workouts',
+        label: 'workouts'.tr(),
         value: '$workouts',
-        sub: 'last 30 days',
+        sub: 'last_30_days'.tr(),
       )),
       const SizedBox(width: 10),
       Expanded(child: _StatCard(
         icon: Icons.local_fire_department_rounded,
-        label: 'Streak',
+        label: 'streak_2'.tr(),
         value: '$streak',
         sub: 'days',
         color: const Color(0xFFF59E0B),
@@ -206,7 +206,7 @@ class _StatsRow extends StatelessWidget {
       const SizedBox(width: 10),
       Expanded(child: _StatCard(
         icon: Icons.monitor_weight_outlined,
-        label: 'Weight Δ',
+        label: 'weight_2'.tr(),
         value: '${weightChange >= 0 ? '+' : ''}${weightChange.toStringAsFixed(1)}',
         sub: 'kg',
         color: weightChange < 0 ? const Color(0xFF10B981) : _teal,
@@ -273,13 +273,13 @@ class _ProgressCard extends StatelessWidget {
 
     switch (type) {
       case 'workout_completion':
-        icon = Icons.fitness_center_rounded; iconColor = _teal; title = 'Workout Completed';
+        icon = Icons.fitness_center_rounded; iconColor = _teal; title = 'workout_completed_2'.tr();
         break;
       case 'body_measurement':
-        icon = Icons.monitor_weight_outlined; iconColor = const Color(0xFF8B5CF6); title = 'Body Measurement';
+        icon = Icons.monitor_weight_outlined; iconColor = const Color(0xFF8B5CF6); title = 'body_measurement'.tr();
         break;
       case 'weight':
-        icon = Icons.scale_outlined; iconColor = const Color(0xFF10B981); title = 'Weight Update';
+        icon = Icons.scale_outlined; iconColor = const Color(0xFF10B981); title = 'weight_update'.tr();
         break;
       default:
         icon = Icons.timeline_rounded; iconColor = const Color(0xFF64748B); title = type.replaceAll('_', ' ');
@@ -345,10 +345,10 @@ class _EmptyState extends StatelessWidget {
       child: Column(children: [
         Icon(Icons.timeline_rounded, size: 56, color: Colors.grey.shade300),
         const SizedBox(height: 12),
-        const Text('No progress yet', style: TextStyle(color: Color(0xFF64748B), fontSize: 16)),
+        Text('no_progress_yet'.tr(), style: const TextStyle(color: Color(0xFF64748B), fontSize: 16)),
         const SizedBox(height: 4),
-        const Text('Use the "Log Progress" tab to start tracking',
-            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13)),
+        Text('use_the_log_progress_tab_to'.tr(),
+            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13)),
       ]),
     ),
   );
@@ -399,37 +399,37 @@ class _LogTab extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: _teal.withValues(alpha: 0.2)),
           ),
-          child: const Row(children: [
-            Icon(Icons.info_outline_rounded, color: _teal, size: 18),
-            SizedBox(width: 8),
+          child: Row(children: [
+            const Icon(Icons.info_outline_rounded, color: _teal, size: 18),
+            const SizedBox(width: 8),
             Expanded(child: Text(
-              'Log your body weight, workout notes, and track your progress over time.',
-              style: TextStyle(color: _teal, fontSize: 13),
+              'log_your_body_weight_workout_notes'.tr(),
+              style: const TextStyle(color: _teal, fontSize: 13),
             )),
           ]),
         ),
         const SizedBox(height: 20),
 
-        const Text('Body Weight', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Color(0xFF0F172A))),
+        Text('body_weight'.tr(), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Color(0xFF0F172A))),
         const SizedBox(height: 10),
-        _inputField(weightCtrl, 'Weight (kg)', Icons.monitor_weight_outlined,
+        _inputField(weightCtrl, 'weight_kg'.tr(), Icons.monitor_weight_outlined,
             keyboardType: const TextInputType.numberWithOptions(decimal: true)),
 
         const SizedBox(height: 20),
-        const Text('Workout Summary', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Color(0xFF0F172A))),
+        Text('workout_summary'.tr(), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Color(0xFF0F172A))),
         const SizedBox(height: 10),
         Row(children: [
-          Expanded(child: _inputField(setsCtrl, 'Sets', Icons.layers_rounded,
+          Expanded(child: _inputField(setsCtrl, 'sets'.tr(), Icons.layers_rounded,
               keyboardType: TextInputType.number)),
           const SizedBox(width: 10),
-          Expanded(child: _inputField(repsCtrl, 'Reps', Icons.repeat_rounded,
+          Expanded(child: _inputField(repsCtrl, 'reps'.tr(), Icons.repeat_rounded,
               keyboardType: TextInputType.number)),
         ]),
 
         const SizedBox(height: 20),
-        const Text('Notes', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Color(0xFF0F172A))),
+        Text('notes'.tr(), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Color(0xFF0F172A))),
         const SizedBox(height: 10),
-        _inputField(notesCtrl, 'How did it feel? Any observations...', Icons.notes_rounded, maxLines: 4),
+        _inputField(notesCtrl, 'how_did_it_feel_any_observations'.tr(), Icons.notes_rounded, maxLines: 4),
 
         const SizedBox(height: 28),
         ElevatedButton.icon(
@@ -438,7 +438,7 @@ class _LogTab extends StatelessWidget {
               ? const SizedBox(width: 18, height: 18,
                   child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
               : const Icon(Icons.save_rounded, size: 20),
-          label: Text(logging ? 'Saving...' : 'Save Progress',
+          label: Text(logging ? 'saving'.tr() : 'save_progress'.tr(),
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           style: ElevatedButton.styleFrom(
             backgroundColor: _teal,

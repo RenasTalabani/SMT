@@ -1,3 +1,4 @@
+import '../core/i18n/trv.dart';
 class TipModel {
   final String id;
   final String title;
@@ -56,7 +57,7 @@ class TipModel {
             : null,
       );
 
-  String get authorName => author?['name'] as String? ?? 'Unknown';
+  String get authorName => author?['name'] as String? ?? trv('Unknown');
   String? get authorAvatar => author?['avatar'] as String?;
 }
 
@@ -82,6 +83,6 @@ class CommentModel {
             : null,
       );
 
-  String get userName => user?['name'] as String? ?? 'Unknown';
+  String get userName => user?['name'] as String? ?? trv('Unknown');
   String? get userAvatar => user?['avatar'] as String?;
 }

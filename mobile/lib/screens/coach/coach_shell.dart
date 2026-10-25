@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,26 +14,26 @@ class CoachShell extends ConsumerStatefulWidget {
 }
 
 class _CoachShellState extends ConsumerState<CoachShell> {
-  static const List<NavigationDestination> _destinations = [
+  static List<NavigationDestination> get _destinations => [
     NavigationDestination(
-      icon: Icon(Icons.dashboard_outlined),
-      selectedIcon: Icon(Icons.dashboard_rounded),
-      label: 'Dashboard',
+      icon: const Icon(Icons.dashboard_outlined),
+      selectedIcon: const Icon(Icons.dashboard_rounded),
+      label: 'nav_dashboard'.tr(),
     ),
     NavigationDestination(
-      icon: Icon(Icons.people_outline_rounded),
-      selectedIcon: Icon(Icons.people_rounded),
-      label: 'Clients',
+      icon: const Icon(Icons.people_outline_rounded),
+      selectedIcon: const Icon(Icons.people_rounded),
+      label: 'clients'.tr(),
     ),
     NavigationDestination(
-      icon: Icon(Icons.fitness_center_outlined),
-      selectedIcon: Icon(Icons.fitness_center_rounded),
-      label: 'Workouts',
+      icon: const Icon(Icons.fitness_center_outlined),
+      selectedIcon: const Icon(Icons.fitness_center_rounded),
+      label: 'workouts'.tr(),
     ),
     NavigationDestination(
-      icon: Icon(Icons.person_outline_rounded),
-      selectedIcon: Icon(Icons.person_rounded),
-      label: 'Profile',
+      icon: const Icon(Icons.person_outline_rounded),
+      selectedIcon: const Icon(Icons.person_rounded),
+      label: 'nav_profile'.tr(),
     ),
   ];
 

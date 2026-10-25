@@ -1,3 +1,4 @@
+import '../core/i18n/trv.dart';
 class BookingSlot {
   final DateTime date;
   final String startTime;
@@ -132,22 +133,22 @@ class BookingModel {
 
   String get statusLabel {
     switch (status) {
-      case 'pending':   return 'Pending';
-      case 'confirmed': return 'Confirmed';
-      case 'cancelled': return 'Cancelled';
-      case 'completed': return 'Completed';
-      case 'no_show':   return 'No Show';
+      case 'pending':   return trv('Pending');
+      case 'confirmed': return trv('Confirmed');
+      case 'cancelled': return trv('Cancelled');
+      case 'completed': return trv('Completed');
+      case 'no_show':   return trv('No Show');
       default:          return status;
     }
   }
 
   String get typeLabel {
     switch (type) {
-      case 'personal_training':  return 'Personal Training';
-      case 'nutrition_consult':  return 'Nutrition Consult';
-      case 'assessment':         return 'Assessment';
-      case 'group_class':        return 'Group Class';
-      case 'online':             return 'Online Session';
+      case 'personal_training':  return trv('Personal Training');
+      case 'nutrition_consult':  return trv('Nutrition Consult');
+      case 'assessment':         return trv('Assessment');
+      case 'group_class':        return trv('Group Class');
+      case 'online':             return trv('Online Session');
       default:                   return type;
     }
   }

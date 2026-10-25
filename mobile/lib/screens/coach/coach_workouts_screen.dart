@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -36,9 +37,9 @@ class _CoachWorkoutsScreenState extends ConsumerState<CoachWorkoutsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Workout Plans',
-          style: TextStyle(
+        title: Text(
+          'workout_plans'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 20,
             color: Color(0xFF0F172A),
@@ -55,7 +56,7 @@ class _CoachWorkoutsScreenState extends ConsumerState<CoachWorkoutsScreen> {
             backgroundColor: Colors.white,
             foregroundColor: _blue,
             elevation: 2,
-            tooltip: 'New Exercise',
+            tooltip: 'new_exercise'.tr(),
             child: const Icon(Icons.fitness_center_rounded),
           ),
           const SizedBox(height: 10),
@@ -68,7 +69,7 @@ class _CoachWorkoutsScreenState extends ConsumerState<CoachWorkoutsScreen> {
             backgroundColor: _blue,
             foregroundColor: Colors.white,
             icon: const Icon(Icons.add_rounded),
-            label: const Text('New Plan', style: TextStyle(fontWeight: FontWeight.w600)),
+            label: Text('new_plan'.tr(), style: const TextStyle(fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -99,9 +100,9 @@ class _CoachWorkoutsScreenState extends ConsumerState<CoachWorkoutsScreen> {
     if (state.plans.isEmpty) {
       return EmptyState(
         icon: Icons.fitness_center_rounded,
-        title: 'No workout plans',
-        subtitle: 'Create your first workout plan for clients.',
-        actionLabel: 'Create Plan',
+        title: 'no_workout_plans'.tr(),
+        subtitle: 'create_your_first_workout_plan_for'.tr(),
+        actionLabel: 'create_plan'.tr(),
         onAction: () async {
           await context.push('/coach/workouts/create');
           ref.read(workoutProvider.notifier).fetchPlans();
@@ -194,7 +195,7 @@ class _WorkoutPlanCard extends StatelessWidget {
                         const SizedBox(width: 6),
                       if (plan.workouts.isNotEmpty)
                         _Tag(
-                          label: '${plan.workouts.length} days',
+                          label: 'x_days'.tr(namedArgs: {'n0': '${plan.workouts.length}'}),
                           color: const Color(0xFF64748B),
                         ),
                     ],

@@ -1,3 +1,4 @@
+import '../core/i18n/trv.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -352,7 +353,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } catch (_) {
       state = state.copyWith(
         isLoading: false,
-        error: 'Biometric authentication failed',
+        error: trv('Biometric authentication failed'),
       );
     }
   }

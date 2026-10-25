@@ -1,3 +1,5 @@
+import '../../core/i18n/trv.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -24,7 +26,7 @@ class _AiWorkoutScreenState extends ConsumerState<AiWorkoutScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('AI Workout Generator', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text('ai_workout_generator'.tr(), style: const TextStyle(fontWeight: FontWeight.w700)),
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF0F172A),
         elevation: 0,
@@ -33,7 +35,7 @@ class _AiWorkoutScreenState extends ConsumerState<AiWorkoutScreen> {
             TextButton.icon(
               onPressed: () => ref.read(aiWorkoutProvider.notifier).reset(),
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Reset'),
+              label: Text('reset'.tr()),
               style: TextButton.styleFrom(foregroundColor: _teal),
             ),
         ],
@@ -103,20 +105,20 @@ class _GeneratorForm extends StatelessWidget {
             ),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: const Row(children: [
-            Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 28),
-            SizedBox(width: 12),
+          child: Row(children: [
+            const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 28),
+            const SizedBox(width: 12),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('AI Workout Generator', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 17)),
-              SizedBox(height: 4),
-              Text('Tell me your goal and I\'ll build a full plan for you', style: TextStyle(color: Colors.white70, fontSize: 13)),
+              Text('ai_workout_generator'.tr(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 17)),
+              const SizedBox(height: 4),
+              Text('tell_me_your_goal_and_i'.tr(), style: const TextStyle(color: Colors.white70, fontSize: 13)),
             ])),
           ]),
         ),
         const SizedBox(height: 24),
 
         // Goal
-        _label('Your Goal'),
+        _label('your_goal'.tr()),
         const SizedBox(height: 10),
         Wrap(spacing: 8, runSpacing: 8, children: _goals.map((g) {
           final selected = g == goal;
@@ -130,7 +132,7 @@ class _GeneratorForm extends StatelessWidget {
                 border: Border.all(color: selected ? _teal : const Color(0xFFE2E8F0)),
               ),
               child: Text(
-                g[0].toUpperCase() + g.substring(1),
+                trv(g),
                 style: TextStyle(
                   color: selected ? Colors.white : const Color(0xFF475569),
                   fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
@@ -143,7 +145,7 @@ class _GeneratorForm extends StatelessWidget {
         const SizedBox(height: 20),
 
         // Level
-        _label('Experience Level'),
+        _label('experience_level'.tr()),
         const SizedBox(height: 10),
         Row(children: _levels.map((l) {
           final selected = l == level;
@@ -151,7 +153,7 @@ class _GeneratorForm extends StatelessWidget {
             child: GestureDetector(
               onTap: () => onLevelChanged(l),
               child: Container(
-                margin: EdgeInsets.only(right: l == _levels.last ? 0 : 8),
+                margin: EdgeInsetsDirectional.only(end: l == _levels.last ? 0 : 8),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
                   color: selected ? _teal : Colors.white,
@@ -168,7 +170,7 @@ class _GeneratorForm extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    l[0].toUpperCase() + l.substring(1),
+                    trv(l),
                     style: TextStyle(
                       color: selected ? Colors.white : const Color(0xFF475569),
                       fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
@@ -183,7 +185,7 @@ class _GeneratorForm extends StatelessWidget {
         const SizedBox(height: 20),
 
         // Days per week
-        _label('Days Per Week'),
+        _label('days_per_week'.tr()),
         const SizedBox(height: 10),
         Container(
           padding: const EdgeInsets.all(16),
@@ -195,12 +197,11 @@ class _GeneratorForm extends StatelessWidget {
           child: Row(children: [
             const Icon(Icons.calendar_today_outlined, color: _teal, size: 20),
             const SizedBox(width: 10),
-            Text('$days days / week', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF0F172A))),
-            const Spacer(),
+            Expanded(child: Text('x_days_week'.tr(namedArgs: {'days': '$days'}), overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF0F172A)))),
             Row(children: [
               _circleBtn(Icons.remove_rounded, days <= 1 ? null : () => onDaysChanged(days - 1)),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text('$days', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18, color: _teal)),
               ),
               _circleBtn(Icons.add_rounded, days >= 7 ? null : () => onDaysChanged(days + 1)),
@@ -233,7 +234,7 @@ class _GeneratorForm extends StatelessWidget {
               ? const SizedBox(width: 18, height: 18,
                   child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
               : const Icon(Icons.auto_awesome_rounded, size: 20),
-          label: Text(isLoading ? 'Generating your plan...' : 'Generate My Workout Plan',
+          label: Text(isLoading ? 'generating_your_plan'.tr() : 'generate_my_workout_plan'.tr(),
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           style: ElevatedButton.styleFrom(
             backgroundColor: _teal, foregroundColor: Colors.white,
@@ -242,9 +243,9 @@ class _GeneratorForm extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        const Text('AI generates a personalized plan in ~10 seconds',
+        Text('ai_generates_a_personalized_plan_in'.tr(),
             textAlign: TextAlign.center,
-            style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
+            style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
         const SizedBox(height: 32),
       ],
     );
@@ -289,13 +290,13 @@ class _PlanResult extends ConsumerWidget {
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Row(children: [
-              Icon(Icons.check_circle_rounded, color: Colors.white, size: 22),
-              SizedBox(width: 8),
-              Text('Plan Generated!', style: TextStyle(color: Colors.white70, fontSize: 13)),
+            Row(children: [
+              const Icon(Icons.check_circle_rounded, color: Colors.white, size: 22),
+              const SizedBox(width: 8),
+              Text('plan_generated'.tr(), style: const TextStyle(color: Colors.white70, fontSize: 13)),
             ]),
             const SizedBox(height: 6),
-            Text(plan['title'] ?? 'AI Workout Plan',
+            Text(plan['title'] ?? 'ai_workout_plan'.tr(),
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
             const SizedBox(height: 6),
             Text(plan['description'] ?? '',
@@ -317,7 +318,7 @@ class _PlanResult extends ConsumerWidget {
           ElevatedButton.icon(
             onPressed: () => context.push('/client/plan/$savedPlanId'),
             icon: const Icon(Icons.fitness_center_rounded, size: 18),
-            label: const Text('View Saved Plan', style: TextStyle(fontWeight: FontWeight.w600)),
+            label: Text('view_saved_plan'.tr(), style: const TextStyle(fontWeight: FontWeight.w600)),
             style: ElevatedButton.styleFrom(
               backgroundColor: _teal,
               foregroundColor: Colors.white,
@@ -388,9 +389,9 @@ class _DayCardState extends State<_DayCard> {
               ),
               const SizedBox(width: 12),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(widget.day['name'] ?? 'Day',
+                Text(widget.day['name'] ?? 'day'.tr(),
                     style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Color(0xFF0F172A))),
-                Text('${widget.exercises.length} exercises · ${widget.day['estimatedDuration'] ?? '?'} min',
+                Text('x_exercises_x_min'.tr(namedArgs: {'n0': '${widget.exercises.length}', 'n1': '${widget.day['estimatedDuration'] ?? '?'}'}),
                     style: const TextStyle(color: Color(0xFF64748B), fontSize: 12)),
               ])),
               Icon(
@@ -441,7 +442,7 @@ class _DayCardState extends State<_DayCard> {
                 ),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   const Text('🔥 ', style: TextStyle(fontSize: 14)),
-                  Expanded(child: Text('Warm-up: ${widget.day['warmUp']}',
+                  Expanded(child: Text('warm_up_x'.tr(namedArgs: {'n0': '${widget.day['warmUp']}'}),
                       style: const TextStyle(color: Color(0xFF92400E), fontSize: 12))),
                 ]),
               ),

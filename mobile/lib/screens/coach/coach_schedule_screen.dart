@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../core/network/api_client.dart';
 
@@ -64,7 +65,7 @@ class _CoachScheduleScreenState extends State<CoachScheduleScreen> {
         _price = ((a['sessionPrice'] ?? 0) as num).toDouble();
       }
     } catch (e) {
-      _error = 'Could not load your schedule';
+      _error = 'could_not_load_your_schedule'.tr();
     }
     if (mounted) setState(() => _loading = false);
   }
@@ -85,11 +86,11 @@ class _CoachScheduleScreenState extends State<CoachScheduleScreen> {
         'sessionPrice': _price,
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Schedule saved')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('schedule_saved'.tr())));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not save — check the times')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('could_not_save_check_the_times'.tr())));
       }
     }
     if (mounted) setState(() => _saving = false);
@@ -105,13 +106,13 @@ class _CoachScheduleScreenState extends State<CoachScheduleScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My schedule')),
+      appBar: AppBar(title: Text('my_schedule'.tr())),
       floatingActionButton: _loading
           ? null
           : FloatingActionButton.extended(
               onPressed: _saving ? null : _save,
               icon: const Icon(Icons.save_rounded),
-              label: Text(_saving ? 'Saving…' : 'Save'),
+              label: Text(_saving ? 'saving_2'.tr() : 'save'.tr()),
             ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -119,14 +120,14 @@ class _CoachScheduleScreenState extends State<CoachScheduleScreen> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
               children: [
                 if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
-                const Text('Members can only book the hours you open here.', style: TextStyle(color: Color(0xFF64748B))),
+                Text('members_can_only_book_the_hours'.tr(), style: const TextStyle(color: Color(0xFF64748B))),
                 const SizedBox(height: 12),
                 Row(children: [
                   Expanded(
                     child: DropdownButtonFormField<int>(
                       key: ValueKey('d$_duration'),
                       initialValue: _duration,
-                      decoration: const InputDecoration(labelText: 'Session (min)', border: OutlineInputBorder(), isDense: true),
+                      decoration: InputDecoration(labelText: 'session_min'.tr(), border: const OutlineInputBorder(), isDense: true),
                       items: ({30, 45, 60, 75, 90, 120, _duration}.toList()..sort())
                           .map((m) => DropdownMenuItem(value: m, child: Text('$m')))
                           .toList(),
@@ -138,7 +139,7 @@ class _CoachScheduleScreenState extends State<CoachScheduleScreen> {
                     child: DropdownButtonFormField<int>(
                       key: ValueKey('b$_buffer'),
                       initialValue: _buffer,
-                      decoration: const InputDecoration(labelText: 'Break (min)', border: OutlineInputBorder(), isDense: true),
+                      decoration: InputDecoration(labelText: 'break_min'.tr(), border: const OutlineInputBorder(), isDense: true),
                       items: ({0, 5, 10, 15, 30, _buffer}.toList()..sort())
                           .map((m) => DropdownMenuItem(value: m, child: Text('$m')))
                           .toList(),
@@ -150,7 +151,7 @@ class _CoachScheduleScreenState extends State<CoachScheduleScreen> {
                     child: TextFormField(
                       initialValue: _price.toStringAsFixed(0),
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Price', border: OutlineInputBorder(), isDense: true),
+                      decoration: InputDecoration(labelText: 'price'.tr(), border: const OutlineInputBorder(), isDense: true),
                       onChanged: (v) => _price = double.tryParse(v) ?? 0,
                     ),
                   ),
@@ -187,7 +188,7 @@ class _CoachScheduleScreenState extends State<CoachScheduleScreen> {
                               onPressed: () => setState(() => _slots[d]!.add(
                                   _Slot(const TimeOfDay(hour: 9, minute: 0), const TimeOfDay(hour: 12, minute: 0)))),
                               icon: const Icon(Icons.add),
-                              label: const Text('Add hours'),
+                              label: Text('add_hours'.tr()),
                             ),
                           ),
                       ]),

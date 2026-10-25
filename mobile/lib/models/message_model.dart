@@ -1,3 +1,4 @@
+import '../core/i18n/trv.dart';
 class ConversationModel {
   final String id;
   final bool isGroup;
@@ -39,12 +40,12 @@ class ConversationModel {
   }
 
   String getDisplayName(String currentUserId) {
-    if (isGroup) return groupName ?? 'Group';
+    if (isGroup) return groupName ?? trv('Group');
     final other = members.firstWhere(
       (m) => (m['_id'] ?? m['id']) != currentUserId,
       orElse: () => members.isNotEmpty ? members.first : null,
     );
-    return other?['name'] ?? 'Unknown';
+    return other?['name'] ?? trv('Unknown');
   }
 
   String? getOtherAvatar(String currentUserId) {
@@ -65,7 +66,7 @@ class ConversationModel {
   }
 
   String get lastMessageText =>
-      lastMessage?['content'] as String? ?? 'No messages yet';
+      lastMessage?['content'] as String? ?? trv('No messages yet');
 }
 
 class MessageModel {

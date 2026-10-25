@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -48,9 +49,9 @@ class _CoachDashboardScreenState extends ConsumerState<CoachDashboardScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Coach Dashboard',
-          style: TextStyle(
+        title: Text(
+          'coach_dashboard'.tr(),
+          style: const TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 20,
             color: Color(0xFF0F172A),
@@ -90,7 +91,7 @@ class _CoachDashboardScreenState extends ConsumerState<CoachDashboardScreen> {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsetsDirectional.only(end: 12),
             child: GestureDetector(
               onTap: () => context.push('/coach/profile'),
               child: GymAvatar(
@@ -114,7 +115,7 @@ class _CoachDashboardScreenState extends ConsumerState<CoachDashboardScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             // Welcome card
-            _CoachWelcomeCard(name: user?.name ?? 'Coach'),
+            _CoachWelcomeCard(name: user?.name ?? 'coach'.tr()),
             const SizedBox(height: 20),
 
             // Stats row
@@ -127,16 +128,16 @@ class _CoachDashboardScreenState extends ConsumerState<CoachDashboardScreen> {
 
             // Plan Requests section
             _SectionHeader(
-              title: 'Plan Requests',
+              title: 'plan_requests'.tr(),
               badge: planRequests.isNotEmpty ? planRequests.length : null,
             ),
             const SizedBox(height: 12),
             if (notifState.isLoading && planRequests.isEmpty)
               const LoadingShimmer(count: 2, height: 90)
             else if (planRequests.isEmpty)
-              const _EmptyCard(
+              _EmptyCard(
                 icon: Icons.inbox_outlined,
-                message: 'No pending plan requests',
+                message: 'no_pending_plan_requests'.tr(),
               )
             else
               ...planRequests
@@ -146,7 +147,7 @@ class _CoachDashboardScreenState extends ConsumerState<CoachDashboardScreen> {
             const SizedBox(height: 20),
 
             // My Workout Plans section
-            const _SectionHeader(title: 'My Workout Plans'),
+            _SectionHeader(title: 'my_workout_plans'.tr()),
             const SizedBox(height: 12),
             if (workoutState.isLoading && workoutState.plans.isEmpty)
               const LoadingShimmer(count: 3, height: 84)
@@ -157,9 +158,9 @@ class _CoachDashboardScreenState extends ConsumerState<CoachDashboardScreen> {
                     ref.read(workoutProvider.notifier).fetchPlans(),
               )
             else if (workoutState.plans.isEmpty)
-              const _EmptyCard(
+              _EmptyCard(
                 icon: Icons.fitness_center_rounded,
-                message: 'No workout plans created yet',
+                message: 'no_workout_plans_created_yet'.tr(),
               )
             else
               ...workoutState.plans
@@ -215,9 +216,9 @@ class _CoachWelcomeCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Welcome back,',
-            style: TextStyle(
+          Text(
+            'welcome_back_2'.tr(),
+            style: const TextStyle(
               color: Colors.white70,
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -233,9 +234,9 @@ class _CoachWelcomeCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Inspire your clients. Track their progress.',
-            style: TextStyle(
+          Text(
+            'inspire_your_clients_track_their_progress'.tr(),
+            style: const TextStyle(
               color: Colors.white70,
               fontSize: 13,
               height: 1.4,
@@ -269,7 +270,7 @@ class _StatsRow extends StatelessWidget {
         Expanded(
           child: _StatCard(
             icon: Icons.people_rounded,
-            label: 'Clients',
+            label: 'clients'.tr(),
             value: '$totalClients',
             color: const Color(0xFF10B981),
           ),
@@ -278,7 +279,7 @@ class _StatsRow extends StatelessWidget {
         Expanded(
           child: _StatCard(
             icon: Icons.fitness_center_rounded,
-            label: 'Workouts',
+            label: 'workouts'.tr(),
             value: '$workoutsCreated',
             color: const Color(0xFF2563EB),
           ),
@@ -287,7 +288,7 @@ class _StatsRow extends StatelessWidget {
         Expanded(
           child: _StatCard(
             icon: Icons.pending_actions_rounded,
-            label: 'Pending',
+            label: 'pending'.tr(),
             value: '$pendingRequests',
             color: const Color(0xFFF59E0B),
           ),
@@ -480,9 +481,9 @@ class _PlanRequestCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: const Text(
-              'View',
-              style: TextStyle(
+            child: Text(
+              'view'.tr(),
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -571,9 +572,9 @@ class _WorkoutPlanCard extends StatelessWidget {
                 color: const Color(0xFF10B981).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Text(
-                'Assigned',
-                style: TextStyle(
+              child: Text(
+                'assigned'.tr(),
+                style: const TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF10B981),
