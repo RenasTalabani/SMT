@@ -70,9 +70,9 @@ export default function Sidebar({ role, open, onNavigate }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed inset-y-0 start-0 z-40 w-72 transform overflow-y-auto border-e border-slate-200 bg-white p-4 transition-transform dark:border-slate-800 dark:bg-slate-900 lg:static lg:translate-x-0 ${
+      className={`fixed inset-y-0 start-0 z-40 w-72 transform overflow-y-auto border-e border-slate-200 bg-white p-4 transition-transform dark:border-slate-800 dark:bg-slate-900 lg:static ${
         open ? 'translate-x-0' : 'ltr:-translate-x-full rtl:translate-x-full'
-      }`}
+      } lg:translate-x-0 lg:ltr:translate-x-0 lg:rtl:translate-x-0`}
     >
       <Link href="/" className="mb-6 flex items-center gap-3" onClick={onNavigate}>
         <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-red-600 text-lg font-black text-white">CG</span>
