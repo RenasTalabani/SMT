@@ -5,6 +5,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../providers/notification_provider.dart';
 import '../../models/notification_model.dart';
 import '../../widgets/empty_state.dart';
+import '../../widgets/error_view.dart';
 import '../../widgets/loading_shimmer.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
@@ -86,6 +87,14 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       return const Padding(
         padding: EdgeInsets.all(16),
         child: LoadingShimmer(count: 6, height: 84),
+      );
+    }
+
+    if (state.error != null && state.notifications.isEmpty) {
+      return ErrorView(
+        message: state.error!,
+        onRetry: () =>
+            ref.read(notificationProvider.notifier).fetchNotifications(),
       );
     }
 

@@ -8,6 +8,7 @@ import '../../models/workout_model.dart';
 import '../../models/notification_model.dart';
 import '../../widgets/gym_avatar.dart';
 import '../../widgets/loading_shimmer.dart';
+import '../../widgets/error_view.dart';
 
 class CoachDashboardScreen extends ConsumerStatefulWidget {
   const CoachDashboardScreen({super.key});
@@ -149,6 +150,12 @@ class _CoachDashboardScreenState extends ConsumerState<CoachDashboardScreen> {
             const SizedBox(height: 12),
             if (workoutState.isLoading && workoutState.plans.isEmpty)
               const LoadingShimmer(count: 3, height: 84)
+            else if (workoutState.error != null && workoutState.plans.isEmpty)
+              ErrorView(
+                message: workoutState.error!,
+                onRetry: () =>
+                    ref.read(workoutProvider.notifier).fetchPlans(),
+              )
             else if (workoutState.plans.isEmpty)
               const _EmptyCard(
                 icon: Icons.fitness_center_rounded,

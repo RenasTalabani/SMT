@@ -6,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../widgets/gym_avatar.dart';
 import '../../widgets/empty_state.dart';
+import '../../widgets/error_view.dart';
 import '../../widgets/loading_shimmer.dart';
 
 class ConversationsScreen extends ConsumerStatefulWidget {
@@ -80,6 +81,13 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
       return const Padding(
         padding: EdgeInsets.all(16),
         child: LoadingShimmer(count: 6, height: 80),
+      );
+    }
+
+    if (chatState.error != null && chatState.conversations.isEmpty) {
+      return ErrorView(
+        message: chatState.error!,
+        onRetry: () => ref.read(chatProvider.notifier).fetchConversations(),
       );
     }
 

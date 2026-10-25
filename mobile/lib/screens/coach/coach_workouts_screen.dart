@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../providers/workout_provider.dart';
 import '../../models/workout_model.dart';
 import '../../widgets/empty_state.dart';
+import '../../widgets/error_view.dart';
 import '../../widgets/loading_shimmer.dart';
 
 class CoachWorkoutsScreen extends ConsumerStatefulWidget {
@@ -85,6 +86,13 @@ class _CoachWorkoutsScreenState extends ConsumerState<CoachWorkoutsScreen> {
       return const Padding(
         padding: EdgeInsets.all(16),
         child: LoadingShimmer(count: 5, height: 84),
+      );
+    }
+
+    if (state.error != null && state.plans.isEmpty) {
+      return ErrorView(
+        message: state.error!,
+        onRetry: () => ref.read(workoutProvider.notifier).fetchPlans(),
       );
     }
 

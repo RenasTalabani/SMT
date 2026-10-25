@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../widgets/error_view.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../models/coach_model.dart';
@@ -21,8 +22,23 @@ class CoachPublicProfileScreen extends ConsumerWidget {
 
     // The coaches list is already loaded when navigating here from CoachesScreen.
     // Fetch if not yet loaded.
-    if (state.coaches.isEmpty && !state.isLoading) {
+    if (state.coaches.isEmpty && !state.isLoading && state.error == null) {
       Future.microtask(() => ref.read(coachProvider.notifier).fetchCoaches());
+    }
+
+    if (state.error != null && state.coaches.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          surfaceTintColor: Colors.transparent,
+          foregroundColor: const Color(0xFF0F172A),
+        ),
+        body: ErrorView(
+          message: state.error!,
+          onRetry: () => ref.read(coachProvider.notifier).fetchCoaches(),
+        ),
+      );
     }
 
     if (state.isLoading && state.coaches.isEmpty) {
