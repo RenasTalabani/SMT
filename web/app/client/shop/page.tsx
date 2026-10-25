@@ -83,9 +83,14 @@ export default function ShopPage() {
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {shown.map(p => (
                 <div key={p._id} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-                  <div className="mb-2 flex h-24 items-center justify-center rounded-xl bg-gradient-to-br from-orange-100 to-amber-50 text-4xl dark:from-orange-900/30 dark:to-slate-800">
-                    {p.category === 'supplement' ? '💪' : p.category === 'drink' ? '🥤' : p.category === 'membership' ? '🎫' : '🏋️'}
-                  </div>
+                  {p.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={p.imageUrl} alt={localized(p, 'name', lang)} loading="lazy" className="mb-2 h-32 w-full rounded-xl object-cover" />
+                  ) : (
+                    <div className="mb-2 flex h-24 items-center justify-center rounded-xl bg-gradient-to-br from-orange-100 to-amber-50 text-4xl dark:from-orange-900/30 dark:to-slate-800">
+                      {p.category === 'supplement' ? '💪' : p.category === 'drink' ? '🥤' : p.category === 'membership' ? '🎫' : p.category === 'apparel' ? '👕' : '🏋️'}
+                    </div>
+                  )}
                   <h3 className="font-semibold">{localized(p, 'name', lang)}</h3>
                   {p.description && <p className="text-xs text-slate-500">{p.description}</p>}
                   <div className="mt-auto flex items-center justify-between pt-3">

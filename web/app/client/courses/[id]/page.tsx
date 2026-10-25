@@ -12,6 +12,7 @@ import CourseProgress from '@/components/CourseProgress';
 import CourseContent from '@/components/CourseContent';
 import CourseReviews from '@/components/CourseReviews';
 import toast from 'react-hot-toast';
+import { formatPrice } from '@/lib/formatPrice';
 
 export default function CourseDetailPage() {
   const params = useParams();
@@ -168,7 +169,7 @@ export default function CourseDetailPage() {
                   </div>
                   <div className="lg:text-right">
                     <div className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-                      ${currentCourse.price}
+                      {formatPrice(currentCourse.price, currentCourse.currency)}
                     </div>
                     <div className="flex items-center gap-2 mb-4">
                       <img

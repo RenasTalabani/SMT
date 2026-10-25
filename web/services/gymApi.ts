@@ -276,7 +276,7 @@ export async function listAllProducts(): Promise<Product[]> {
   return (await api.get('/shop/products/all')).data.data.products;
 }
 export async function saveProduct(p: Partial<Product>, id?: string): Promise<Product> {
-  const body = { name: p.name, nameAr: p.nameAr || '', nameKu: p.nameKu || '', description: p.description || '', category: p.category, price: Number(p.price), stock: Number(p.stock), isActive: p.isActive ?? true };
+  const body = { name: p.name, nameAr: p.nameAr || '', nameKu: p.nameKu || '', description: p.description || '', category: p.category, price: Number(p.price), stock: Number(p.stock), isActive: p.isActive ?? true, ...(p.imageUrl ? { imageUrl: p.imageUrl } : {}) };
   const res = id ? await api.put(`/shop/products/${id}`, body) : await api.post('/shop/products', body);
   return res.data.data.product;
 }

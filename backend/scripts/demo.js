@@ -69,16 +69,7 @@ async function seedSchedules() {
   // Shop products
   const Product = require('../src/models/Product');
   await Product.deleteMany({});
-  await Product.insertMany([
-    { name: 'Whey Protein 2 kg', nameAr: 'بروتين واي 2 كغ', nameKu: 'پرۆتینی وەی ٢ کگ', category: 'supplement', price: 65000, stock: 20, description: '24 g protein per scoop, chocolate.' },
-    { name: 'Creatine Monohydrate 300 g', nameAr: 'كرياتين 300 غ', nameKu: 'کریاتین ٣٠٠ گ', category: 'supplement', price: 30000, stock: 15 },
-    { name: 'Pre-workout 30 servings', nameAr: 'مكمل ما قبل التمرين', nameKu: 'پێش ڕاهێنان', category: 'supplement', price: 40000, stock: 10 },
-    { name: 'Protein bar', nameAr: 'لوح بروتين', nameKu: 'شیرینی پرۆتین', category: 'drink', price: 2500, stock: 100 },
-    { name: 'Water 500 ml', nameAr: 'ماء 500 مل', nameKu: 'ئاو ٥٠٠ مل', category: 'drink', price: 500, stock: 200 },
-    { name: 'City Gym shaker', nameAr: 'شيكر سيتي جيم', nameKu: 'شەیکەری سیتی جیم', category: 'gear', price: 7000, stock: 40 },
-    { name: 'Lifting gloves', nameAr: 'قفازات رفع', nameKu: 'دەستکێشی ڕاهێنان', category: 'gear', price: 12000, stock: 25 },
-    { name: 'Monthly membership', nameAr: 'اشتراك شهري', nameKu: 'بەشداری مانگانە', category: 'membership', price: 35000, stock: 999 },
-  ]);
+  await Product.insertMany(require('./sample-data').products);
 
   // Group classes for the next 2 weeks
   const GymClass = require('../src/models/GymClass');

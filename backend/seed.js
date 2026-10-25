@@ -43,6 +43,7 @@ const seedDatabase = async () => {
     
     const coach1 = await User.create({
       name: 'Ahmed Hassan',
+      avatar: '/sample/coaches/ahmed.svg',
       email: 'ahmed@gym.com',
       password: "coach123",
       role: 'coach',
@@ -56,13 +57,14 @@ const seedDatabase = async () => {
         { name: 'NSCA-CSCS', issuer: 'NSCA', date: new Date('2020-01-15') },
         { name: 'ACSM-CPT', issuer: 'ACSM', date: new Date('2019-06-20') }
       ],
-      bio: 'Professional fitness trainer with 8 years of experience specializing in weight training and bodybuilding.',
+      bio: '[SAMPLE] Professional fitness trainer with 8 years of experience specializing in weight training and bodybuilding.',
       languages: ['en', 'ar']
     });
 
     
     const coach2 = await User.create({
       name: 'Sara Mohamed',
+      avatar: '/sample/coaches/sara.svg',
       email: 'sara@gym.com',
       password: "coach123",
       role: 'coach',
@@ -76,8 +78,42 @@ const seedDatabase = async () => {
         { name: 'RYT-500', issuer: 'Yoga Alliance', date: new Date('2018-03-10') },
         { name: 'Pilates Instructor', issuer: 'Pilates Academy', date: new Date('2019-09-15') }
       ],
-      bio: 'Certified yoga and pilates instructor helping clients achieve mind-body wellness.',
+      bio: '[SAMPLE] Certified yoga and pilates instructor helping clients achieve mind-body wellness.',
       languages: ['en', 'ar']
+    });
+
+    const coach3 = await User.create({
+      name: 'Karwan Aziz',
+      avatar: '/sample/coaches/karwan.svg',
+      email: 'karwan@gym.com',
+      password: "coach123",
+      role: 'coach',
+      isApproved: true,
+      isActive: true,
+      phone: '+9647500000003',
+      dateOfBirth: new Date('1990-02-11'),
+      gender: 'male',
+      specialization: ['crossfit', 'cardio'],
+      certifications: [{ name: 'CrossFit Level 2', issuer: 'CrossFit', date: new Date('2021-04-01') }],
+      bio: '[SAMPLE] HIIT and fat-loss coach. Speaks Kurdish, Arabic and English.',
+      languages: ['ku', 'ar', 'en']
+    });
+
+    const coach4 = await User.create({
+      name: 'Lana Rashid',
+      avatar: '/sample/coaches/lana.svg',
+      email: 'lana@gym.com',
+      password: "coach123",
+      role: 'coach',
+      isApproved: true,
+      isActive: true,
+      phone: '+9647500000004',
+      dateOfBirth: new Date('1994-09-02'),
+      gender: 'female',
+      specialization: ['pilates', 'cardio'],
+      certifications: [{ name: 'Precision Nutrition L1', issuer: 'Precision Nutrition', date: new Date('2022-01-20') }],
+      bio: '[SAMPLE] Nutrition and women-only training coach.',
+      languages: ['ku', 'en']
     });
     console.log('Coach users created');
 
@@ -378,8 +414,9 @@ const seedDatabase = async () => {
         category: 'strength_training',
         level: 'beginner',
         duration: 8,
-        price: 99.99,
-        thumbnail: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800',
+        price: 75000,
+        currency: 'IQD',
+        thumbnail: '/sample/courses/weight-training.svg',
         instructor: coach1._id,
         content: [
           {
@@ -411,8 +448,9 @@ const seedDatabase = async () => {
         category: 'yoga',
         level: 'beginner',
         duration: 6,
-        price: 79.99,
-        thumbnail: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800',
+        price: 60000,
+        currency: 'IQD',
+        thumbnail: '/sample/courses/yoga.svg',
         instructor: coach2._id,
         content: [
           {

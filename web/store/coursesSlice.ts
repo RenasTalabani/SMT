@@ -18,6 +18,7 @@ export interface Course {
   level: 'beginner' | 'intermediate' | 'advanced';
   duration: number;
   price: number;
+  currency?: string;
   thumbnail?: string;
   content: {
     weeks: {

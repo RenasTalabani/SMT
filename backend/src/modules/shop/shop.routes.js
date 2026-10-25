@@ -22,7 +22,7 @@ const productBody = Joi.object({
   category: Joi.string().valid('supplement', 'drink', 'gear', 'apparel', 'membership', 'other').default('supplement'),
   price: Joi.number().min(0).required(),
   stock: Joi.number().integer().min(0).default(0),
-  imageUrl: Joi.string().uri().allow(''),
+  imageUrl: Joi.string().max(500).pattern(/^(https?:\/\/|\/)[^\s]*$/).allow(''), // full URL or a site path like /sample/products/whey.svg
   isActive: Joi.boolean().default(true),
 });
 

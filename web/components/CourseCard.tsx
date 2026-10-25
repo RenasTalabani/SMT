@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Course } from '@/store/coursesSlice';
+import { formatPrice } from '@/lib/formatPrice';
 
 interface CourseCardProps {
   course: Course;
@@ -81,7 +82,7 @@ export default function CourseCard({ course }: CourseCardProps) {
             </div>
           </div>
           <div className="font-semibold text-slate-900 dark:text-slate-100">
-            ${course.price}
+            {formatPrice(course.price, course.currency)}
           </div>
         </div>
 
