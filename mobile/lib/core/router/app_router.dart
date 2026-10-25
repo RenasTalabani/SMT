@@ -30,6 +30,8 @@ import '../../screens/client/change_password_screen.dart';
 import '../../screens/coach/coach_bookings_screen.dart';
 import '../../screens/coach/coach_schedule_screen.dart';
 import '../../screens/client/health_tools_screen.dart';
+import '../../screens/client/shop_screen.dart';
+import '../../screens/client/classes_screen.dart';
 import '../../screens/client/progress_screen.dart';
 import '../../screens/ai/ai_chat_screen.dart';
 import '../../screens/ai/ai_workout_screen.dart';
@@ -136,6 +138,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/client/profile',          builder: (_, __) => const ProfileScreen()),
           GoRoute(path: '/client/change-password', builder: (_, __) => const ChangePasswordScreen()),
           GoRoute(path: '/client/health',          builder: (_, __) => const HealthToolsScreen()),
+          GoRoute(path: '/client/shop',            builder: (_, __) => const ShopScreen()),
+          GoRoute(path: '/client/classes',         builder: (_, __) => const ClassesScreen()),
           GoRoute(path: '/client/ai/chat',       builder: (_, __) => const AiChatScreen()),
           GoRoute(path: '/client/ai/workout',    builder: (_, __) => const AiWorkoutScreen()),
           GoRoute(path: '/client/ai/nutrition',  builder: (_, __) => const AiNutritionScreen()),

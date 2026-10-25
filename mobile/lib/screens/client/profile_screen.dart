@@ -226,6 +226,18 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
           ),
           const SizedBox(height: 8),
           _ActionTile(
+            icon: Icons.groups_outlined,
+            label: 'Group classes',
+            onTap: () => context.push('/client/classes'),
+          ),
+          const SizedBox(height: 8),
+          _ActionTile(
+            icon: Icons.shopping_bag_outlined,
+            label: 'Shop',
+            onTap: () => context.push('/client/shop'),
+          ),
+          const SizedBox(height: 8),
+          _ActionTile(
             icon: Icons.lock_outline_rounded,
             label: 'change_password'.tr(),
             onTap: () => context.push('/client/change-password'),
