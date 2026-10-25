@@ -716,7 +716,7 @@ router.get('/analytics/courses', async (req, res) => {
       // Total enrollments
       Course.aggregate([
         { $match: { isActive: true } },
-        { $group: { _id: null, total: { $sum: { $size: '$enrolledStudents' } } } }
+        { $group: { _id: null, total: { $sum: { $size: { $ifNull: ['$enrolledStudents', []] } } } } }
       ]),
 
       // Course enrollments over time
@@ -763,13 +763,14 @@ router.get('/analytics/courses', async (req, res) => {
         {
           $group: {
             _id: null,
-            totalEnrolled: { $sum: { $size: '$enrolledStudents' } },
+            totalEnrolled: { $sum: { $size: { $ifNull: ['$enrolledStudents', []] } } },
             totalCompleted: {
               $sum: {
                 $size: {
                   $filter: {
-                    input: '$enrolledStudents',
-                    cond: { $eq: ['$$this.completedAt', null] }
+                    input: { $ifNull: ['$enrolledStudents', []] },
+                    // completed = has a completedAt date
+                    cond: { $ne: [{ $ifNull: ['$$this.completedAt', null] }, null] }
                   }
                 }
               }
@@ -943,7 +944,16 @@ router.get('/analytics/workouts', async (req, res) => {
       // Total assignments
       WorkoutPlan.aggregate([
         { $match: { isActive: true } },
-        { $group: { _id: null, total: { $sum: { $size: '$assignedTo' } } } }
+        { $group: { _id: null, total: {
+          $sum: {
+            // assignedTo is one member (ObjectId) in the schema; older data may hold a list.
+            $cond: [
+              { $isArray: '$assignedTo' },
+              { $size: '$assignedTo' },
+              { $cond: [{ $ifNull: ['$assignedTo', false] }, 1, 0] },
+            ],
+          },
+        } } }
       ]),
 
       // Workout completions over time
@@ -1046,7 +1056,7 @@ router.get('/analytics/revenue', async (req, res) => {
           $group: {
             _id: null,
             revenue: {
-              $sum: { $multiply: ['$price', { $size: '$enrolledStudents' }] }
+              $sum: { $multiply: ['$price', { $size: { $ifNull: ['$enrolledStudents', []] } }] }
             }
           }
         }
@@ -1059,8 +1069,8 @@ router.get('/analytics/revenue', async (req, res) => {
           $project: {
             title: 1,
             price: 1,
-            enrollmentCount: { $size: '$enrolledStudents' },
-            revenue: { $multiply: ['$price', { $size: '$enrolledStudents' }] }
+            enrollmentCount: { $size: { $ifNull: ['$enrolledStudents', []] } },
+            revenue: { $multiply: ['$price', { $size: { $ifNull: ['$enrolledStudents', []] } }] }
           }
         },
         { $sort: { revenue: -1 } },
@@ -1074,7 +1084,7 @@ router.get('/analytics/revenue', async (req, res) => {
           $group: {
             _id: '$category',
             revenue: {
-              $sum: { $multiply: ['$price', { $size: '$enrolledStudents' }] }
+              $sum: { $multiply: ['$price', { $size: { $ifNull: ['$enrolledStudents', []] } }] }
             }
           }
         }

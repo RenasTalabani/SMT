@@ -238,14 +238,14 @@ courseSchema.index({ tags: 1 });
 
 // Virtual for enrollment count
 courseSchema.virtual('enrollmentCount').get(function() {
-  return this.enrolledStudents.length;
+  return (this.enrolledStudents || []).length;
 });
 
 // Virtual for completion rate
 courseSchema.virtual('completionRate').get(function() {
-  if (this.enrolledStudents.length === 0) return 0;
-  const completed = this.enrolledStudents.filter(student => student.completedAt).length;
-  return (completed / this.enrolledStudents.length) * 100;
+  if ((this.enrolledStudents || []).length === 0) return 0;
+  const completed = (this.enrolledStudents || []).filter(student => student.completedAt).length;
+  return (completed / (this.enrolledStudents || []).length) * 100;
 });
 
 // Static method to find published courses

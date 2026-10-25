@@ -260,7 +260,7 @@ workoutPlanSchema.index({ status: 1 });
 
 // Virtual for total workouts
 workoutPlanSchema.virtual('totalWorkouts').get(function() {
-  return this.workouts.length;
+  return (this.workouts || []).length;
 });
 
 // Virtual for estimated completion date

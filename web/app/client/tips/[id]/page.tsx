@@ -9,6 +9,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import TipComments from '@/components/TipComments';
 import toast from 'react-hot-toast';
+import { capitalize } from '@/lib/capitalize';
 
 export default function TipDetailPage() {
   const params = useParams();
@@ -148,13 +149,13 @@ export default function TipDetailPage() {
                   currentTip.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' :
                   'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300'
                 }`}>
-                  {currentTip.difficulty.charAt(0).toUpperCase() + currentTip.difficulty.slice(1)}
+                  {capitalize(currentTip.difficulty)}
                 </span>
                 <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300 rounded-full">
                   {currentTip.category}
                 </span>
                 <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300 rounded-full">
-                  {currentTip.type.charAt(0).toUpperCase() + currentTip.type.slice(1)}
+                  {capitalize(currentTip.type)}
                 </span>
               </div>
 
@@ -165,13 +166,13 @@ export default function TipDetailPage() {
 
               <div className="flex items-center gap-4 mb-6">
                 <img
-                  src={currentTip.author.avatar || '/default-avatar.png'}
-                  alt={currentTip.author.name}
+                  src={currentTip.author?.avatar || '/default-avatar.png'}
+                  alt={currentTip.author?.name}
                   className="w-10 h-10 rounded-full"
                 />
                 <div>
                   <p className="font-medium text-slate-900 dark:text-slate-100">
-                    {currentTip.author.name}
+                    {currentTip.author?.name}
                   </p>
                   <p className="text-sm text-slate-600 dark:text-slate-300">
                     {new Date(currentTip.createdAt).toLocaleDateString()}

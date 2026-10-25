@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Tip } from '@/store/tipsSlice';
+import { capitalize } from '@/lib/capitalize';
 
 interface TipCardProps {
   tip: Tip;
@@ -31,7 +32,7 @@ export default function TipCard({ tip }: TipCardProps) {
               tip.type === 'exercise' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' :
               'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300'
             }`}>
-              {tip.type.charAt(0).toUpperCase() + tip.type.slice(1)}
+              {capitalize(tip.type)}
             </span>
           </div>
         </div>
@@ -45,7 +46,7 @@ export default function TipCard({ tip }: TipCardProps) {
             tip.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300' :
             'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300'
           }`}>
-            {tip.difficulty.charAt(0).toUpperCase() + tip.difficulty.slice(1)}
+            {capitalize(tip.difficulty)}
           </span>
           <span className="px-2 py-1 text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 rounded-full">
             {tip.category}
@@ -65,12 +66,12 @@ export default function TipCard({ tip }: TipCardProps) {
         {/* Author */}
         <div className="flex items-center gap-2 mb-4">
           <img
-            src={tip.author.avatar || '/default-avatar.png'}
-            alt={tip.author.name}
+            src={tip.author?.avatar || '/default-avatar.png'}
+            alt={tip.author?.name}
             className="w-6 h-6 rounded-full"
           />
           <span className="text-sm text-slate-600 dark:text-slate-300">
-            by {tip.author.name}
+            by {tip.author?.name}
           </span>
         </div>
 

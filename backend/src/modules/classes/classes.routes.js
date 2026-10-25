@@ -92,7 +92,7 @@ router.post('/:id/join', authorize('client'), wrap(async (req, res) => {
       isCancelled: false,
       startsAt: { $gt: new Date() },
       attendees: { $ne: req.user._id },
-      $expr: { $lt: [{ $size: '$attendees' }, '$capacity'] },
+      $expr: { $lt: [{ $size: { $ifNull: ['$attendees', []] } }, '$capacity'] },
     },
     { $addToSet: { attendees: req.user._id } },
     { new: true },

@@ -34,17 +34,17 @@ export default function TipComments({ comments, onLoadComments }: TipCommentsPro
       {comments.map((comment) => (
         <div key={comment._id} className="flex gap-4">
           <img
-            src={comment.author.avatar || '/default-avatar.png'}
-            alt={comment.author.name}
+            src={comment.author?.avatar || '/default-avatar.png'}
+            alt={comment.author?.name}
             className="w-8 h-8 rounded-full flex-shrink-0"
           />
           <div className="flex-1">
             <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-3">
               <div className="flex items-center gap-2 mb-1">
                 <span className="font-medium text-slate-900 dark:text-slate-100">
-                  {comment.author.name}
+                  {comment.author?.name}
                 </span>
-                {user && comment.author._id === user._id && (
+                {user && comment.author?._id === user._id && (
                   <span className="px-2 py-0.5 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300 rounded">
                     You
                   </span>

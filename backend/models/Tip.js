@@ -175,12 +175,12 @@ tipSchema.index({ publishedAt: -1 });
 
 // Virtual for like count
 tipSchema.virtual('likeCount').get(function() {
-  return this.likes.length;
+  return (this.likes || []).length;
 });
 
 // Virtual for comment count
 tipSchema.virtual('commentCount').get(function() {
-  return this.comments.length;
+  return (this.comments || []).length;
 });
 
 // Pre-save middleware to set publishedAt
