@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import '../../core/i18n/dates.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_theme.dart';
@@ -129,7 +130,7 @@ class _CoachBookingCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dateLabel =
-        DateFormat('EEE, MMM d').format(booking.slot.date);
+        fmtDate(context, booking.slot.date, 'EEE, MMM d');
 
     return Container(
       padding: const EdgeInsets.all(16),

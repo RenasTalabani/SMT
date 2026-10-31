@@ -25,7 +25,7 @@ class CrPanelScreen extends ConsumerStatefulWidget {
 
 class _CrPanelScreenState extends ConsumerState<CrPanelScreen> {
   Map<String, dynamic>? summary;
-  List<dynamic> clients = const [], payments = const [];
+  List<dynamic> clients = const [], payments = const [], orders = const [];
   String? error;
   bool loading = true;
   bool sample = false;
@@ -42,12 +42,13 @@ class _CrPanelScreenState extends ConsumerState<CrPanelScreen> {
       error = null;
     });
     try {
-      final r = await Future.wait([CrApi.panelSummary(), CrApi.panelClients(), CrApi.panelPayments()]);
+      final r = await Future.wait([CrApi.panelSummary(), CrApi.panelClients(), CrApi.panelPayments(), CrApi.panelOrders()]);
       if (!mounted) return;
       setState(() {
         summary = r[0] as Map<String, dynamic>;
         clients = r[1] as List;
         payments = r[2] as List;
+        orders = r[3] as List;
         sample = false;
         loading = false;
       });
@@ -57,6 +58,15 @@ class _CrPanelScreenState extends ConsumerState<CrPanelScreen> {
         error = CrApi.error(e);
         loading = false;
       });
+    }
+  }
+
+  Future<void> _order(String id, String status) async {
+    try {
+      await CrApi.panelOrderStatus(id, status);
+      _load();
+    } catch (e) {
+      if (mounted) crToast(context, CrApi.error(e));
     }
   }
 
@@ -120,7 +130,24 @@ class _CrPanelScreenState extends ConsumerState<CrPanelScreen> {
                   ]),
                 ),
           ]),
+          if (!showSample) ...[
+            Text(tr3('طلبات المتجر', 'Shop orders', 'داواکارییەکانی فرۆشگا'), style: crH3),
+            if (orders.isEmpty) Text(tr3('ماكو طلبات مفتوحة.', 'No open orders.', 'هیچ داواکارییەکی کراوە نییە.'), style: crMuted),
+            for (final o in orders)
+              CrCard(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: gap([
+                  Text('${o['user']?['name'] ?? '—'} · ${fmt((o['total'] as num?) ?? 0)} ${da()} · ${o['governorate']}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                  Text([for (final i in (o['items'] as List? ?? const [])) '${i['name']} × ${i['quantity']}'].join('، '), style: crSmall),
+                  Text('${o['phone']} · ${o['method']} · ${o['status']}', style: crSmall, textDirection: TextDirection.ltr),
+                  Wrap(spacing: 6, children: [
+                    for (final os in [['confirmed', 'أكّد'], ['shipped', 'انشحن'], ['delivered', 'وصل'], ['cancelled', 'ألغِ']])
+                      if (os[0] != o['status']) CrChip(T(os[1]), light: false, onTap: () => _order('${o['_id']}', os[0])),
+                  ]),
+                ], 4)),
+              ),
+          ],
           Text(T('التقارير'), style: crH3),
+          if (!showSample && clients.isEmpty) Text(tr3('ما عندك متدربين بعد. أول ما أحد يشترك أو يجاوب أسئلة البداية يطلع هنا.', 'No clients yet. They appear here after they subscribe or answer the start questions.', 'هێشتا هیچ ڕاهێنراوێکت نییە.'), style: crMuted),
           CrList([
             if (showSample)
               for (final c in sampleClients)
@@ -227,6 +254,7 @@ class _CrPanelClientScreenState extends ConsumerState<CrPanelClientScreen> {
               ]),
             ),
           DropdownButtonFormField<String>(
+            isExpanded: true,
             initialValue: programs.any((p) => p['id'] == profile?['programKey']) ? profile!['programKey'] as String : null,
             dropdownColor: CrColors.surface,
             decoration: InputDecoration(labelText: T('برنامجي')),
@@ -396,6 +424,7 @@ class _CrContentScreenState extends ConsumerState<CrContentScreen> {
         children: [
           if (loading) const LinearProgressIndicator(color: CrColors.teal),
           if (error != null) Text(error!, style: crMuted),
+          if (!loading && error == null && items.isEmpty) Text(tr3('ماكو أفكار بعد — ضيف أول وحدة.', 'No ideas yet — add the first one.', 'هێشتا هیچ بیرۆکەیەک نییە.'), style: crMuted),
           if (items.isNotEmpty) Row(children: [
             Expanded(child: CrStat('${items.length}', tr3('أفكار', 'Ideas', 'بیرۆکە'))),
             const SizedBox(width: 10),

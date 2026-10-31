@@ -2,6 +2,7 @@
 // onboarding questions, weekly check-in, privacy, delete account.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/network/api_client.dart';
@@ -86,6 +87,7 @@ class CrMeScreen extends ConsumerWidget {
             CrRow(icon: Icons.workspace_premium_outlined, title: T('اشتراكي'), onTap: () => context.push('/renas/plans')),
             CrRow(icon: Icons.menu_book_rounded, title: T('برنامجي'), onTap: () => context.push('/renas/program/${st.s['plan'] ?? 'str12'}')),
             CrRow(icon: Icons.fact_check_outlined, title: T('التقرير الأسبوعي'), onTap: () => context.push('/renas/checkin')),
+            CrRow(icon: Icons.local_shipping_outlined, title: tr3('طلباتي', 'My orders', 'داواکارییەکانم'), onTap: () => context.push('/renas/orders')),
             CrRow(icon: Icons.quiz_outlined, title: tr3('أسئلة البداية (هدفك وصحتك)', 'Start questions (goal and health)', 'پرسیارەکانی دەستپێک (ئامانج و تەندروستی)'), onTap: () => context.push('/renas/start')),
             if (isCoach) CrRow(icon: Icons.dashboard_customize_outlined, iconColor: CrColors.amber, title: T('لوحة الكوتش'), sub: T('إلك إنت، ريناس'), onTap: () => context.push('/renas/panel')),
             if (isCoach) CrRow(icon: Icons.campaign_outlined, iconColor: CrColors.amber, title: T('خطة المحتوى - ريناس'), onTap: () => context.push('/renas/content')),
@@ -193,6 +195,22 @@ class _CrPlansScreenState extends ConsumerState<CrPlansScreen> {
     }
   }
 
+  Future<void> _uploadReceipt(String subId) async {
+    final x = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 1600, imageQuality: 80);
+    if (x == null) return;
+    setState(() => busy = true);
+    try {
+      final url = await CrApi.uploadImage(x.path);
+      await CrApi.setReceipt(subId, url);
+      ref.invalidate(crMeProvider);
+      if (mounted) crToast(context, T('انرسل الإيصال للكوتش'));
+    } catch (e) {
+      if (mounted) crToast(context, CrApi.error(e));
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
   Future<void> _trial() async {
     setState(() => busy = true);
     try {
@@ -212,6 +230,8 @@ class _CrPlansScreenState extends ConsumerState<CrPlansScreen> {
     final me = ref.watch(crMeProvider).valueOrNull;
     final access = me?['access'] as Map?;
     final subs = ((me?['subscriptions'] as List?) ?? const []).cast<Map>();
+    final loggedIn = ref.watch(authProvider).isLoggedIn;
+    final pendingCoaching = subs.where((s) => s['kind'] == 'coaching' && s['status'] == 'pending').toList();
     final tiers = (plans['tiers'] as List).cast<Map>();
     final coaching = Map<String, dynamic>.from(plans['coaching'] as Map);
     final programs = (plans['programs'] as List).cast<Map>();
@@ -221,6 +241,16 @@ class _CrPlansScreenState extends ConsumerState<CrPlansScreen> {
       return CrPage(
         title: T('اشتراكي'),
         children: [
+          if (!loggedIn)
+            CrCard(
+              color: CrColors.blueWash,
+              border: CrColors.blue,
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: gap([
+                Text(tr3('سجّل دخول حتى تشترك', 'Log in to subscribe', 'بچۆ ژوورەوە بۆ بەشداربوون'), style: crH3),
+                Text(tr3('تگدر تشوف الأسعار هسه. الاشتراك والتجربة المجانية يحتاجون حساب.', 'You can see the prices now. Subscribing and the free trial need an account.', 'دەتوانیت ئێستا نرخەکان ببینیت. بەشداری و تاقیکردنەوەی بەخۆڕایی پێویستی بە هەژمارە.'), style: crMuted),
+                CrButton(T('تسجيل الدخول'), height: 44, onTap: () => context.go('/auth/login')),
+              ], 8)),
+            ),
           CrCard(
             color: access?['tier'] != null ? CrColors.tealWash : CrColors.amberWash,
             border: access?['tier'] != null ? CrColors.tealLine : CrColors.amberLine,
@@ -299,6 +329,16 @@ class _CrPlansScreenState extends ConsumerState<CrPlansScreen> {
               ],
             ], 8)),
           ),
+          for (final p in pendingCoaching)
+            CrCard(
+              color: CrColors.amberWash,
+              border: CrColors.amberLine,
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: gap([
+                Text('${T('ينتظر تأكيد الكوتش')} · ${fmt((p['amount'] as num?) ?? 0)} ${da()} · ${p['reference'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(p['receiptUrl'] != null ? tr3('الإيصال وصل للكوتش ✓', 'Receipt sent to the coach ✓', 'پسوولە گەیشتە کۆچ ✓') : T('حوّل المبلغ لحساب الكوتش وصوّر الإيصال. الكوتش يأكد خلال 24 ساعة.'), style: crSmall.copyWith(color: CrColors.amberSoft)),
+                CrButton(T('ارفع صورة الإيصال'), kind: 'ghost', height: 40, icon: Icons.photo_camera_outlined, busy: busy, onTap: () => _uploadReceipt('${p['_id']}')),
+              ], 6)),
+            ),
           Text(tr3('برامج بدفعة وحدة', 'One-time programs', 'پرۆگرامی یەکجاری'), style: crH3),
           CrList([
             for (final p in programs)

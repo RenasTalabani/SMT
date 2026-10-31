@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'core/i18n/kurdish_localizations.dart';
 import 'core/network/api_client.dart';
 import 'core/router/app_router.dart';
@@ -17,6 +18,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+  await initializeDateFormatting(); // Arabic month/day names (Kurdish: core/i18n/dates.dart)
 
   ApiClient().init();
 

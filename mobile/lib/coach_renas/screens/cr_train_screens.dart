@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../cr_api.dart';
 import '../cr_core.dart';
 import '../cr_shell.dart';
 
@@ -303,9 +304,34 @@ class CrProgramScreen extends ConsumerWidget {
   final String id;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final me = ref.watch(crMeProvider).valueOrNull;
     return CrLoader(builder: (context, d, st) {
       final p = d.list('PROGRAMS').firstWhere((x) => x['id'] == id, orElse: () => d.list('PROGRAMS').first);
       final isMine = st.s['plan'] == p['id'];
+      // Paid programs need a subscription (free ones are marked own:true in the prototype).
+      // The last known tier is remembered so a paying member can still train offline.
+      if (me != null) st.s['tierCache'] = (me['access'] as Map?)?['tier'];
+      final tier = (me?['access'] as Map?)?['tier'] ?? st.s['tierCache'];
+      final locked = p['own'] != true && tier == null;
+      if (locked) {
+        return CrPage(
+          title: T(p['t'] as String),
+          sub: T((p['d'] ?? '') as String),
+          bottom: CrButton(T('اشتراكي'), icon: Icons.lock_open_rounded, onTap: () => context.push('/renas/plans')),
+          children: [
+            CrCard(
+              color: CrColors.amberWash,
+              border: CrColors.amberLine,
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: gap([
+                const Icon(Icons.lock_outline_rounded, color: CrColors.amber),
+                Text(T('للمشتركين'), style: crH3),
+                Text(tr3('هذا البرنامج ضمن الاشتراك. جرّب كل شي مجاناً 7 أيام.', 'This program is part of the subscription. Try everything free for 7 days.', 'ئەم پرۆگرامە بەشێکە لە بەشداری. هەموو شت 7 ڕۆژ بەخۆڕایی تاقی بکەرەوە.'), style: crMuted.copyWith(color: CrColors.amberSoft)),
+              ], 6)),
+            ),
+            if (p['how'] != null) CrCard(child: Text(T(p['how'] as String), style: crMuted.copyWith(color: CrColors.soft))),
+          ],
+        );
+      }
       return CrPage(
         title: T(p['t'] as String),
         sub: T((p['d'] ?? '') as String),
@@ -336,8 +362,9 @@ class CrProgramScreen extends ConsumerWidget {
                           child: Row(children: [
                             const Icon(Icons.fitness_center_rounded, size: 16, color: CrColors.teal),
                             const SizedBox(width: 8),
-                            Expanded(child: Text(d.x(d.exMap[exId]!, 'ar'))),
-                            Text(d.x(d.exMap[exId]!, 'lv'), style: crSmall),
+                            Expanded(flex: 3, child: Text(d.x(d.exMap[exId]!, 'ar'))),
+                            const SizedBox(width: 6),
+                            Flexible(flex: 2, child: Text(d.x(d.exMap[exId]!, 'lv'), style: crSmall, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.end)),
                           ]),
                         ),
                       ),

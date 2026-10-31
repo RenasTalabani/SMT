@@ -1,6 +1,7 @@
 // Coach Renas — server calls (backend: /api/coach-renas, see
 // backend/src/modules/coach-renas). Every call fails soft: screens fall back
 // to the built-in price list / local data when the server can't be reached.
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/network/api_client.dart';
@@ -26,7 +27,24 @@ class CrApi {
   static Future<Map<String, dynamic>> sendCheckIn(Map<String, dynamic> body) async => _data(await _c.post('$_b/checkins', data: body));
   static Future<List<dynamic>> myCheckIns() async => (_data(await _c.get('$_b/checkins/me'))['checkIns'] as List?) ?? const [];
 
+  static Future<Map<String, dynamic>> shop() async => _data(await _c.get('$_b/shop'));
+  static Future<Map<String, dynamic>> placeOrder(Map<String, dynamic> body) async => _data(await _c.post('$_b/orders', data: body));
+  static Future<List<dynamic>> myOrders() async => (_data(await _c.get('$_b/orders/me'))['orders'] as List?) ?? const [];
+  static Future<Map<String, dynamic>> cancelOrder(String id) async => _data(await _c.patch('$_b/orders/$id/cancel'));
+  static Future<Map<String, dynamic>> setReceipt(String subId, String url) async =>
+      _data(await _c.put('$_b/subscriptions/$subId/receipt', data: {'receiptUrl': url}));
+
+  /// Upload an image (receipt / progress photo) with the City Gym upload API. Returns its URL.
+  static Future<String> uploadImage(String path) async {
+    final form = FormData.fromMap({'image': await MultipartFile.fromFile(path)});
+    final res = await _c.postFormData('/upload/image', form);
+    return (res.data['data']['url'] ?? '').toString();
+  }
+
   // coach panel
+  static Future<List<dynamic>> panelOrders() async => (_data(await _c.get('$_b/panel/orders'))['orders'] as List?) ?? const [];
+  static Future<Map<String, dynamic>> panelOrderStatus(String id, String status) async =>
+      _data(await _c.patch('$_b/panel/orders/$id', data: {'status': status}));
   static Future<Map<String, dynamic>> panelSummary() async => _data(await _c.get('$_b/panel/summary'));
   static Future<List<dynamic>> panelClients() async => (_data(await _c.get('$_b/panel/clients'))['clients'] as List?) ?? const [];
   static Future<Map<String, dynamic>> panelClient(String id) async => _data(await _c.get('$_b/panel/clients/$id'));

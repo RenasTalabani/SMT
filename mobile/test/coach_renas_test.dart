@@ -1,6 +1,9 @@
 // Coach Renas module: data files load, translations exist, and the main
 // screens render without overflow in Arabic, Kurdish and English on a 360px phone.
+import 'package:citygym/coach_renas/cr_api.dart';
 import 'package:citygym/coach_renas/cr_core.dart';
+import 'package:citygym/coach_renas/screens/cr_account_screens.dart';
+import 'package:citygym/coach_renas/screens/cr_panel_screens.dart';
 import 'package:citygym/coach_renas/screens/cr_food_shop_screens.dart';
 import 'package:citygym/coach_renas/screens/cr_train_screens.dart';
 import 'package:flutter/material.dart';
@@ -62,6 +65,21 @@ void main() {
     'supps': () => const CrSuppsScreen(),
     'hormones': () => const CrHormonesScreen(),
     'shop': () => const CrShopScreen(),
+    'coach': () => const CrCoachScreen(),
+    'checkout': () => const CrCheckoutScreen(),
+    'orders': () => const CrOrdersScreen(),
+    'me': () => const CrMeScreen(),
+    'plans': () => const CrPlansScreen(),
+    'start': () => const CrStartScreen(),
+    'checkin': () => const CrCheckinScreen(),
+    'privacy': () => const CrPrivacyScreen(),
+    'delete': () => const CrDeleteScreen(),
+    'panel': () => const CrPanelScreen(),
+    'content': () => const CrContentScreen(),
+    'program-free': () => const CrProgramScreen(id: 'str12'),
+    'program-paid': () => const CrProgramScreen(id: 'ul4'),
+    'sport': () => const CrSportScreen(id: 'foot'),
+    'exercise': () => const CrExerciseScreen(id: 34),
   };
 
   for (final lang in ['ar', 'ku', 'en']) {
@@ -72,7 +90,11 @@ void main() {
         addTearDown(tester.view.reset);
         CrI18n.lang = lang;
         await tester.pumpWidget(ProviderScope(
-          overrides: [crDataProvider.overrideWith((ref) async => data)],
+          overrides: [
+            crDataProvider.overrideWith((ref) async => data),
+            crPlansProvider.overrideWith((ref) async => kCrPlansFallback),
+            crMeProvider.overrideWith((ref) async => null),
+          ],
           child: MaterialApp(theme: crTheme(), home: e.value()),
         ));
         for (var i = 0; i < 6; i++) {
@@ -80,9 +102,12 @@ void main() {
         }
         expect(tester.takeException(), isNull);
         expect(find.byType(Scaffold), findsWidgets);
-        // real content, not the loading spinner
+        // real content, not the loading spinner (screens with a server call may show a thin progress bar)
         expect(find.byType(CircularProgressIndicator), findsNothing, reason: 'still loading');
         expect(find.byType(ListView), findsWidgets);
+        if (e.key == 'program-paid') expect(find.byIcon(Icons.lock_outline_rounded), findsOneWidget);
+        if (e.key == 'program-free') expect(find.byIcon(Icons.lock_outline_rounded), findsNothing);
+        if (e.key == 'panel') expect(find.textContaining(T('مثال')), findsWidgets); // offline -> sample clients
         final want = lang == 'en' ? TextDirection.ltr : TextDirection.rtl;
         expect(find.byWidgetPredicate((w) => w is Directionality && w.textDirection == want), findsWidgets);
       });

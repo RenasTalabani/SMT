@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/network/api_client.dart';
+import '../../providers/auth_provider.dart';
+import '../cr_api.dart';
 import '../cr_core.dart';
 import '../cr_shell.dart';
 
@@ -589,6 +591,8 @@ class _CrCheckoutScreenState extends ConsumerState<CrCheckoutScreen> {
   String? gov;
   final _tel = TextEditingController();
   bool done = false;
+  bool doneSent = false;
+  bool sending = false;
   int doneTotal = 0;
   @override
   void dispose() {
@@ -607,7 +611,9 @@ class _CrCheckoutScreenState extends ConsumerState<CrCheckoutScreen> {
         return CrPage(title: T('تم الطلب'), children: [
           CrHero(children: [Text(T('طلبك وصلنا'), style: crH1(26).copyWith(color: CrColors.tealInk)), Text('${fmt(doneTotal)} ${da()}')]),
           Text(T('راح نراسلك واتساب أو نتصل بيك حتى نأكد الطلب قبل الشحن. يوصلك خلال 1–3 أيام.'), style: crMuted),
-          Text(tr3('ملاحظة: الطلب ينحفظ على جهازك لحد ما يتربط المتجر بالسيرفر.', 'Note: the order is kept on this phone until the shop is connected to the server.', 'تێبینی: داواکاری لەسەر مۆبایلەکەت دەمێنێتەوە تا فرۆشگا بە سێرڤەر دەبەسترێتەوە.'), style: crSmall),
+          if (!doneSent)
+            Text(tr3('الطلب انحفظ على جهازك بس (ما مسجّل دخول أو ماكو إنترنت). سجّل دخول واطلب مرة ثانية حتى يوصل للكوتش.', 'The order was only saved on this phone (not logged in or offline). Log in and order again so it reaches the coach.', 'داواکارییەکە تەنها لەسەر مۆبایلەکەت پاشەکەوت کرا. بچۆ ژوورەوە و دووبارە داوا بکە.'), style: crSmall.copyWith(color: CrColors.amber)),
+          CrButton(tr3('طلباتي', 'My orders', 'داواکارییەکانم'), kind: 'ghost', onTap: () => context.pushReplacement('/renas/orders')),
           CrButton(T('رجوع للرئيسية'), onTap: () => context.go('/renas')),
         ]);
       }
@@ -624,19 +630,40 @@ class _CrCheckoutScreenState extends ConsumerState<CrCheckoutScreen> {
       ];
       return CrPage(
         title: T('إتمام الطلب'),
-        bottom: CrButton(method == 'cod' ? T('أكّد الطلب') : '${T('ادفع')} ${fmt(total)} ${da()}', height: 56, onTap: () {
+        bottom: CrButton(method == 'cod' ? T('أكّد الطلب') : '${T('ادفع')} ${fmt(total)} ${da()}', height: 56, busy: sending, onTap: () async {
           final t = _tel.text.replaceAll(RegExp(r'\D'), '');
-          if (t.length < 10 || !t.startsWith('07')) {
+          if (t.length != 11 || !t.startsWith('07')) {
             crToast(context, T('اكتب رقم موبايل صحيح يبدي بـ 07'));
             return;
           }
+          final cart = st.cart;
+          setState(() => sending = true);
+          String? serverId;
+          final auth = ref.read(authProvider);
+          if (auth.isLoggedIn) {
+            try {
+              final r = await CrApi.placeOrder({
+                'items': [for (final e in cart.entries) {'key': e.key, 'quantity': e.value}],
+                'governorate': gov,
+                'phone': t,
+                'method': method,
+              });
+              serverId = r['order']?['_id']?.toString();
+            } catch (e) {
+              if (context.mounted) crToast(context, CrApi.error(e));
+            }
+          }
           final orders = List<dynamic>.from((st.s['orders'] as List?) ?? []);
-          orders.add({'at': DateTime.now().toIso8601String(), 'cart': st.cart, 'total': total, 'gov': gov, 'tel': t, 'method': method, 'status': 'pending'});
+          orders.add({'at': DateTime.now().toIso8601String(), 'cart': cart, 'total': total, 'gov': gov, 'tel': t, 'method': method, 'status': 'pending', 'id': serverId});
           st.s['orders'] = orders;
           st.s['cart'] = <String, int>{};
-          st.save();
+          st.logActivity();
+          await st.save();
+          if (!mounted) return;
           setState(() {
+            sending = false;
             done = true;
+            doneSent = serverId != null;
             doneTotal = total;
           });
         }),
@@ -660,9 +687,10 @@ class _CrCheckoutScreenState extends ConsumerState<CrCheckoutScreen> {
             Expanded(
               child: DropdownButtonFormField<String>(
                 initialValue: gov,
+                isExpanded: true,
                 dropdownColor: CrColors.surface,
                 decoration: InputDecoration(labelText: T('المحافظة')),
-                items: [for (final g in govs) DropdownMenuItem(value: g, child: Text(T(g)))],
+                items: [for (final g in govs) DropdownMenuItem(value: g, child: Text(T(g), overflow: TextOverflow.ellipsis))],
                 onChanged: (v) => setState(() => gov = v),
               ),
             ),
@@ -712,6 +740,84 @@ class _CrCheckoutScreenState extends ConsumerState<CrCheckoutScreen> {
           ),
         ],
       );
+    });
+  }
+}
+
+
+// ─────────────────────────── My orders ─────────────────────────────────────
+class CrOrdersScreen extends ConsumerStatefulWidget {
+  const CrOrdersScreen({super.key});
+  @override
+  ConsumerState<CrOrdersScreen> createState() => _CrOrdersScreenState();
+}
+
+class _CrOrdersScreenState extends ConsumerState<CrOrdersScreen> {
+  List<dynamic>? server;
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final r = await CrApi.myOrders();
+      if (mounted) setState(() => server = r);
+    } catch (_) {
+      if (mounted) setState(() => server = const []);
+    }
+  }
+
+  static const _st = {'pending': 'ينتظر تأكيد', 'confirmed': 'تأكد طلبك', 'shipped': 'طلبك بالطريق', 'delivered': 'وصل طلبك', 'cancelled': 'انلغى طلبك'};
+  String _status(String s) => switch (s) {
+        'pending' => tr3('ينتظر تأكيد', 'Waiting for confirmation', 'چاوەڕێی پشتڕاستکردنەوە'),
+        'confirmed' => tr3('تأكد طلبك', 'Confirmed', 'پشتڕاستکرایەوە'),
+        'shipped' => tr3('طلبك بالطريق', 'On the way', 'لە ڕێگادایە'),
+        'delivered' => tr3('وصل طلبك', 'Delivered', 'گەیشت'),
+        'cancelled' => tr3('انلغى طلبك', 'Cancelled', 'هەڵوەشێنرایەوە'),
+        _ => _st[s] ?? s,
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    return CrLoader(builder: (context, d, st) {
+      final local = ((st.s['orders'] as List?) ?? const []).where((o) => o['id'] == null).toList().reversed.toList();
+      final list = server ?? const [];
+      return CrPage(title: tr3('طلباتي', 'My orders', 'داواکارییەکانم'), children: [
+        if (server == null) const LinearProgressIndicator(color: CrColors.teal),
+        if (server != null && list.isEmpty && local.isEmpty)
+          CrCard(child: Column(children: [
+            const Icon(Icons.shopping_bag_outlined, color: CrColors.muted, size: 36),
+            const SizedBox(height: 8),
+            Text(tr3('ما عندك طلبات بعد.', 'No orders yet.', 'هێشتا هیچ داواکارییەکت نییە.'), style: crMuted),
+            const SizedBox(height: 8),
+            CrButton(T('روح للمتجر'), height: 44, onTap: () => context.go('/renas/shop')),
+          ])),
+        for (final o in list)
+          CrCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: gap([
+              Row(children: [
+                Expanded(child: Text('${fmt((o['total'] as num?) ?? 0)} ${da()} · ${T((o['governorate'] ?? '').toString())}', style: crH3)),
+                CrTag(_status('${o['status']}'), fg: o['status'] == 'cancelled' ? CrColors.red : CrColors.teal, bg: o['status'] == 'cancelled' ? CrColors.redWash : CrColors.tealWash),
+              ]),
+              Text([for (final i in (o['items'] as List? ?? const [])) '${T('${i['name']}')} × ${i['quantity']}'].join('، '), style: crMuted),
+              Text('${o['createdAt'] ?? ''}'.split('T').first, style: crSmall),
+              if (o['status'] == 'pending')
+                CrButton(tr3('ألغِ الطلب', 'Cancel order', 'داواکاری هەڵبوەشێنەوە'), kind: 'ghost', height: 38, onTap: () async {
+                  try {
+                    await CrApi.cancelOrder('${o['_id']}');
+                    _load();
+                  } catch (e) {
+                    if (context.mounted) crToast(context, CrApi.error(e));
+                  }
+                }),
+            ], 6)),
+          ),
+        if (local.isNotEmpty) Text(tr3('محفوظة على جهازك بس', 'Only on this phone', 'تەنها لەسەر ئەم مۆبایلە'), style: crH3),
+        for (final o in local)
+          CrRow(title: '${fmt((o['total'] as num?) ?? 0)} ${da()} · ${T('${o['gov']}')}', sub: '${o['at']}'.split('T').first),
+      ]);
     });
   }
 }

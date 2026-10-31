@@ -657,7 +657,21 @@ class CrLoader extends ConsumerWidget {
     final st = ref.watch(crStateProvider);
     return data.when(
       loading: () => const Scaffold(backgroundColor: CrColors.bg, body: Center(child: CircularProgressIndicator(color: CrColors.teal))),
-      error: (e, _) => Scaffold(backgroundColor: CrColors.bg, body: Center(child: Text('$e', style: crMuted))),
+      error: (e, _) => Scaffold(
+        backgroundColor: CrColors.bg,
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              const Icon(Icons.error_outline_rounded, color: CrColors.amber, size: 40),
+              const SizedBox(height: 12),
+              Text(tr3('صار خطأ بتحميل البيانات', 'Could not load the data', 'هەڵەیەک لە بارکردنی داتا ڕوویدا'), style: crH3, textAlign: TextAlign.center),
+              const SizedBox(height: 16),
+              CrButton(tr3('جرّب مرة ثانية', 'Try again', 'دووبارە هەوڵ بدەرەوە'), height: 44, onTap: () => ref.invalidate(crDataProvider)),
+            ]),
+          ),
+        ),
+      ),
       data: (d) {
         if (!st.loaded) {
           st.load(d);

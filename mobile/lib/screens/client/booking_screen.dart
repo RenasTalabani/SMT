@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import '../../core/i18n/dates.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/booking_provider.dart';
@@ -166,7 +167,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             Text(
-                                              DateFormat('EEE').format(day.date),
+                                              fmtDate(context, day.date, 'EEE'),
                                               style: TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w600,
@@ -175,7 +176,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
-                                              DateFormat('d').format(day.date),
+                                              fmtDate(context, day.date, 'd'),
                                               style: TextStyle(
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.w800,
@@ -203,7 +204,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                               // Time slots
                               if (_selectedDay != null) ...[
                                 _SectionHeader(
-                                  'available_times_x'.tr(namedArgs: {'n0': DateFormat('EEEE, MMM d').format(_selectedDay!.date)}),
+                                  'available_times_x'.tr(namedArgs: {'n0': fmtDate(context, _selectedDay!.date, 'EEEE, MMM d')}),
                                 ),
                                 const SizedBox(height: 8),
                                 Wrap(
@@ -420,7 +421,7 @@ class _BookingBar extends StatelessWidget {
               children: [
                 if (slot != null) ...[
                   Text(
-                    DateFormat('EEE, MMM d').format(slot!.date),
+                    fmtDate(context, slot!.date, 'EEE, MMM d'),
                     style: const TextStyle(
                         fontWeight: FontWeight.w600, fontSize: 13),
                   ),
@@ -531,7 +532,7 @@ class _BookingCard extends StatelessWidget {
                   size: 13, color: AppColors.textHint),
               const SizedBox(width: 5),
               Text(
-                DateFormat('EEE, MMM d').format(booking.slot.date),
+                fmtDate(context, booking.slot.date, 'EEE, MMM d'),
                 style: const TextStyle(
                     fontSize: 13, color: AppColors.textSecondary),
               ),

@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import '../../core/i18n/dates.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -307,7 +308,7 @@ class _ProgressCard extends StatelessWidget {
           Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Color(0xFF0F172A))),
           if (date != null) ...[
             const SizedBox(height: 2),
-            Text(DateFormat('MMM d, yyyy • h:mm a').format(date),
+            Text(fmtDate(context, date, 'MMM d, yyyy • h:mm a'),
                 style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
           ],
           if (measurements != null && measurements['weight'] != null) ...[
