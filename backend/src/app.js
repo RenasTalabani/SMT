@@ -34,6 +34,7 @@ const adminRoutes       = require('../routes/admin');
 const coachAiRoutes     = require('../routes/ai');
 const shopRoutes        = require('./modules/shop/shop.routes');       // supplements & gear shop
 const classRoutes       = require('./modules/classes/classes.routes'); // group classes + attendance
+const coachRenasRoutes  = require('./modules/coach-renas/coach-renas.routes'); // Coach Renas: plans, coaching clients, check-ins, content
 
 const app = express();
 
@@ -89,6 +90,7 @@ app.use(`${v1}/ai`,            coachAiRoutes);
 app.use(`${v1}/bookings`,      bookingRoutes);
 app.use(`${v1}/shop`,          shopRoutes);
 app.use(`${v1}/classes`,       classRoutes);
+app.use(`${v1}/coach-renas`,   coachRenasRoutes);
 app.use(`${v1}/payments`,      paymentRoutes);
 app.use(`${v1}/chat`,          chatRoutes);
 app.use(`${v1}/notifications`, notifRoutes);
@@ -110,6 +112,7 @@ app.use('/api/ai',             coachAiRoutes);
 app.use('/api/bookings',       bookingRoutes);
 app.use('/api/shop',           shopRoutes);
 app.use('/api/classes',        classRoutes);
+app.use('/api/coach-renas',    coachRenasRoutes);
 app.use('/api/chat',           chatRoutes);
 app.use('/api/notifications',  notifRoutes);
 app.use('/api/progress',       progressRoutes);

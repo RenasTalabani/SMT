@@ -37,3 +37,9 @@ flutter_run.log
 Thumbs.db
 .vscode/settings.json
 *.swp
+
+# Real environment files must never be committed (flagged in the 25 Oct and 1 Nov reports).
+# Only backend/.env.example (placeholders) belongs in git.
+backend/.env.development
+backend/.env.production
+backend/.env.*.local
