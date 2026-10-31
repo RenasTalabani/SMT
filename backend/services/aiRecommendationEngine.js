@@ -22,7 +22,8 @@ const { generateCoachInsight, generateDailyTip } = require('./aiCoachService');
  * Create an in-app notification for the user.
  * Uses type='ai_coach' and category='ai' (added to Notification schema).
  */
-async function _createNotification(userId, title, message, priority = 'normal') {
+async function _createNotification(userId, title, message, priority = 'medium') {
+  if (priority === 'normal') priority = 'medium'; // schema enum: low|medium|high|urgent
   try {
     await Notification.create({
       recipient: userId,

@@ -151,3 +151,76 @@ describe('Coach Renas — buying and the coach panel', () => {
     }
   });
 });
+
+describe('Coach Renas — shop orders, notifications, store ids', () => {
+  it('plans expose store product ids; purchase returns the product id', async () => {
+    const res = await request(app).get(`${base}/plans`);
+    expect(res.body.data.storeProductIds).toEqual(expect.arrayContaining(['cr_all_m12', 'cr_training_m1', 'cr_prog_fatloss', 'cr_prog_women_home']));
+    const member = await registerUser(app);
+    const buy = await request(app).post(`${base}/purchase`).set(auth(member))
+      .send({ kind: 'tier', key: 'all', period: 'm12', method: 'apple' });
+    expect(buy.body.data.productId).toBe('cr_all_m12');
+    const bad = await request(app).post(`${base}/purchase`).set(auth(member))
+      .send({ kind: 'tier', key: 'nope', period: 'm1', method: 'google_play' });
+    expect(bad.statusCode).toBe(400);
+  });
+
+  it('member orders from the shop; server computes the total; coach ships it; member is notified', async () => {
+    const coach = await registerUser(app, { role: 'coach' });
+    const member = await registerUser(app);
+    const cat = await request(app).get(`${base}/shop`);
+    expect(cat.body.data.products.find((p) => p.key === 'whey').price).toBe(65000);
+
+    const badPhone = await request(app).post(`${base}/orders`).set(auth(member))
+      .send({ items: [{ key: 'whey', quantity: 1 }], governorate: 'بغداد', phone: '12345' });
+    expect(badPhone.statusCode).toBe(400);
+    const badItem = await request(app).post(`${base}/orders`).set(auth(member))
+      .send({ items: [{ key: 'gold', quantity: 1 }], governorate: 'بغداد', phone: '07701234567' });
+    expect(badItem.statusCode).toBe(400);
+
+    const ok = await request(app).post(`${base}/orders`).set(auth(member))
+      .send({ items: [{ key: 'whey', quantity: 1 }, { key: 'shaker', quantity: 2 }], governorate: 'السليمانية', phone: '07701234567' });
+    expect(ok.statusCode).toBe(201);
+    expect(ok.body.data.order.total).toBe(65000 + 14000 + 5000);
+
+    const summary = await request(app).get(`${base}/panel/summary`).set(auth(coach));
+    expect(summary.body.data.pendingOrders).toBe(1);
+    const list = await request(app).get(`${base}/panel/orders`).set(auth(coach));
+    expect(list.body.data.orders).toHaveLength(1);
+    const ship = await request(app).patch(`${base}/panel/orders/${ok.body.data.order._id}`).set(auth(coach)).send({ status: 'shipped' });
+    expect(ship.body.data.order.status).toBe('shipped');
+
+    const cancelLate = await request(app).patch(`${base}/orders/${ok.body.data.order._id}/cancel`).set(auth(member));
+    expect(cancelLate.statusCode).toBe(409);
+
+    const notes = await request(app).get('/api/notifications').set(auth(member));
+    expect(notes.statusCode).toBe(200);
+    expect(JSON.stringify(notes.body)).toMatch(/Coach Renas shop: shipped/);
+  });
+
+  it('member is notified when the coach confirms a payment and replies to a check-in', async () => {
+    const coach = await registerUser(app, { role: 'coach' });
+    const member = await registerUser(app);
+    const buy = await request(app).post(`${base}/purchase`).set(auth(member))
+      .send({ kind: 'coaching', key: 'coaching', period: 'm3', method: 'zaincash' });
+    await request(app).patch(`${base}/panel/payments/${buy.body.data.subscription._id}`).set(auth(coach)).send({ decision: 'approve' });
+    const ci = await request(app).post(`${base}/checkins`).set(auth(member)).send({ kg: 70 });
+    await request(app).post(`${base}/panel/checkins/${ci.body.data.checkIn._id}/reply`).set(auth(coach)).send({ reply: 'Keep going' });
+    const notes = await request(app).get('/api/notifications').set(auth(member));
+    const txt = JSON.stringify(notes.body);
+    expect(txt).toMatch(/payment confirmed/);
+    expect(txt).toMatch(/Keep going/);
+    // 3 months from now
+    const me = await request(app).get(`${base}/me`).set(auth(member));
+    const sub = me.body.data.subscriptions.find((s) => s.kind === 'coaching');
+    const months = (new Date(sub.endsAt) - new Date(sub.startsAt)) / (30 * 86400000);
+    expect(months).toBeGreaterThan(2.9);
+    expect(months).toBeLessThan(3.2);
+  });
+
+  it('guests cannot buy, order or check in', async () => {
+    expect((await request(app).post(`${base}/purchase`).send({})).statusCode).toBe(401);
+    expect((await request(app).post(`${base}/orders`).send({})).statusCode).toBe(401);
+    expect((await request(app).post(`${base}/checkins`).send({})).statusCode).toBe(401);
+  });
+});

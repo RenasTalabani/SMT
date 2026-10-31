@@ -327,7 +327,7 @@ router.delete('/me', protect, async (req, res) => {
     }
     const userId = req.user._id;
     const {
-      CoachRenasSubscription, CoachRenasClient, CoachRenasCheckIn,
+      CoachRenasSubscription, CoachRenasClient, CoachRenasCheckIn, CoachRenasOrder,
     } = require('../src/models/CoachRenas');
     const AiChat = require('../models/AiChat');
     const AiUserProfile = require('../models/AiUserProfile');
@@ -336,6 +336,7 @@ router.delete('/me', protect, async (req, res) => {
       CoachRenasCheckIn.deleteMany({ user: userId }),
       // Payment records are kept (anonymised) for accounting.
       CoachRenasSubscription.updateMany({ user: userId }, { $unset: { receiptUrl: 1, storeToken: 1, note: 1 } }),
+      CoachRenasOrder.updateMany({ user: userId }, { $unset: { phone: 1, address: 1, note: 1, receiptUrl: 1 } }),
       AiChat.deleteMany({ userId }),
       AiUserProfile.deleteMany({ userId }),
     ]);

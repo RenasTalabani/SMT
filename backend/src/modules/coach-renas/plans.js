@@ -79,17 +79,32 @@ const FREE_TRIAL_DAYS = 7;
 const DIRECT_METHODS = ['zaincash', 'fib', 'qi', 'transfer', 'cash'];
 const STORE_METHODS = ['google_play', 'apple'];
 
+// Store product ids to create in Play Console / App Store Connect
+// (see docs/store/STORE-LISTING.md). Only in-app (store) items have one.
+function productId({ kind, key, period }) {
+  if (kind === 'tier') return `cr_${key}_${period}`;
+  if (kind === 'program') return `cr_prog_${key.replace(/-/g, '_')}`;
+  return null;
+}
+
+function storeProductIds() {
+  const ids = [];
+  for (const t of TIERS) for (const p of Object.keys(t.prices)) ids.push(productId({ kind: 'tier', key: t.key, period: p }));
+  for (const p of PROGRAMS) ids.push(productId({ kind: 'program', key: p.key }));
+  return ids;
+}
+
 // Resolve a purchasable item -> { kind, key, period, amount, months, channel }
 function resolveItem({ kind, key, period }) {
   if (kind === 'tier') {
     const t = TIERS.find((x) => x.key === key);
     if (!t || !t.prices[period]) return null;
-    return { kind, key, period, amount: t.prices[period], months: PERIODS[period].months, channel: 'store' };
+    return { kind, key, period, amount: t.prices[period], months: PERIODS[period].months, channel: 'store', productId: productId({ kind, key, period }) };
   }
   if (kind === 'program') {
     const p = PROGRAMS.find((x) => x.key === key);
     if (!p) return null;
-    return { kind, key, period: 'once', amount: p.price, months: Math.ceil(p.weeks / 4), channel: 'store' };
+    return { kind, key, period: 'once', amount: p.price, months: Math.ceil(p.weeks / 4), channel: 'store', productId: productId({ kind, key }) };
   }
   if (kind === 'coaching') {
     const months = { m1: 1, m3: 3, m6: 6 }[period];
@@ -100,7 +115,7 @@ function resolveItem({ kind, key, period }) {
 }
 
 module.exports = {
-  TIERS, PERIODS, PROGRAMS, COACHING, FREE_TRIAL_DAYS, DIRECT_METHODS, STORE_METHODS, resolveItem,
+  TIERS, PERIODS, PROGRAMS, COACHING, FREE_TRIAL_DAYS, DIRECT_METHODS, STORE_METHODS, resolveItem, productId, storeProductIds,
   currency: 'IQD',
   priceDate: '2026-10-31',
 };

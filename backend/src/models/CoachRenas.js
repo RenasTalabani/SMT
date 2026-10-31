@@ -85,7 +85,32 @@ const contentSchema = new Schema(
   { timestamps: true },
 );
 
+// ── Shop order (cash on delivery or transfer) ────────────────────────────────
+const orderSchema = new Schema(
+  {
+    user: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    items: [{
+      key: { type: String, required: true },
+      name: { type: String, required: true },   // snapshot
+      price: { type: Number, required: true },  // snapshot (IQD)
+      quantity: { type: Number, required: true, min: 1, max: 20 },
+    }],
+    subtotal: { type: Number, required: true, min: 0 },
+    delivery: { type: Number, required: true, min: 0 },
+    total: { type: Number, required: true, min: 0 },
+    governorate: { type: String, required: true, maxlength: 40 },
+    phone: { type: String, required: true, match: /^07\d{9}$/ },
+    address: { type: String, maxlength: 300 },
+    method: { type: String, enum: ['cod', 'qi', 'wallet'], default: 'cod' },
+    status: { type: String, enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'], default: 'pending', index: true },
+    receiptUrl: { type: String, maxlength: 500 },
+    note: { type: String, maxlength: 300 },
+  },
+  { timestamps: true },
+);
+
 module.exports = {
+  CoachRenasOrder: mongoose.model('CoachRenasOrder', orderSchema),
   CoachRenasSubscription: mongoose.model('CoachRenasSubscription', subscriptionSchema),
   CoachRenasClient: mongoose.model('CoachRenasClient', clientSchema),
   CoachRenasCheckIn: mongoose.model('CoachRenasCheckIn', checkInSchema),

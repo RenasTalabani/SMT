@@ -12,7 +12,10 @@ const crypto = require('crypto');
 const User = require('../../../models/User');
 const {
   CoachRenasSubscription: Sub, CoachRenasClient: Client, CoachRenasCheckIn: CheckIn, CoachRenasContent: Content,
+  CoachRenasOrder: Order,
 } = require('../../models/CoachRenas');
+const Notification = require('../../../models/Notification');
+const shop = require('./shop-catalog');
 const plans = require('./plans');
 const providers = require('./payment-providers');
 const contentSeed = require('./content-seed');
@@ -25,6 +28,18 @@ const router = Router();
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 const DAY = 86400000;
 const TIER_RANK = { training: 1, food: 2, all: 3 };
+
+// In-app notification for the member (never blocks the request).
+async function notify(userId, title, message, category = 'system', type = 'coach_feedback', data = {}) {
+  try {
+    await Notification.create({
+      recipient: userId, type, category, title: title.slice(0, 100), message: String(message).slice(0, 500),
+      priority: 'medium', actionUrl: '/renas', data: { customData: { source: 'coach_renas', ...data } },
+    });
+  } catch (err) {
+    console.error('[coach-renas] notification failed:', err.message);
+  }
+}
 
 // Who may open the coach panel: admins, and coaches. If COACH_RENAS_COACH_EMAILS
 // is set (comma list), only those coaches.
@@ -65,7 +80,13 @@ router.get('/plans', (req, res) => {
     programs: plans.PROGRAMS,
     coaching: plans.COACHING,
     paymentMethods: providers.status(),
+    storeProductIds: plans.storeProductIds(),
   });
+});
+
+// Shop catalogue (SAMPLE prices) — the phone shows these; totals are computed here.
+router.get('/shop', (req, res) => {
+  ApiResponse.success(res, { products: shop.PRODUCTS, delivery: shop.DELIVERY_IQD, governorates: shop.GOVS, currency: 'IQD' });
 });
 
 // ── Client ───────────────────────────────────────────────────────────────────
@@ -127,6 +148,7 @@ router.post('/purchase', protect, validate(purchaseBody), wrap(async (req, res) 
     : await providers.startPayment({ method, amount: item.amount, reference });
   ApiResponse.created(res, {
     subscription: sub,
+    productId: item.productId || null,
     payment,
     transferAccounts: item.channel === 'direct' ? providers.transferAccounts() : [],
   }, 'Waiting for the coach to confirm');
@@ -178,6 +200,46 @@ router.get('/checkins/me', protect, wrap(async (req, res) => {
   ApiResponse.success(res, { checkIns });
 }));
 
+// ── Shop orders ──────────────────────────────────────────────────────────────
+const orderBody = Joi.object({
+  items: Joi.array().items(Joi.object({
+    key: Joi.string().max(40).required(),
+    quantity: Joi.number().integer().min(1).max(20).required(),
+  })).min(1).max(20).required(),
+  governorate: Joi.string().valid(...shop.GOVS).required(),
+  phone: Joi.string().trim().pattern(/^07\d{9}$/).required()
+    .messages({ 'string.pattern.base': 'Phone must start with 07 and have 11 digits' }),
+  address: Joi.string().max(300).allow(''),
+  method: Joi.string().valid('cod', 'qi', 'wallet').default('cod'),
+  note: Joi.string().max(300).allow(''),
+});
+router.post('/orders', protect, validate(orderBody), wrap(async (req, res) => {
+  const items = req.body.items.map(({ key, quantity }) => {
+    const p = shop.PRODUCTS.find((x) => x.key === key);
+    if (!p) throw new AppError(`Unknown product: ${key}`, 400);
+    return { key, name: p.name, price: p.price, quantity };
+  });
+  const subtotal = items.reduce((a, i) => a + i.price * i.quantity, 0);
+  const order = await Order.create({
+    user: req.user._id, items, subtotal, delivery: shop.DELIVERY_IQD, total: subtotal + shop.DELIVERY_IQD,
+    governorate: req.body.governorate, phone: req.body.phone, address: req.body.address || undefined,
+    method: req.body.method, note: req.body.note || undefined,
+  });
+  ApiResponse.created(res, { order }, 'Order received — we will call or WhatsApp you to confirm');
+}));
+router.get('/orders/me', protect, wrap(async (req, res) => {
+  const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 }).limit(50).lean();
+  ApiResponse.success(res, { orders });
+}));
+router.patch('/orders/:id/cancel', protect, wrap(async (req, res) => {
+  const order = await Order.findOne({ _id: req.params.id, user: req.user._id });
+  if (!order) throw new AppError('Order not found', 404);
+  if (order.status !== 'pending') throw new AppError('Only a pending order can be cancelled', 409);
+  order.status = 'cancelled';
+  await order.save();
+  ApiResponse.success(res, { order });
+}));
+
 // ── Coach panel ──────────────────────────────────────────────────────────────
 const panel = Router();
 panel.use(protect, staffOnly);
@@ -212,13 +274,15 @@ async function clientRows() {
 
 panel.get('/summary', wrap(async (req, res) => {
   const rows = await clientRows();
-  const pendingPayments = await Sub.countDocuments({ status: 'pending' });
+  const pendingPayments = await Sub.countDocuments({ status: 'pending', kind: { $ne: 'trial' } });
+  const pendingOrders = await Order.countDocuments({ status: 'pending' });
   ApiResponse.success(res, {
     clients: rows.length,
     coachingClients: rows.filter((r) => r.coaching).length,
     needsAttention: rows.filter((r) => r.needsAttention).length,
     unanswered: rows.filter((r) => r.unanswered).length,
     pendingPayments,
+    pendingOrders,
     coachingSpots: plans.COACHING.spots,
   });
 }));
@@ -286,6 +350,14 @@ panel.patch('/payments/:id', validate(Joi.object({
     sub.status = 'rejected';
   }
   await sub.save();
+  await notify(
+    sub.user,
+    sub.status === 'active' ? 'Coach Renas: payment confirmed' : 'Coach Renas: payment not accepted',
+    sub.status === 'active'
+      ? `تأكد · انفتح الاشتراك — ${sub.kind}:${sub.key} (${sub.amount} IQD)`
+      : `انرفض — ${sub.kind}:${sub.key}. ${req.body.note || 'Contact the coach.'}`,
+    'payment', 'payment_received', { subscription: String(sub._id) },
+  );
   ApiResponse.success(res, { subscription: sub }, sub.status === 'active' ? 'Confirmed — access opened' : 'Rejected');
 }));
 
@@ -294,7 +366,26 @@ panel.post('/checkins/:id/reply', validate(Joi.object({ reply: Joi.string().trim
     req.params.id, { reply: req.body.reply, repliedAt: new Date() }, { new: true },
   );
   if (!checkIn) throw new AppError('Check-in not found', 404);
+  await notify(checkIn.user, 'رد الكوتش على تقريرك', req.body.reply, 'progress', 'coach_feedback', { checkIn: String(checkIn._id) });
   ApiResponse.success(res, { checkIn }, 'Reply sent');
+}));
+
+panel.get('/orders', wrap(async (req, res) => {
+  const filter = req.query.status ? { status: String(req.query.status) } : { status: { $in: ['pending', 'confirmed', 'shipped'] } };
+  const orders = await Order.find(filter).populate('user', 'name email phone').sort({ createdAt: -1 }).limit(200).lean();
+  ApiResponse.success(res, { orders });
+}));
+panel.patch('/orders/:id', validate(Joi.object({
+  status: Joi.string().valid('confirmed', 'shipped', 'delivered', 'cancelled').required(),
+})), wrap(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) throw new AppError('Order not found', 404);
+  if (['delivered', 'cancelled'].includes(order.status)) throw new AppError('Order is closed', 409);
+  order.status = req.body.status;
+  await order.save();
+  const ar = { confirmed: 'تأكد طلبك', shipped: 'طلبك بالطريق', delivered: 'وصل طلبك', cancelled: 'انلغى طلبك' }[order.status];
+  await notify(order.user, `Coach Renas shop: ${order.status}`, `${ar} · ${order.total} IQD`, 'system', 'system_announcement', { order: String(order._id) });
+  ApiResponse.success(res, { order });
 }));
 
 panel.get('/providers', (req, res) => {
