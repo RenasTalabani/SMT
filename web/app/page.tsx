@@ -52,6 +52,10 @@ export default function HomePage() {
             <Link href="/auth/login" className="rounded-xl border border-white/30 px-6 py-3 font-semibold hover:bg-white/10">{t('landing.login')}</Link>
           </div>
           <Link href="/tools/health" className="mt-5 inline-block text-sm text-orange-300 underline">{t('landing.tools')} →</Link>
+          <div className="mt-3 flex flex-wrap justify-center gap-4 text-sm">
+            <Link href="/coach-renas" className="font-semibold text-teal-300 underline">مع الكوتش ريناس · Coach Renas →</Link>
+            <Link href="/privacy" className="text-white/70 underline">Privacy</Link>
+          </div>
         </div>
       </section>
 
