@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import '../../coach_renas/cr_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -132,6 +133,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             // Welcome card
             _WelcomeCard(name: user?.name ?? 'there'),
             const SizedBox(height: 20),
+
+            // Coach Renas personal-coaching module
+            const CoachRenasEntryCard(),
+            const SizedBox(height: 12),
 
             // Stats row
             _StatsRow(

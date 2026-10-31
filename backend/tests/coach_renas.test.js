@@ -128,6 +128,18 @@ describe('Coach Renas — buying and the coach panel', () => {
     expect(del.statusCode).toBe(200);
   });
 
+  it('a member can delete their own account and Coach Renas data', async () => {
+    const member = await registerUser(app);
+    await request(app).put(`${base}/profile`).set(auth(member)).send({ goal: 'fat' });
+    await request(app).post(`${base}/checkins`).set(auth(member)).send({ kg: 80 });
+    const noConfirm = await request(app).delete('/api/users/me').set(auth(member)).send({});
+    expect(noConfirm.statusCode).toBe(400);
+    const del = await request(app).delete('/api/users/me').set(auth(member)).send({ confirm: 'DELETE' });
+    expect(del.statusCode).toBe(200);
+    const after = await request(app).get(`${base}/me`).set(auth(member));
+    expect(after.statusCode).toBe(401);
+  });
+
   it('COACH_RENAS_COACH_EMAILS limits the panel to listed coaches', async () => {
     const other = await registerUser(app, { role: 'coach' });
     process.env.COACH_RENAS_COACH_EMAILS = 'renas@example.com';

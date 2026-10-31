@@ -40,10 +40,12 @@ import '../../screens/ai/ai_nutrition_screen.dart';
 import '../../screens/ai/ai_progress_screen.dart';
 import '../../screens/admin/admin_dashboard_screen.dart';
 import '../../screens/splash_screen.dart';
+import '../../coach_renas/cr_routes.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _clientShellKey  = GlobalKey<NavigatorState>();
 final _coachShellKey   = GlobalKey<NavigatorState>();
+final _renasShellKey   = GlobalKey<NavigatorState>();
 
 // ── Notifier that triggers router.refresh() without rebuilding the router ─────
 class _RouterNotifier extends ChangeNotifier {
@@ -72,6 +74,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (!isLoggedIn && !isGuest && !isAuthRoute) return '/auth/login';
 
       if ((isLoggedIn || isGuest) && isAuthRoute) {
+        if (crStandalone) return '/renas'; // --dart-define=APP_MODE=coach_renas
         if (isGuest) return '/client';
         final role = auth.user?.role;
         if (role == 'admin') return '/admin';
@@ -168,6 +171,9 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/coach/exercises/create', builder: (_, __) => const CreateExerciseScreen()),
         ],
       ),
+
+      // ── Coach Renas (personal coaching brand module) ────────────────────────
+      crShellRoute(_renasShellKey),
 
       // Admin
       GoRoute(path: '/admin', builder: (_, __) => const AdminDashboardScreen()),

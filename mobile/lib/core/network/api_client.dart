@@ -134,8 +134,12 @@ class ApiClient {
   Future<Response> put(String path, {dynamic data}) =>
       _dio.put(path, data: data);
 
+  // PATCH
+  Future<Response> patch(String path, {dynamic data}) =>
+      _dio.patch(path, data: data);
+
   // DELETE
-  Future<Response> delete(String path) => _dio.delete(path);
+  Future<Response> delete(String path, {dynamic data}) => _dio.delete(path, data: data);
 
   // MULTIPART
   Future<Response> postFormData(String path, FormData formData) =>

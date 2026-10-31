@@ -1,0 +1,4 @@
+Cairo (Copyright 2009 The Cairo Project Authors) and IBM Plex Sans Arabic
+(Copyright IBM Corp. 2017) are licensed under the SIL Open Font License,
+Version 1.1. Full text: https://openfontlicense.org/open-font-license-official-text/
+Downloaded from Google Fonts on 1 Nov 2026 for the Coach Renas screens.

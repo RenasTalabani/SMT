@@ -316,6 +316,37 @@ router.put('/:id/approve', protect, authorize('admin'), validateObjectId, async 
   }
 });
 
+// @route   DELETE /api/users/me
+// @desc    Delete my own account and personal data (Google Play / App Store
+//          require in-app account deletion). Body: { confirm: "DELETE" }
+// @access  Private
+router.delete('/me', protect, async (req, res) => {
+  try {
+    if (!req.body || req.body.confirm !== 'DELETE') {
+      return res.status(400).json({ success: false, message: 'Send { "confirm": "DELETE" } to delete your account' });
+    }
+    const userId = req.user._id;
+    const {
+      CoachRenasSubscription, CoachRenasClient, CoachRenasCheckIn,
+    } = require('../src/models/CoachRenas');
+    const AiChat = require('../models/AiChat');
+    const AiUserProfile = require('../models/AiUserProfile');
+    await Promise.all([
+      CoachRenasClient.deleteMany({ user: userId }),
+      CoachRenasCheckIn.deleteMany({ user: userId }),
+      // Payment records are kept (anonymised) for accounting.
+      CoachRenasSubscription.updateMany({ user: userId }, { $unset: { receiptUrl: 1, storeToken: 1, note: 1 } }),
+      AiChat.deleteMany({ userId }),
+      AiUserProfile.deleteMany({ userId }),
+    ]);
+    await User.deleteOne({ _id: userId });
+    res.json({ success: true, message: 'Account deleted' });
+  } catch (error) {
+    console.error('Delete own account error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 // @route   DELETE /api/users/:id
 // @desc    Delete user (admin only)
 // @access  Private/Admin
