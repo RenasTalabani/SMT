@@ -5,6 +5,7 @@ import 'package:citygym/coach_renas/cr_core.dart';
 import 'package:citygym/coach_renas/screens/cr_account_screens.dart';
 import 'package:citygym/coach_renas/screens/cr_panel_screens.dart';
 import 'package:citygym/coach_renas/screens/cr_food_shop_screens.dart';
+import 'package:citygym/coach_renas/screens/cr_guide_screens.dart';
 import 'package:citygym/coach_renas/screens/cr_train_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -80,6 +81,9 @@ void main() {
     'program-paid': () => const CrProgramScreen(id: 'ul4'),
     'sport': () => const CrSportScreen(id: 'foot'),
     'exercise': () => const CrExerciseScreen(id: 34),
+    'food-guide': () => const CrGuideScreen(kind: 'food'),
+    'train-guide': () => const CrGuideScreen(kind: 'train'),
+    'tips': () => const CrTipsScreen(),
   };
 
   for (final lang in ['ar', 'ku', 'en']) {
@@ -100,6 +104,9 @@ void main() {
         for (var i = 0; i < 6; i++) {
           await tester.pump(const Duration(milliseconds: 50));
         }
+        // guides.json is a big asset: give the loader real time once
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 300)));
+        await tester.pump(const Duration(milliseconds: 50));
         expect(tester.takeException(), isNull);
         expect(find.byType(Scaffold), findsWidgets);
         // real content, not the loading spinner (screens with a server call may show a thin progress bar)

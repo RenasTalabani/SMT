@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'cr_shell.dart';
 import 'screens/cr_account_screens.dart';
 import 'screens/cr_food_shop_screens.dart';
+import 'screens/cr_guide_screens.dart';
 import 'screens/cr_panel_screens.dart';
 import 'screens/cr_train_screens.dart';
 
@@ -32,6 +33,8 @@ ShellRoute crShellRoute(GlobalKey<NavigatorState> key) => ShellRoute(
         GoRoute(path: '/renas/supps', builder: (_, __) => const CrSuppsScreen()),
         GoRoute(path: '/renas/hormones', builder: (_, __) => const CrHormonesScreen()),
         GoRoute(path: '/renas/checkout', builder: (_, __) => const CrCheckoutScreen()),
+        GoRoute(path: '/renas/guide/:kind', builder: (_, s) => CrGuideScreen(kind: s.pathParameters['kind'] == 'train' ? 'train' : 'food')),
+        GoRoute(path: '/renas/tips', builder: (_, __) => const CrTipsScreen()),
         GoRoute(path: '/renas/orders', builder: (_, __) => const CrOrdersScreen()),
         GoRoute(path: '/renas/me', builder: (_, __) => const CrMeScreen()),
         GoRoute(path: '/renas/plans', builder: (_, __) => const CrPlansScreen()),

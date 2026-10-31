@@ -77,6 +77,18 @@ class _CrFoodScreenState extends ConsumerState<CrFoodScreen> {
                 ),
             ]),
           ]),
+          CrCard(
+            onTap: () => context.push('/renas/guide/food'),
+            child: Row(children: [
+              const Icon(Icons.menu_book_rounded, color: CrColors.amber),
+              const SizedBox(width: 12),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(tr3('دليل الأكل', 'Food guide', 'ڕێبەری خواردن'), style: crH3),
+                Text(tr3('السعرات، البروتين، الأكل العراقي، رمضان، والميزانية', 'Calories, protein, Iraqi food, Ramadan and budget', 'کالۆری، پرۆتین، خواردنی عێراقی، ڕەمەزان و بودجە'), style: crSmall),
+              ])),
+              const Icon(Icons.chevron_left_rounded, color: CrColors.muted, textDirection: TextDirection.ltr),
+            ]),
+          ),
           if ((b['age'] as num) < 18)
             CrCard(color: CrColors.amberWash, border: CrColors.amberLine, child: Text(T('عمرك أقل من 18: ما نعطيك رجيم بنقص سعرات. ركّز على أكل متوازن وبروتين وتمرين، واسأل أهلك أو طبيب.'), style: crMuted)),
           if (tg['floored'] == 1)

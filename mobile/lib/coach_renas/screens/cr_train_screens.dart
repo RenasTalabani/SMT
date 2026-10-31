@@ -7,15 +7,18 @@ import 'package:go_router/go_router.dart';
 import '../cr_api.dart';
 import '../cr_core.dart';
 import '../cr_shell.dart';
+import 'cr_guide_screens.dart';
 
 // ─────────────────────────────── 2 · Home ───────────────────────────────────
 class CrHomeScreen extends ConsumerWidget {
   const CrHomeScreen({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final guides = ref.watch(crGuidesProvider).valueOrNull;
     return CrLoader(builder: (context, d, st) {
       final lifts = d.map('LIFTS');
       final lb = st.lift('bench');
+      final tip = crTipOfDay(guides);
       final inc = (lifts['bench']['inc'] as num);
       final tw = (lb['w'] as num) + inc;
       final g = st.goal;
@@ -37,6 +40,8 @@ class CrHomeScreen extends ConsumerWidget {
         title: T('مع الكوتش ريناس'),
         actions: [
           const CrLangButton(),
+          const SizedBox(width: 8),
+          CrRoundIcon(icon: Icons.notifications_none_rounded, label: T('الرسائل والتذكيرات'), onTap: () => context.push('/client/notifications')),
           const SizedBox(width: 8),
           CrRoundIcon(icon: Icons.person_outline_rounded, label: T('حسابي'), onTap: () => context.push('/renas/me')),
         ],
@@ -97,6 +102,21 @@ class CrHomeScreen extends ConsumerWidget {
               const Icon(Icons.chevron_left_rounded, color: CrColors.muted, textDirection: TextDirection.ltr),
             ]),
           ),
+          if (tip != null)
+            CrCard(
+              onTap: () => context.push('/renas/tips'),
+              border: CrColors.amberLine,
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Row(children: [
+                  const Icon(Icons.auto_awesome, size: 14, color: CrColors.amber),
+                  const SizedBox(width: 6),
+                  Text(T('نصيحة اليوم من الكوتش'), style: const TextStyle(color: CrColors.amber, fontSize: 12, fontWeight: FontWeight.w700)),
+                ]),
+                const SizedBox(height: 4),
+                Text(tip, style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text('${T('شوف كل النصايح والأغلاط الشائعة')} ›', style: crSmall),
+              ]),
+            ),
           if (seasonal != null)
             CrCard(
               color: CrColors.amberWash,
@@ -237,6 +257,15 @@ class _CrTrainScreenState extends ConsumerState<CrTrainScreen> {
               ),
             ),
           ]),
+          CrCard(
+            onTap: () => context.push('/renas/guide/train'),
+            child: Row(children: [
+              const Icon(Icons.school_outlined, color: CrColors.teal),
+              const SizedBox(width: 12),
+              Expanded(child: Text(tr3('دليل التمرين: أساسيات، عدات، راحة، إصابات', 'Training guide: basics, reps, rest, injuries', 'ڕێبەری ڕاهێنان: بنەما، دووبارە، پشوو، برینداری'), style: crH3.copyWith(fontSize: 15))),
+              const Icon(Icons.chevron_left_rounded, color: CrColors.muted, textDirection: TextDirection.ltr),
+            ]),
+          ),
           if (cat == 'sport')
             for (final s in sports)
               CrCard(

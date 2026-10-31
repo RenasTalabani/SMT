@@ -481,6 +481,7 @@ class _CrCheckinScreenState extends ConsumerState<CrCheckinScreen> {
   final _note = TextEditingController();
   int? sleep, energy, done;
   bool busy = false;
+  String? photoUrl;
   List<dynamic> server = const [];
 
   @override
@@ -525,7 +526,7 @@ class _CrCheckinScreenState extends ConsumerState<CrCheckinScreen> {
           setState(() => busy = true);
           var sent = false;
           try {
-            await CrApi.sendCheckIn({if (kgv != null) 'kg': kgv, if (sleep != null) 'sleep': sleep, if (energy != null) 'energy': energy, if (done != null) 'workoutsDone': done, 'note': _note.text.trim()});
+            await CrApi.sendCheckIn({if (kgv != null) 'kg': kgv, if (sleep != null) 'sleep': sleep, if (energy != null) 'energy': energy, if (done != null) 'workoutsDone': done, 'note': _note.text.trim(), if (photoUrl != null) 'photoUrl': photoUrl});
             sent = true;
           } catch (_) {}
           if (!context.mounted) return;
@@ -533,7 +534,10 @@ class _CrCheckinScreenState extends ConsumerState<CrCheckinScreen> {
           crToast(context, sent ? T('انرسل التقرير للكوتش') : tr3('انحفظ على جهازك. سجّل دخول حتى يوصل للكوتش.', 'Saved on your phone. Log in so it reaches the coach.', 'لەسەر مۆبایلەکەت پاشەکەوت کرا. بچۆ ژوورەوە بۆ ئەوەی بگاتە کۆچ.'));
           _kg.clear();
           _note.clear();
-          setState(() => sleep = energy = done = null);
+          setState(() {
+            sleep = energy = done = null;
+            photoUrl = null;
+          });
         }),
         children: [
           CrCard(child: Text(T('عبّي اللي تريده بس، وتگدر تتجاوز أي سؤال. الكوتش يشوف تقريرك ويرد عليك.'), style: crMuted)),
@@ -546,6 +550,31 @@ class _CrCheckinScreenState extends ConsumerState<CrCheckinScreen> {
               Wrap(spacing: 6, children: [for (var n = 0; n <= 6; n++) CrChip('$n', on: done == n, light: false, onTap: () => setState(() => done = done == n ? null : n))]),
               TextField(controller: _note, maxLines: 3, maxLength: 1000, decoration: InputDecoration(labelText: T('شي تريد تگوله للكوتش؟'))),
             ], 12)),
+          ),
+          CrCard(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: gap([
+              Text(T('صور التقدم (اختياري)'), style: crH3),
+              Text(T('الصور تبقى خاصة إلك وللكوتش بس، وتگدر تحذفها بأي وكت.'), style: crMuted),
+              if (photoUrl != null) Text(tr3('الصورة جاهزة ✓', 'Photo ready ✓', 'وێنە ئامادەیە ✓'), style: const TextStyle(color: CrColors.teal)),
+              Text(tr3('نصيحة: صوّر من الرقبة ونازل إذا ما تريد يبين وجهك.', 'Tip: shoot from the neck down if you prefer your face not to show.', 'ئامۆژگاری: لە ملەوە بۆ خوارەوە وێنە بگرە ئەگەر ناتەوێت دەموچاوت دەربکەوێت.'), style: crSmall),
+              CrButton(T('ضيف صورة'), kind: 'ghost', height: 40, icon: Icons.photo_camera_outlined, busy: busy, onTap: () async {
+                if (!ref.read(authProvider).isLoggedIn) {
+                  crToast(context, tr3('سجّل دخول حتى ترسل صور', 'Log in to send photos', 'بچۆ ژوورەوە بۆ ناردنی وێنە'));
+                  return;
+                }
+                final x = await ImagePicker().pickImage(source: ImageSource.camera, maxWidth: 1400, imageQuality: 75);
+                if (x == null) return;
+                setState(() => busy = true);
+                try {
+                  final url = await CrApi.uploadImage(x.path);
+                  if (mounted) setState(() => photoUrl = url);
+                } catch (e) {
+                  if (context.mounted) crToast(context, CrApi.error(e));
+                } finally {
+                  if (mounted) setState(() => busy = false);
+                }
+              }),
+            ], 8)),
           ),
           if (server.isNotEmpty || local.isNotEmpty) Text(T('تقاريرك السابقة'), style: crH3),
           for (final c in server.take(5))
