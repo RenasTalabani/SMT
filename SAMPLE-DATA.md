@@ -22,3 +22,15 @@ Prices are in IQD and are guesses, not real prices.
 The 3D anatomy, muscle names (EN/AR/KU), exercises and health calculators are **not** sample data.
 
 To regenerate the sample pictures: `cd backend && node scripts/make-sample-assets.js`.
+
+## Coach Renas module (added 1 Nov 2026)
+| What | File | What to change |
+|---|---|---|
+| Prices: tiers 7,500/15,000/22,500 IQD a month, programs, **1-on-1 coaching 100,000/270,000/510,000 (SAMPLE middle of the doc's 75–150k range)**, 40 coaching spots | `backend/src/modules/coach-renas/plans.js` (+ copy in `mobile/lib/coach_renas/cr_api.dart` and `web/app/coach-renas/landing.tsx` used offline) | Your final prices |
+| Special programs (Ramadan, women at home, beginner, football) prices | same file (`sample: true`) | Decide prices |
+| Transfer account numbers shown to clients | `backend/.env` → `COACH_RENAS_TRANSFER_FIB/_QI/_ZAINCASH` (now `[FIB account number]` placeholders) | Your real numbers |
+| Shop products in the Coach Renas shop (whey 65,000, creatine 30,000, beginner pack 89,000 …), delivery 5,000 | `mobile/assets/coach_renas/core.json` → `PRODUCTS` | Real products/prices (or connect to the City Gym shop) |
+| Sample coaching clients (سارة، علي، كاروان، زينب، هيمن) and 2 sample payments | `core.json` → `CLIENTS`, `PAYS` — only shown in the coach panel when the server can't be reached | Nothing (real clients come from the server) |
+| Starting lifts/food log for a new user (bench 28 kg × 6, 5 example history points marked «مثال») | `core.json` → `SEED` | Keep or clear |
+| Content plan (10 posts + 5 Kurdish captions) | `backend/src/modules/coach-renas/content-seed.js` | Edit in the app (Coach panel → content plan) |
+| Iraqi food calories (267 dishes, marked estimates) | `mobile/assets/coach_renas/foods.json` | Dietitian check |
