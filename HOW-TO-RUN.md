@@ -41,3 +41,10 @@ Members: dashboard, my plan, **3D anatomy + AR**, **AI coach** (chat, workout ge
 Coaches: dashboard, session requests, **weekly schedule**, **group classes + check-in**, clients, workout plans, exercises.
 Admins: dashboard + announcements, users, content review, **shop & orders**, analytics.
 Languages: English, Arabic, Kurdish (Sorani) with right-to-left layout.
+
+## Coach Renas module (added 1 Nov 2026)
+- Phone app: tap the **«مع الكوتش ريناس»** card on the member dashboard (coaches: «لوحة الكوتش ريناس»), or start straight in it:
+  `flutter run --dart-define=APP_MODE=coach_renas`
+- Website: `http://localhost:3000/coach-renas` (landing + prices) and `/privacy`.
+- API: `GET /api/coach-renas/plans` (public); everything else needs login. Coach panel: `/api/coach-renas/panel/*`.
+- Prices live in `backend/src/modules/coach-renas/plans.js`. Payment gateways are placeholders (see `backend/.env.example`).
