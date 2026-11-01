@@ -7,6 +7,14 @@ Arabic/Kurdish were written by Claude — have a native speaker read them before
 - Category: **Health & Fitness**. Content rating: Everyone / 12+ (health info, no violence). Ads: **No**.
 - Icons: `docs/store/assets/coach-renas-icon-512.png` (Play), `coach-renas-icon-1024.png` (App Store).
   Feature graphic (Play): `docs/store/assets/feature-graphic-1024x500.png`.
+- Developer / contact (both stores ask): **Coach Renas** · e-mail **renastalabani@gmail.com** · WhatsApp **+964 770 157 1162**
+- Website (live): **https://coach-renas.vercel.app**
+  - Privacy policy: https://coach-renas.vercel.app/privacy
+  - Account deletion (Play): https://coach-renas.vercel.app/delete-account + in-app: My account → Delete my account
+  - Support (App Store): https://coach-renas.vercel.app/support
+  - Terms: https://coach-renas.vercel.app/terms
+- Screenshots (ready): `docs/store/screenshots/` — 8 per language (AR / EN / KU), 1080×1920
+- (old placeholders below kept for reference)
 - Website URLs (after you put the website online, e.g. on Vercel):
   - Privacy policy: `https://<your-domain>/privacy`
   - Account deletion (Play asks for it): `https://<your-domain>/delete-account` + in-app: My account → Delete my account
