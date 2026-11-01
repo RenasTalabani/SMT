@@ -1,7 +1,7 @@
 "use client";
 
 // Public page for the stores and the website. DRAFT — have it checked before launch.
-// Replace [CONTACT EMAIL], [WHATSAPP NUMBER] and [COMPANY / OWNER NAME] with the real details.
+// Replace renastalabani@gmail.com, +964 770 157 1162 and Coach Renas with the real details.
 import LegalPage, { type LegalDoc } from '@/components/LegalPage';
 
 const DOC: LegalDoc = {
@@ -15,7 +15,7 @@ const DOC: LegalDoc = {
       ],
       [
         "Without the app",
-        "E-mail [CONTACT EMAIL] from the e-mail or phone number on your account, with the subject “Delete my account”. We delete it within 7 days and reply to confirm."
+        "E-mail renastalabani@gmail.com from the e-mail or phone number on your account, with the subject “Delete my account”. We delete it within 7 days and reply to confirm."
       ],
       [
         "What is deleted",
@@ -41,7 +41,7 @@ const DOC: LegalDoc = {
       ],
       [
         "بدون التطبيق",
-        "راسلنا على [CONTACT EMAIL] من نفس الإيميل أو الرقم المسجل بحسابك، والعنوان «احذف حسابي». نحذفه خلال 7 أيام ونرد عليك نأكد."
+        "راسلنا على renastalabani@gmail.com من نفس الإيميل أو الرقم المسجل بحسابك، والعنوان «احذف حسابي». نحذفه خلال 7 أيام ونرد عليك نأكد."
       ],
       [
         "شنو ينحذف",
@@ -67,7 +67,7 @@ const DOC: LegalDoc = {
       ],
       [
         "بەبێ ئەپ",
-        "ئیمەیڵ بنێرە بۆ [CONTACT EMAIL] لە هەمان ئیمەیڵ یان ژمارەی هەژمارەکەت، بە ناونیشانی «هەژمارەکەم بسڕەوە». لە ماوەی 7 ڕۆژدا دەیسڕینەوە و وەڵامت دەدەینەوە."
+        "ئیمەیڵ بنێرە بۆ renastalabani@gmail.com لە هەمان ئیمەیڵ یان ژمارەی هەژمارەکەت، بە ناونیشانی «هەژمارەکەم بسڕەوە». لە ماوەی 7 ڕۆژدا دەیسڕینەوە و وەڵامت دەدەینەوە."
       ],
       [
         "چی دەسڕدرێتەوە",

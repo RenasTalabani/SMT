@@ -1,7 +1,7 @@
 "use client";
 
 // Public page for the stores and the website. DRAFT — have it checked before launch.
-// Replace [CONTACT EMAIL], [WHATSAPP NUMBER] and [COMPANY / OWNER NAME] with the real details.
+// Replace renastalabani@gmail.com, +964 770 157 1162 and Coach Renas with the real details.
 import LegalPage, { type LegalDoc } from '@/components/LegalPage';
 
 const DOC: LegalDoc = {
@@ -10,7 +10,7 @@ const DOC: LegalDoc = {
     "sections": [
       [
         "The service",
-        "Coach Renas gives you training programs, an exercise library, food and supplement information, an AI coach and, if you buy it, 1-on-1 coaching with Coach Renas. It is run by [COMPANY / OWNER NAME], Sulaymaniyah, Iraq."
+        "Coach Renas gives you training programs, an exercise library, food and supplement information, an AI coach and, if you buy it, 1-on-1 coaching with Coach Renas. It is run by Coach Renas, Sulaymaniyah, Iraq."
       ],
       [
         "Not medical advice",
@@ -46,7 +46,7 @@ const DOC: LegalDoc = {
       ],
       [
         "Contact",
-        "[CONTACT EMAIL]"
+        "renastalabani@gmail.com"
       ]
     ]
   },
@@ -55,7 +55,7 @@ const DOC: LegalDoc = {
     "sections": [
       [
         "الخدمة",
-        "تطبيق الكوتش ريناس يعطيك برامج تمرين، مكتبة تمارين، معلومات عن الأكل والمكملات، مدرب ذكي، وإذا تشتري، تدريب شخصي 1-على-1 ويه الكوتش ريناس. يديره [اسم الشركة / المالك]، السليمانية، العراق."
+        "تطبيق الكوتش ريناس يعطيك برامج تمرين، مكتبة تمارين، معلومات عن الأكل والمكملات، مدرب ذكي، وإذا تشتري، تدريب شخصي 1-على-1 ويه الكوتش ريناس. يديره الكوتش ريناس (Coach Renas)، السليمانية، العراق."
       ],
       [
         "مو نصيحة طبية",
@@ -91,7 +91,7 @@ const DOC: LegalDoc = {
       ],
       [
         "التواصل",
-        "[CONTACT EMAIL]"
+        "renastalabani@gmail.com"
       ]
     ]
   },
@@ -100,7 +100,7 @@ const DOC: LegalDoc = {
     "sections": [
       [
         "خزمەتگوزاری",
-        "ئەپی کۆچ ڕێناس پرۆگرامی ڕاهێنان، کتێبخانەی ڕاهێنان، زانیاری دەربارەی خواردن و تەواوکەر، ڕاهێنەری زیرەک، و ئەگەر بیکڕیت، ڕاهێنانی تایبەتی 1-بۆ-1 لەگەڵ کۆچ ڕێناس دەدات. لەلایەن [ناوی کۆمپانیا / خاوەن]، سلێمانی، عێراق بەڕێوە دەبرێت."
+        "ئەپی کۆچ ڕێناس پرۆگرامی ڕاهێنان، کتێبخانەی ڕاهێنان، زانیاری دەربارەی خواردن و تەواوکەر، ڕاهێنەری زیرەک، و ئەگەر بیکڕیت، ڕاهێنانی تایبەتی 1-بۆ-1 لەگەڵ کۆچ ڕێناس دەدات. لەلایەن کۆچ ڕێناس (Coach Renas)، سلێمانی، عێراق بەڕێوە دەبرێت."
       ],
       [
         "ئامۆژگاریی پزیشکی نییە",
@@ -136,7 +136,7 @@ const DOC: LegalDoc = {
       ],
       [
         "پەیوەندی",
-        "[CONTACT EMAIL]"
+        "renastalabani@gmail.com"
       ]
     ]
   }

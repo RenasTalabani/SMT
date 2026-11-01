@@ -239,6 +239,8 @@ export default function CoachRenasLanding() {
             <Link href="/terms" className="text-[#2BC4BE]">{t('terms')}</Link>
             <Link href="/support" className="text-[#2BC4BE]">{t('support')}</Link>
             <Link href="/delete-account" className="text-[#2BC4BE]">{t('del')}</Link>
+            <a href="https://wa.me/9647701571162" className="text-[#2BC4BE]" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+            <a href="mailto:renastalabani@gmail.com" className="text-[#2BC4BE]">renastalabani@gmail.com</a>
           </span>
         </footer>
       </div>

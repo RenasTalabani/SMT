@@ -1,7 +1,7 @@
 "use client";
 
 // Public page for the stores and the website. DRAFT — have it checked before launch.
-// Replace [CONTACT EMAIL], [WHATSAPP NUMBER] and [COMPANY / OWNER NAME] with the real details.
+// Replace renastalabani@gmail.com, +964 770 157 1162 and Coach Renas with the real details.
 import LegalPage, { type LegalDoc } from '@/components/LegalPage';
 
 const DOC: LegalDoc = {
@@ -11,7 +11,7 @@ const DOC: LegalDoc = {
     "sections": [
       [
         "Contact",
-        "E-mail: [CONTACT EMAIL]\nWhatsApp: [WHATSAPP NUMBER]\nInstagram: Coach Renas"
+        "E-mail: renastalabani@gmail.com\nWhatsApp: +964 770 157 1162\nInstagram: Coach Renas"
       ],
       [
         "Subscriptions",
@@ -41,7 +41,7 @@ const DOC: LegalDoc = {
     "sections": [
       [
         "التواصل",
-        "الإيميل: [CONTACT EMAIL]\nواتساب: [WHATSAPP NUMBER]\nإنستغرام: Coach Renas"
+        "الإيميل: renastalabani@gmail.com\nواتساب: +964 770 157 1162\nإنستغرام: Coach Renas"
       ],
       [
         "الاشتراكات",
@@ -71,7 +71,7 @@ const DOC: LegalDoc = {
     "sections": [
       [
         "پەیوەندی",
-        "ئیمەیڵ: [CONTACT EMAIL]\nواتساپ: [WHATSAPP NUMBER]\nئینستاگرام: Coach Renas"
+        "ئیمەیڵ: renastalabani@gmail.com\nواتساپ: +964 770 157 1162\nئینستاگرام: Coach Renas"
       ],
       [
         "بەشداریکردن",
