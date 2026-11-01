@@ -1,0 +1,30 @@
+# Render blueprint: the Coach Renas server (backend). Render → New → Blueprint → pick this repo.
+services:
+  - type: web
+    name: coach-renas-api
+    runtime: node
+    rootDir: backend
+    plan: free
+    region: frankfurt # closest to Iraq
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false # paste your MongoDB Atlas connection link when Render asks
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_EXPIRE
+        value: 15m
+      - key: JWT_REFRESH_EXPIRE
+        value: 7d
+      - key: CLIENT_URL
+        sync: false # the website link from Vercel (e.g. https://coach-renas.vercel.app)
+      - key: COACH_RENAS_COACH_EMAILS
+        sync: false # your e-mail: only you see the coach panel
+      - key: GOOGLE_PLAY_PACKAGE_NAME
+        value: com.coachrenas.app
