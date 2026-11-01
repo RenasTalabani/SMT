@@ -9,6 +9,7 @@ import 'core/i18n/kurdish_localizations.dart';
 import 'core/network/api_client.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'coach_renas/cr_reminders.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -21,6 +22,7 @@ void main() async {
   await initializeDateFormatting(); // Arabic month/day names (Kurdish: core/i18n/dates.dart)
 
   ApiClient().init();
+  await CrReminders.instance.init();
 
   try {
     await Firebase.initializeApp();

@@ -41,7 +41,7 @@ class CrHomeScreen extends ConsumerWidget {
         actions: [
           const CrLangButton(),
           const SizedBox(width: 8),
-          CrRoundIcon(icon: Icons.notifications_none_rounded, label: T('الرسائل والتذكيرات'), onTap: () => context.push('/client/notifications')),
+          CrRoundIcon(icon: Icons.notifications_none_rounded, label: T('الرسائل والتذكيرات'), onTap: () => context.push('/renas/notif')),
           const SizedBox(width: 8),
           CrRoundIcon(icon: Icons.person_outline_rounded, label: T('حسابي'), onTap: () => context.push('/renas/me')),
         ],

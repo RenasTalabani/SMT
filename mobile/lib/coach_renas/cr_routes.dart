@@ -10,6 +10,7 @@ import 'screens/cr_guide_screens.dart';
 import 'screens/cr_panel_screens.dart';
 import 'screens/cr_train_screens.dart';
 import 'screens/cr_web_screen.dart';
+import 'screens/cr_notif_screen.dart';
 
 /// Start the app straight in Coach Renas:
 /// `flutter run --dart-define=APP_MODE=coach_renas`
@@ -33,6 +34,7 @@ ShellRoute crShellRoute(GlobalKey<NavigatorState> key) => ShellRoute(
         GoRoute(path: '/renas/ex/:id', builder: (_, s) => CrWebScreen(route: 'ex-${int.tryParse(s.pathParameters['id']!) ?? 1}')),
         GoRoute(path: '/renas/supps', builder: (_, __) => const CrWebScreen(route: 'supps')),
         GoRoute(path: '/renas/hormones', builder: (_, __) => const CrWebScreen(route: 'hormones')),
+        GoRoute(path: '/renas/notif', builder: (_, __) => const CrNotifScreen()),
         GoRoute(path: '/renas/body', builder: (_, __) => const CrWebScreen(route: 'body')),
         GoRoute(path: '/renas/why', builder: (_, __) => const CrWebScreen(route: 'why')),
         GoRoute(path: '/renas/web/:route', builder: (_, s) => CrWebScreen(route: s.pathParameters['route']!)),

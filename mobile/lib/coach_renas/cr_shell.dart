@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'cr_core.dart';
+import 'cr_reminders.dart';
 
 class CrShell extends StatelessWidget {
   const CrShell({super.key, required this.child});
@@ -16,6 +17,7 @@ class CrShell extends StatelessWidget {
   Widget build(BuildContext context) {
     // Follow the app language (en / ar / ku) chosen in City Gym.
     CrI18n.lang = switch (context.locale.languageCode) { 'ku' => 'ku', 'en' => 'en', _ => 'ar' };
+    WidgetsBinding.instance.addPostFrameCallback((_) => CrReminders.instance.syncLanguage());
     final loc = GoRouterState.of(context).matchedLocation;
     final idx = tabs.lastIndexWhere((t) => t == loc);
     final items = <(IconData, IconData, String)>[

@@ -32,7 +32,7 @@ class _CrWebScreenState extends State<CrWebScreen> {
     'plans': '/renas/plans',
     'start': '/renas/start',
     'panel': '/renas/panel',
-    'notif': '/renas',
+    'notif': '/renas/notif',
     'done': '/renas/shop',
     'login': '/renas/me',
     'tour': '/renas',
