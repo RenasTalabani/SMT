@@ -39,10 +39,10 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = keyProperties["keyAlias"] as String
-            keyPassword = keyProperties["keyPassword"] as String
-            storeFile = keyProperties["storeFile"]?.let { file(it) }
-            storePassword = keyProperties["storePassword"] as String
+            keyAlias = (keyProperties["keyAlias"] as String?) ?: System.getenv("CM_KEY_ALIAS")
+            keyPassword = (keyProperties["keyPassword"] as String?) ?: System.getenv("CM_KEY_PASSWORD")
+            storeFile = (keyProperties["storeFile"] as String?)?.let { file(it) } ?: System.getenv("CM_KEYSTORE_PATH")?.let { file(it) }
+            storePassword = (keyProperties["storePassword"] as String?) ?: System.getenv("CM_KEYSTORE_PASSWORD")
         }
     }
 

@@ -1,0 +1,60 @@
+# Codemagic: builds Coach Renas in the cloud (Macs) — no Mac needed.
+# iPhone: builds the .ipa and uploads it to TestFlight / App Store Connect.
+# Android: builds the signed .aab for Google Play.
+# Setup steps (Arabic): docs/store/IOS-WITHOUT-MAC.md
+workflows:
+  ios-release:
+    name: Coach Renas — iPhone (App Store)
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: CoachRenasASC # name of the App Store Connect API key you add in Codemagic
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.coachrenas.app
+      vars:
+        APP_STORE_APPLE_ID: "0000000000" # App Store Connect → your app → App Information → Apple ID
+        API_URL: "https://api.YOUR-DOMAIN/api" # your real server, once it is online
+    scripts:
+      - name: Flutter packages
+        script: cd mobile && flutter pub get
+      - name: Code signing (automatic)
+        script: xcode-project use-profiles
+      - name: Build iPhone app (.ipa)
+        script: |
+          cd mobile
+          BUILD_NUMBER=$(($(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" || echo 0) + 1))
+          flutter build ipa --release \
+            --build-number=$BUILD_NUMBER \
+            --dart-define=API_URL=$API_URL \
+            --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - mobile/build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+
+  android-release:
+    name: Coach Renas — Android (Google Play)
+    max_build_duration: 60
+    instance_type: linux_x2
+    environment:
+      flutter: stable
+      android_signing:
+        - coach_renas_upload_key # upload your .jks keystore in Codemagic with this reference name
+      vars:
+        API_URL: "https://api.YOUR-DOMAIN/api"
+    scripts:
+      - name: Flutter packages
+        script: cd mobile && flutter pub get
+      - name: Build Google Play bundle (.aab)
+        script: |
+          cd mobile
+          flutter build appbundle --release --dart-define=API_URL=$API_URL
+    artifacts:
+      - mobile/build/app/outputs/bundle/release/*.aab
