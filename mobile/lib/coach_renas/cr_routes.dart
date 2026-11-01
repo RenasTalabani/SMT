@@ -9,11 +9,12 @@ import 'screens/cr_food_shop_screens.dart';
 import 'screens/cr_guide_screens.dart';
 import 'screens/cr_panel_screens.dart';
 import 'screens/cr_train_screens.dart';
+import 'screens/cr_web_screen.dart';
 
 /// Start the app straight in Coach Renas:
 /// `flutter run --dart-define=APP_MODE=coach_renas`
 const kCrAppMode = String.fromEnvironment('APP_MODE');
-bool get crStandalone => kCrAppMode == 'coach_renas';
+bool get crStandalone => kCrAppMode != 'city_gym'; // Coach Renas is the app; the old City Gym screens open only with APP_MODE=city_gym
 
 ShellRoute crShellRoute(GlobalKey<NavigatorState> key) => ShellRoute(
       navigatorKey: key,
@@ -28,12 +29,15 @@ ShellRoute crShellRoute(GlobalKey<NavigatorState> key) => ShellRoute(
         GoRoute(path: '/renas/sport/:id', builder: (_, s) => CrSportScreen(id: s.pathParameters['id']!)),
         GoRoute(path: '/renas/program/:id', builder: (_, s) => CrProgramScreen(id: s.pathParameters['id']!)),
         GoRoute(path: '/renas/workout', builder: (_, __) => const CrWorkoutScreen()),
-        GoRoute(path: '/renas/lib', builder: (_, __) => const CrLibraryScreen()),
-        GoRoute(path: '/renas/ex/:id', builder: (_, s) => CrExerciseScreen(id: int.tryParse(s.pathParameters['id']!) ?? 1)),
-        GoRoute(path: '/renas/supps', builder: (_, __) => const CrSuppsScreen()),
-        GoRoute(path: '/renas/hormones', builder: (_, __) => const CrHormonesScreen()),
+        GoRoute(path: '/renas/lib', builder: (_, __) => const CrWebScreen(route: 'lib')),
+        GoRoute(path: '/renas/ex/:id', builder: (_, s) => CrWebScreen(route: 'ex-${int.tryParse(s.pathParameters['id']!) ?? 1}')),
+        GoRoute(path: '/renas/supps', builder: (_, __) => const CrWebScreen(route: 'supps')),
+        GoRoute(path: '/renas/hormones', builder: (_, __) => const CrWebScreen(route: 'hormones')),
+        GoRoute(path: '/renas/body', builder: (_, __) => const CrWebScreen(route: 'body')),
+        GoRoute(path: '/renas/why', builder: (_, __) => const CrWebScreen(route: 'why')),
+        GoRoute(path: '/renas/web/:route', builder: (_, s) => CrWebScreen(route: s.pathParameters['route']!)),
         GoRoute(path: '/renas/checkout', builder: (_, __) => const CrCheckoutScreen()),
-        GoRoute(path: '/renas/guide/:kind', builder: (_, s) => CrGuideScreen(kind: s.pathParameters['kind'] == 'train' ? 'train' : 'food')),
+        GoRoute(path: '/renas/guide/:kind', builder: (_, s) => CrWebScreen(route: s.pathParameters['kind'] == 'train' ? 'tguide' : 'fguide')),
         GoRoute(path: '/renas/tips', builder: (_, __) => const CrTipsScreen()),
         GoRoute(path: '/renas/orders', builder: (_, __) => const CrOrdersScreen()),
         GoRoute(path: '/renas/me', builder: (_, __) => const CrMeScreen()),

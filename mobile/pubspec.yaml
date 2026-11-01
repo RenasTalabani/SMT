@@ -60,6 +60,7 @@ dependencies:
 
   # 3D / WebView
   model_viewer_plus: ^1.8.0
+  webview_flutter: ^4.9.0
   url_launcher: ^6.3.0
 
   # Connectivity
@@ -80,6 +81,7 @@ flutter:
     - assets/translations/
     - assets/models/
     - assets/coach_renas/
+    - assets/coach_renas/web/
   # Coach Renas design fonts (SIL Open Font License, see assets/fonts/OFL.txt)
   fonts:
     - family: Cairo

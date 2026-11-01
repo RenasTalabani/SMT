@@ -117,7 +117,6 @@ class CrMeScreen extends ConsumerWidget {
             ),
             CrRow(icon: Icons.privacy_tip_outlined, title: T('الخصوصية وصوري'), sub: T('أنت تتحكم'), onTap: () => context.push('/renas/privacy')),
             CrRow(icon: Icons.delete_outline_rounded, iconColor: CrColors.red, titleColor: CrColors.red, title: T('احذف حسابي'), onTap: () => context.push('/renas/delete')),
-            CrRow(icon: Icons.exit_to_app_rounded, title: tr3('رجوع لتطبيق City Gym', 'Back to City Gym', 'گەڕانەوە بۆ City Gym'), onTap: () => context.go('/client')),
           ]),
         ],
       );

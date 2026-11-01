@@ -1,95 +1,114 @@
-# Store listing — City Gym (with Coach Renas)
+# Store listing — Coach Renas
 
 Ready-to-paste texts for Google Play and the App Store in **English, Arabic and Kurdish (Sorani)**.
 Arabic/Kurdish were written by Claude — have a native speaker read them before publishing.
 
-- Package / bundle id: `com.citygym.app` (Android). iOS bundle id: set in Xcode (`ios/` folder is not in this repo yet).
+- Package / bundle id: **`com.coachrenas.app`** (Android and iOS).
 - Category: **Health & Fitness**. Content rating: Everyone / 12+ (health info, no violence). Ads: **No**.
-- Icons: `docs/store/assets/citygym-play-icon-512.png` (Play), `citygym-appstore-icon-1024.png` (App Store).
+- Icons: `docs/store/assets/coach-renas-icon-512.png` (Play), `coach-renas-icon-1024.png` (App Store).
   Feature graphic (Play): `docs/store/assets/feature-graphic-1024x500.png`.
-  Coach Renas icons (if you later publish Coach Renas as its own app): `coach-renas-icon-512.png` / `-1024.png`.
-- Privacy policy URL: `https://<your-domain>/privacy` (page is in the website: `web/app/privacy`).
-- Account deletion URL (Play asks for it): `https://<your-domain>/privacy` (section "Delete your account") + in-app: Coach Renas → My account → Delete my account.
-- Screenshots: take 4–8 phone screenshots (1080×1920 or larger) from the debug APK: Coach Renas home, workout, food, shop, AI coach, 3D anatomy, booking.
+- Website URLs (after you put the website online, e.g. on Vercel):
+  - Privacy policy: `https://<your-domain>/privacy`
+  - Account deletion (Play asks for it): `https://<your-domain>/delete-account` + in-app: My account → Delete my account
+  - Support (App Store asks for it): `https://<your-domain>/support`
+  - Terms: `https://<your-domain>/terms`
+- Screenshots: 4–8 phone screenshots (1080×1920 or larger): home, workout, 3D body, exercise animation, supplement page, food, AI coach, shop.
 
 ---
 
 ## English
 
-**App name (30):** City Gym – Coach Renas
-**Short description (80):** Train the coach's way, Iraqi food & calories, honest supplements, 1-on-1 coaching.
+**App name (30):** Coach Renas
+**Subtitle (App Store, 30):** Train · Iraqi food · Supplements
+**Short description (Play, 80):** Your Iraqi coach: workouts, 3D body, Iraqi food, honest supplement guide.
 
 **Full description:**
-City Gym is your gym and your coach in one app — in English, Arabic and Kurdish.
+Coach Renas is your Iraqi coach in your pocket — in Arabic, Kurdish and English.
 
-WITH COACH RENAS
+TRAIN RIGHT
 • Train the coach's way: every workout shows today's top-set weight and how much to add next time.
-• 500+ exercises with the correct technique and the most common mistake.
-• Programs for the gym, home, calisthenics, cardio and your sport (football, basketball, boxing, swimming, wrestling).
-• Iraqi food and calories: 260+ Iraqi dishes — samoon, timman, dolma, kubba — with calories and protein.
-• Honest supplement guide: what works, what is wasted money, and the truth about steroids.
-• AI coach: ask anything about training, food and supplements.
-• Weekly check-in: your coach reads it and replies.
+• 513 exercises, beginner to advanced, every machine — each on an animated body that lights up the main and helper muscles.
+• Programs for the gym, home, calisthenics, cardio and 12 sports (football, boxing, basketball, swimming, MMA…).
+• Your body in 3D: every muscle, joint and bone. Tap where it hurts to see the likely injuries and what to do.
+• "Why isn't my body changing?" — a full check of your training, food, sleep and habits, with clear weekly goals.
+
+EAT RIGHT
+• 260+ Iraqi foods with calories and protein — samoon, timman, dolma, kubba.
+• Iraqi meal plans for cutting, maintaining and bulking, smart swaps and a full food guide.
+
+HONEST SUPPLEMENTS
+• 139 supplements and medicines explained: does it work, is it right for me, dose calculator, mixing, myths and what to buy.
+• Hormones and prescription medicines explained for safety only — what a doctor checks first and the real side effects. No doses.
+
+YOUR COACH
+• AI coach for any question about training, food and supplements.
+• Weekly check-in that Coach Renas reads and answers.
 • 1-on-1 coaching with Coach Renas (limited spots).
 • Shop: original supplements and gear, cash on delivery all over Iraq.
-
-AT THE GYM
-• Book a coach, join group classes, chat with your coach.
-• 3D anatomy body: muscles, joints, injuries and recovery.
-• Progress tracking, health calculators (BMI, calories, protein, water).
 
 Free: exercise library, 3D body, core supplement guide, the shop. Paid plans unlock programs, meal plans and the AI coach (7-day free trial).
 General information, not medical advice.
 
 ## العربية
 
-**اسم التطبيق:** سيتي جيم – الكوتش ريناس
-**وصف قصير:** تمرّن بطريقة الكوتش، أكل عراقي وسعرات، مكملات بصدق، وتدريب شخصي 1-على-1.
+**اسم التطبيق:** مع الكوتش ريناس
+**وصف قصير:** مدربك العراقي: تمارين، جسم 3D، أكل عراقي، ودليل مكملات صادق.
 
 **الوصف الكامل:**
-سيتي جيم هو ناديك ومدربك بتطبيق واحد — بالعربي والكوردي والإنكليزي.
+«مع الكوتش ريناس» مدربك العراقي بجيبك — بالعربي والكوردي والإنكليزي.
 
-ويه الكوتش ريناس
+تمرّن صح
 • تمرّن بطريقة الكوتش: كل تمرين يوريك وزن سِت القمة اليوم وشكد تزيد المرة الجاية.
-• أكثر من 500 تمرين بالتكنيك الصح والخطأ الشائع.
-• برامج للجيم والبيت والكاليسثنكس والكارديو ولرياضتك (كرة قدم، كرة سلة، ملاكمة، سباحة، مصارعة).
-• أكل عراقي وسعرات: أكثر من 260 أكلة عراقية — صمون، تمن، دولمة، كبة — بالسعرات والبروتين.
-• دليل مكملات صادق: شنو يفيد وشنو فلوس ضايعة، والحقيقة عن الهرمونات.
-• المدرب الذكي: اسأل أي شي عن التمرين والأكل والمكملات.
-• تقرير أسبوعي: الكوتش يقراه ويرد عليك.
+• 513 تمرين من المبتدئ للمتقدم، وكل الأجهزة — كل تمرين بجسم متحرك يضوّي العضلة الأساسية والمساعدة.
+• برامج للجيم والبيت والكاليسثنكس والكارديو و12 رياضة (كرة قدم، ملاكمة، سلة، سباحة، MMA…).
+• جسمك 3D: كل عضلة ومفصل وعظم. دوس على المكان اللي يألمك وشوف الإصابات المحتملة وشنو تسوي.
+• «ليش جسمي ما يتغير؟» — فحص كامل لتمرينك وأكلك ونومك وعاداتك، ويه أهداف أسبوعية واضحة.
+
+كُل صح
+• أكثر من 260 أكلة عراقية بالسعرات والبروتين — صمون، تمن، دولمة، كبة.
+• خطط أكل عراقية للتنشيف والتثبيت والتضخيم، وبدائل ذكية، ودليل أكل كامل.
+
+مكملات بصدق
+• 139 مكمل ودوا مشروحة: يفيد لو لا، هل يناسبني، حاسبة الجرعة، الخلط، الخرافات، وشنو تشتري.
+• الهرمونات وأدوية الوصفة مشروحة للسلامة بس — شنو يفحص الطبيب أول والأعراض الجانبية الحقيقية. بدون جرعات.
+
+مدربك
+• المدرب الذكي لأي سؤال عن التمرين والأكل والمكملات.
+• تقرير أسبوعي يقراه الكوتش ريناس ويرد عليه.
 • تدريب شخصي 1-على-1 ويه الكوتش ريناس (أماكن محدودة).
 • المتجر: مكملات وأدوات أصلية، الدفع عند الاستلام لكل العراق.
-
-بالنادي
-• احجز مدرب، اشترك بالكلاسات الجماعية، ودردش ويه مدربك.
-• جسم 3D: العضلات والمفاصل والإصابات والتعافي.
-• متابعة التقدم وحاسبات الصحة.
 
 مجاني: مكتبة التمارين، الجسم 3D، دليل المكملات الأساسي، والمتجر. الاشتراك يفتح البرامج وخطط الأكل والمدرب الذكي (تجربة مجانية 7 أيام).
 معلومات عامة مو نصيحة طبية.
 
 ## کوردی (سۆرانی)
 
-**ناوی ئەپ:** سیتی جیم – کۆچ ڕێناس
-**کورتە:** ڕاهێنان بە شێوازی کۆچ، خواردنی عێراقی و کالۆری، تەواوکەر بە ڕاستگۆیی، ڕاهێنانی تایبەتی 1-بۆ-1.
+**ناوی ئەپ:** لەگەڵ کۆچ ڕێناس
+**کورتە:** ڕاهێنەری عێراقیت: ڕاهێنان، جەستەی 3D، خواردنی عێراقی و ڕێبەری ڕاستگۆیانەی تەواوکەر.
 
 **وەسفی تەواو:**
-سیتی جیم یانە و ڕاهێنەرەکەتە لە یەک ئەپدا — بە کوردی و عەرەبی و ئینگلیزی.
+«لەگەڵ کۆچ ڕێناس» ڕاهێنەری عێراقیتە لە گیرفانتدا — بە کوردی و عەرەبی و ئینگلیزی.
 
-لەگەڵ کۆچ ڕێناس
+بە دروستی ڕاهێنان بکە
 • ڕاهێنان بە شێوازی کۆچ: هەر ڕاهێنانێک کێشی سێتی لووتکەی ئەمڕۆ و زیادکردنی جاری داهاتوو پیشان دەدات.
-• زیاتر لە 500 ڕاهێنان بە تەکنیکی دروست و هەڵەی باو.
-• پرۆگرام بۆ جیم، ماڵەوە، کالیستێنیکس، کاردیۆ و وەرزشەکەت (تۆپی پێ، باسکە، بۆکسێن، مەلەوانی، زۆرانبازی).
-• خواردنی عێراقی و کالۆری: زیاتر لە 260 خواردنی عێراقی بە کالۆری و پرۆتین.
-• ڕێبەری ڕاستگۆیانەی تەواوکەر: چی سوودی هەیە و چی نا، و ڕاستی دەربارەی هۆرمۆن.
-• ڕاهێنەری زیرەک: هەر پرسیارێک دەربارەی ڕاهێنان و خواردن و تەواوکەر.
-• ڕاپۆرتی هەفتانە: کۆچ دەیخوێنێتەوە و وەڵام دەداتەوە.
+• 513 ڕاهێنان لە سەرەتایی تا پێشکەوتوو، هەموو ئامێرەکان — هەر یەکەیان بە جەستەیەکی جووڵاو کە ماسولکەی سەرەکی و یارمەتیدەر ڕووناک دەکاتەوە.
+• پرۆگرام بۆ جیم، ماڵەوە، کالیستێنیکس، کاردیۆ و 12 وەرزش (تۆپی پێ، بۆکسین، باسکە، مەلەوانی، MMA…).
+• جەستەت بە 3D: هەموو ماسولکە و جومگە و ئێسکێک. دەست لەو شوێنە بدە کە ئازاری هەیە و برینە ئەگەرییەکان و چارەسەر ببینە.
+• «بۆچی جەستەم ناگۆڕێت؟» — پشکنینێکی تەواوی ڕاهێنان و خواردن و خەو و خووەکانت، لەگەڵ ئامانجی هەفتانەی ڕوون.
+
+بە دروستی بخۆ
+• زیاتر لە 260 خواردنی عێراقی بە کالۆری و پرۆتین.
+• پلانی خواردنی عێراقی بۆ لاوازبوون، جێگیرکردن و قەڵەوکردنی ماسولکە، جێگرەوەی زیرەک و ڕێبەری تەواوی خواردن.
+
+تەواوکەر بە ڕاستگۆیی
+• 139 تەواوکەر و دەرمان ڕوونکراونەتەوە: سوودی هەیە؟ گونجاوە بۆم؟ ژمێرەری ڕێژە، تێکەڵکردن، ئەفسانەکان و چی بکڕیت.
+• هۆرمۆن و دەرمانی ڕەچەتە تەنها بۆ سەلامەتی ڕوونکراونەتەوە — دکتۆر سەرەتا چی دەپشکنێت و کاریگەرییە لاوەکییە ڕاستەقینەکان. بەبێ ڕێژە.
+
+ڕاهێنەرەکەت
+• ڕاهێنەری زیرەک بۆ هەر پرسیارێک دەربارەی ڕاهێنان، خواردن و تەواوکەر.
+• ڕاپۆرتی هەفتانە کە کۆچ ڕێناس دەیخوێنێتەوە و وەڵامی دەداتەوە.
 • ڕاهێنانی تایبەتی 1-بۆ-1 لەگەڵ کۆچ ڕێناس (شوێنی سنووردار).
 • فرۆشگا: تەواوکەر و کەرەستەی ڕەسەن، پارەدان لە کاتی وەرگرتن بۆ هەموو عێراق.
-
-لە یانە
-• ڕاهێنەر بگرە، بەشداری لە کلاسی گرووپی بکە، و لەگەڵ ڕاهێنەرەکەت چات بکە.
-• جەستەی 3D: ماسولکە، جومگە، برینداری و چاکبوونەوە.
 
 بەخۆڕایی: کتێبخانەی ڕاهێنان، جەستەی 3D، ڕێبەری سەرەکیی تەواوکەر و فرۆشگا. بەشداری پرۆگرام و پلانی خواردن و ڕاهێنەری زیرەک دەکاتەوە (7 ڕۆژ تاقیکردنەوەی بەخۆڕایی).
 زانیاریی گشتییە نەک ئامۆژگاریی پزیشکی.

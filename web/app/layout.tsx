@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Ultimate Gym System',
-  description: 'Multi-role gym management system',
+  title: 'Coach Renas · مع الكوتش ريناس',
+  description: 'Coach Renas — training, Iraqi food, supplements, 3D body and 1-on-1 coaching. Arabic, Kurdish and English.',
 };
 
 export default function RootLayout({

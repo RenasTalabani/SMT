@@ -9,55 +9,21 @@ class CityGymLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Coach Renas brand mark (file name kept so older imports still work).
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          width: size,
-          height: size,
-          child: CustomPaint(
-            painter: _LogoPainter(),
-          ),
-        ),
-        const SizedBox(height: 10),
-        RichText(
-          textAlign: TextAlign.center,
-          text: const TextSpan(
-            children: [
-              TextSpan(
-                text: 'CITY ',
-                style: TextStyle(
-                  color: Color(0xFF3A3A3A),
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 3,
-                ),
-              ),
-              TextSpan(
-                text: 'GYM',
-                style: TextStyle(
-                  color: Color(0xFF26BDB8),
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 3,
-                  decoration: TextDecoration.underline,
-                  decorationColor: Color(0xFF26BDB8),
-                  decorationThickness: 2,
-                ),
-              ),
-            ],
-          ),
+        ClipOval(child: Image.asset('assets/coach_renas/logo.png', width: size, height: size, fit: BoxFit.cover)),
+        const SizedBox(height: 12),
+        const Text(
+          'COACH RENAS',
+          style: TextStyle(color: Color(0xFF2BC4BE), fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: 3),
         ),
         if (showTagline) ...[
           const SizedBox(height: 4),
           const Text(
-            "IT'S A LIFE STYLE",
-            style: TextStyle(
-              color: Color(0xFF8A8A8A),
-              fontSize: 9,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 2.5,
-            ),
+            'مع الكوتش ريناس',
+            style: TextStyle(color: Color(0xFF8A8A8A), fontSize: 13, fontWeight: FontWeight.w600),
           ),
         ],
       ],
@@ -65,6 +31,7 @@ class CityGymLogo extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 class _LogoPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

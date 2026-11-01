@@ -29,7 +29,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.citygym.app"
+        applicationId = "com.coachrenas.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

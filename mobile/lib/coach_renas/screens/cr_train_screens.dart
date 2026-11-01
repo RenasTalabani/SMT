@@ -142,6 +142,8 @@ class CrHomeScreen extends ConsumerWidget {
               _tile(Icons.warning_amber_rounded, CrColors.red, T('خطر الهرمونات'), T('الحقيقة عن المنشطات'), () => context.push('/renas/hormones'), danger: true),
               _tile(Icons.menu_book_rounded, CrColors.teal, T('مكتبة التمارين'), T('{n} تمرين بالتكنيك الصح', {'n': d.exercises.length}), () => context.push('/renas/lib')),
               _tile(Icons.auto_awesome, CrColors.amber, T('اسأل المدرب الذكي'), T('تمرين، أكل عراقي، مكملات'), () => context.go('/renas/coach')),
+              _tile(Icons.accessibility_new_rounded, CrColors.teal, tr3('جسمك 3D', 'Your body in 3D', 'جەستەت بە 3D'), tr3('عضلات، ألم، إصابات وحلول', 'Muscles, pain, injuries, fixes', 'ماسولکە، ئازار، برین و چارەسەر'), () => context.push('/renas/body')),
+              _tile(Icons.troubleshoot_rounded, CrColors.amber, tr3('ليش جسمي ما يتغير؟', "Why isn't my body changing?", 'بۆچی جەستەم ناگۆڕێت؟'), tr3('فحص كامل وأهداف واضحة', 'Full check + clear goals', 'پشکنینی تەواو و ئامانج'), () => context.push('/renas/why')),
             ],
           ),
         ],

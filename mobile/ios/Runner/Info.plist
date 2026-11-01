@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>City Gym</string>
+	<string>Coach Renas</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>citygym</string>
+	<string>Coach Renas</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -73,13 +73,13 @@
 		<string>ckb</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>City Gym uses the camera only when you choose to take a progress photo or a photo of a payment receipt for your coach.</string>
+	<string>Coach Renas uses the camera only when you choose to take a progress photo or a photo of a payment receipt for your coach.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>City Gym opens your photos only when you choose a progress photo, a profile picture or a payment receipt to send to your coach.</string>
+	<string>Coach Renas opens your photos only when you choose a progress photo, a profile picture or a payment receipt to send to your coach.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>City Gym uses the microphone only when you record a form-check video for your coach.</string>
+	<string>Coach Renas uses the microphone only when you record a form-check video for your coach.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Use Face ID to log in to City Gym quickly and safely.</string>
+	<string>Use Face ID to log in to Coach Renas quickly and safely.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 </dict>

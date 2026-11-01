@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:citygym/widgets/city_gym_logo.dart';
 
 void main() {
-  group('CityGymLogo widget', () {
+  group('Coach Renas logo widget', () {
     testWidgets('renders without error', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
@@ -19,7 +19,8 @@ void main() {
           home: Scaffold(body: Center(child: CityGymLogo())),
         ),
       );
-      expect(find.text("IT'S A LIFE STYLE"), findsOneWidget);
+      expect(find.text('COACH RENAS'), findsOneWidget);
+      expect(find.text('مع الكوتش ريناس'), findsOneWidget);
     });
 
     testWidgets('tagline hidden when showTagline=false', (tester) async {
@@ -28,7 +29,7 @@ void main() {
           home: Scaffold(body: Center(child: CityGymLogo(showTagline: false))),
         ),
       );
-      expect(find.text("IT'S A LIFE STYLE"), findsNothing);
+      expect(find.text('مع الكوتش ريناس'), findsNothing);
     });
   });
 }

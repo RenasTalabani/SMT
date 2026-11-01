@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../providers/auth_provider.dart';
 import '../widgets/city_gym_logo.dart';
+import '../coach_renas/cr_routes.dart' show crStandalone;
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -55,6 +56,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (!mounted) return;
 
     final auth = ref.read(authProvider);
+    if (crStandalone && (auth.isGuest || (auth.isLoggedIn && auth.user != null))) {
+      context.go('/renas');
+      return;
+    }
     if (auth.isLoggedIn && auth.user != null) {
       final role = auth.user!.role;
       if (role == 'admin') {

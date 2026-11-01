@@ -48,8 +48,16 @@ const S: Record<string, L3> = {
   f1d: { ar: 'سِت القمة: كل تمرين يوريك الوزن اللي تبدي بيه اليوم وشكد تزيد المرة الجاية.', ku: 'سێتی لووتکە: هەر ڕاهێنانێک کێشی ئەمڕۆ و زیادکردنی جاری داهاتووت پیشان دەدات.', en: 'Top set: every workout shows today’s weight and how much to add next time.' },
   f2t: { ar: 'أكل عراقي وسعرات', ku: 'خواردنی عێراقی و کالۆری', en: 'Iraqi food and calories' },
   f2d: { ar: 'أكثر من 260 أكلة عراقية بالسعرات والبروتين: صمون، تمن، دولمة، كبة…', ku: 'زیاتر لە 260 خواردنی عێراقی بە کالۆری و پرۆتین: سەموون، برنج، دۆڵمە، کوبە…', en: '260+ Iraqi foods with calories and protein: samoon, timman, dolma, kubba…' },
-  f3t: { ar: 'مكتبة 500+ تمرين', ku: 'کتێبخانەی 500+ ڕاهێنان', en: '500+ exercise library' },
-  f3d: { ar: 'التكنيك الصح والخطأ الشائع لكل تمرين، بالعربي والكوردي والإنكليزي.', ku: 'تەکنیکی دروست و هەڵەی باو بۆ هەر ڕاهێنانێک، بە عەرەبی و کوردی و ئینگلیزی.', en: 'Correct technique and common mistakes for every exercise, in Arabic, Kurdish and English.' },
+  f3t: { ar: 'مكتبة 513 تمرين بالحركة', ku: 'کتێبخانەی 513 ڕاهێنان بە جووڵە', en: '513 animated exercises' },
+  f3d: { ar: 'كل تمرين بجسم متحرك يوريك العضلة الأساسية والمساعدة، ويه التكنيك الصح والخطأ الشائع.', ku: 'هەر ڕاهێنانێک بە جەستەیەکی جووڵاو کە ماسولکەی سەرەکی و یارمەتیدەر پیشان دەدات، لەگەڵ تەکنیکی دروست و هەڵەی باو.', en: 'Every exercise on a moving body that lights up the main and helper muscles, with correct technique and common mistakes.' },
+  f5t: { ar: 'جسمك 3D', ku: 'جەستەت بە 3D', en: 'Your body in 3D' },
+  f5d: { ar: 'كل عضلة ومفصل وعظم، وإذا يألمك مكان: الإصابات المحتملة وشنو تسوي.', ku: 'هەموو ماسولکە و جومگە و ئێسکێک، و ئەگەر شوێنێک ئازاری هەیە: برینە ئەگەرییەکان و چی بکەیت.', en: 'Every muscle, joint and bone — and if something hurts, the likely injuries and what to do.' },
+  f6t: { ar: 'موسوعة 139 مكمل ودوا', ku: 'ئینسایکلۆپیدیای 139 تەواوکەر و دەرمان', en: '139-supplement encyclopedia' },
+  f6d: { ar: 'يفيد لو لا؟ هل يناسبني؟ الجرعة، الخلط، الخرافات — والهرمونات اللي بس ويه طبيب.', ku: 'سوودی هەیە؟ گونجاوە بۆم؟ ڕێژە، تێکەڵکردن، ئەفسانەکان — و ئەو هۆرمۆنانەی تەنها لەگەڵ دکتۆر.', en: 'Does it work? Is it right for me? Dose, mixing, myths — and the hormones that need a doctor.' },
+  webapp: { ar: 'افتح التطبيق على الويب', ku: 'ئەپەکە لە وێب بکەرەوە', en: 'Open the web app' },
+  terms: { ar: 'الشروط', ku: 'مەرجەکان', en: 'Terms' },
+  support: { ar: 'الدعم', ku: 'پشتگیری', en: 'Support' },
+  del: { ar: 'حذف الحساب', ku: 'سڕینەوەی هەژمار', en: 'Delete account' },
   f4t: { ar: 'مكملات بصدق، وخطر الهرمونات', ku: 'تەواوکەر بە ڕاستگۆیی، و مەترسیی هۆرمۆن', en: 'Honest supplements, hormone danger' },
   f4d: { ar: 'شنو يفيد وشنو فلوس ضايعة، والحقيقة عن المنشطات.', ku: 'چی سوودی هەیە و چی پارەی بەفیڕۆچوو، و ڕاستی دەربارەی ستێرۆید.', en: 'What works, what is wasted money, and the truth about steroids.' },
   prices: { ar: 'الأسعار', ku: 'نرخەکان', en: 'Prices' },
@@ -135,11 +143,12 @@ export default function CoachRenasLanding() {
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/auth/register" className="rounded-full bg-[#06201F] px-6 py-3 font-bold text-[#F2F4F3]">{t('start')}</Link>
             <a href="#prices" className="rounded-full border border-[#06201F]/40 px-6 py-3 font-bold">{t('seePrices')}</a>
+            <a href="/app/index.html" className="rounded-full border border-[#06201F]/40 px-6 py-3 font-bold">{t('webapp')}</a>
           </div>
         </section>
 
         <section className="mt-6 grid gap-3 sm:grid-cols-2">
-          {[['f1t', 'f1d', '#2BC4BE'], ['f2t', 'f2d', '#F5A524'], ['f3t', 'f3d', '#8FB8FF'], ['f4t', 'f4d', '#F08A8A']].map(([a, b, c]) => (
+          {[['f1t', 'f1d', '#2BC4BE'], ['f2t', 'f2d', '#F5A524'], ['f3t', 'f3d', '#8FB8FF'], ['f4t', 'f4d', '#F08A8A'], ['f5t', 'f5d', '#FFC94A'], ['f6t', 'f6d', '#7FE0DC']].map(([a, b, c]) => (
             <div key={a} className={card}>
               <div className="mb-2 h-1.5 w-10 rounded-full" style={{ background: c }} />
               <h2 className="text-lg font-bold">{t(a)}</h2>
@@ -227,7 +236,9 @@ export default function CoachRenasLanding() {
           <span>{t('note')}</span>
           <span className="flex gap-4">
             <Link href="/privacy" className="text-[#2BC4BE]">{t('privacy')}</Link>
-            <Link href="/" className="text-[#2BC4BE]">City Gym</Link>
+            <Link href="/terms" className="text-[#2BC4BE]">{t('terms')}</Link>
+            <Link href="/support" className="text-[#2BC4BE]">{t('support')}</Link>
+            <Link href="/delete-account" className="text-[#2BC4BE]">{t('del')}</Link>
           </span>
         </footer>
       </div>

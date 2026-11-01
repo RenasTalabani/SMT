@@ -342,7 +342,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final authenticated = await BiometricService.authenticate(
-        reason: 'Login to City GYM',
+        reason: 'Login to Coach Renas',
       );
       if (!authenticated) {
         state = state.copyWith(isLoading: false);

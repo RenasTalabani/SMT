@@ -1,8 +1,8 @@
 # iOS (App Store) — what is ready and what needs a Mac
 
 Ready in the repo (made on Windows, 1 Nov 2026):
-- `mobile/ios/` project, bundle id **`com.citygym.app`** (same as Android), display name **City Gym**.
-- App icons for every size (from `docs/store/assets/citygym-appstore-icon-1024.png`).
+- `mobile/ios/` project, bundle id **`com.coachrenas.app`** (same as Android), display name **Coach Renas**.
+- App icons for every size (from `docs/store/assets/coach-renas-icon-1024.png`).
 - `Info.plist`: camera / photos / microphone / Face ID permission texts, languages en, ar, ckb (Kurdish Sorani),
   `ITSAppUsesNonExemptEncryption = false` (only standard HTTPS).
 
@@ -10,7 +10,7 @@ Needs a Mac with Xcode (cannot be done on Windows):
 1. `cd mobile && flutter pub get && cd ios && pod install`
 2. Open `ios/Runner.xcworkspace` → Signing & Capabilities → choose your Apple Developer team.
    Add capabilities: Push Notifications, Sign in with Apple, In-App Purchase.
-3. Firebase: download `GoogleService-Info.plist` for `com.citygym.app` and drag it into Runner.
+3. Firebase: download `GoogleService-Info.plist` for `com.coachrenas.app` and drag it into Runner.
 4. Google Sign-In: add the `REVERSED_CLIENT_ID` from that plist as a URL scheme (Info → URL Types).
 5. Facebook login: add `FacebookAppID`, `FacebookClientToken`, `FacebookDisplayName` and the `fb<APPID>` URL scheme.
 6. Translated permission texts (optional but nicer): File → New → Strings File `InfoPlist.strings`, Localize for Arabic and Kurdish:
