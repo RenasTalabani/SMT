@@ -733,8 +733,8 @@ V.ex = id => {
   <div class="card">
     <div class="chips"><span class="tag t-strong">${esc(X(e,"m"))}</span><span class="tag t-prac">${esc(X(e,"eq"))}</span><span class="tag t-prac">${esc(X(e,"lv"))}</span>${e.star?`<span class="tag t-amber">★ ${T("يمط العضلة")}</span>`:""}</div></div>
   ${typeof animSVG==="function"?animSVG():""}
-  <div class="card"><span class="h3" style="color:var(--teal)">${T("التكنيك الصح")}</span><span>${esc(X(e,"cue"))}</span>${e.sets?`<span class="small"><b>${tr("المجموعات","Sets","سێتەکان")}:</b> <span dir="ltr">${esc(X(e,"sets"))}</span></span>`:""}</div>
-  <div class="card"><span class="h3" style="color:var(--red)">${T("الخطأ الشائع")}</span><span>${esc(X(e,"err"))}</span></div>
+  <div class="card tech"><span class="h3">${T("التكنيك الصح")}</span><span class="tk ok"><i>${svg("check",13,3)}</i><span>${esc(X(e,"cue"))}</span></span>${e.sets?`<span class="small"><b>${tr("المجموعات","Sets","سێتەکان")}:</b> <span dir="ltr">${esc(X(e,"sets"))}</span></span>`:""}</div>
+  <div class="card tech"><span class="h3">${T("الخطأ الشائع")}</span>${String(X(e,"err")).split(/[،,]\s*/).filter(Boolean).map(x => `<span class="tk bad"><i>${svg("x",12,3)}</i><span>${esc(x)}</span></span>`).join("")}</div>
   ${(e.easy||e.hard)?`<div class="grid2"><div class="stat"><span class="muted">${T("أسهل")}</span><span style="font-weight:600">${esc(X(e,"easy")||"—")}</span></div><div class="stat"><span class="muted">${T("أصعب")}</span><span style="font-weight:600">${esc(X(e,"hard")||"—")}</span></div></div>`:""}
   ${e.sup?`<div class="card"><span class="muted">${T("يخدم رفعة:")} <b style="color:var(--ink)">${esc(X(e,"sup"))}</b></span></div>`:""}
   <span class="note">${T("النصايح خبرة مدربين متفق عليها. اسأل المدرب الذكي إذا عندك سؤال عن هذا التمرين.")}</span>
@@ -3511,7 +3511,7 @@ V.tguide = arg => {
    4. body tools hidden behind one button
    5. a personal plan made for each person (not a ready plan for everyone)
 */
-document.head.insertAdjacentHTML("beforeend", `<style>
+document.body.insertAdjacentHTML("beforeend", `<style>
 .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:60;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .18s ease}
 .sheet{width:100%;max-width:520px;background:var(--surface);border-radius:24px 24px 0 0;border:1px solid var(--line);padding:10px 16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;animation:up .22s ease}
 .sheet .grab{width:42px;height:5px;border-radius:3px;background:var(--line);align-self:center;margin-bottom:4px}
@@ -3857,7 +3857,7 @@ V.plan = () => {
 function aiNote(s){ return FULL ? tr("المدرب الذكي الكامل يوصل بالتحديث الجاي. هسه الأجوبة أمثلة جاهزة من طريقة الكوتش.","The full AI coach arrives in the next update. For now, answers are ready examples from the coach's method.","ڕاهێنەری زیرەکی تەواو لە نوێکردنەوەی داهاتوودا دێت. ئێستا وەڵامەکان نموونەی ئامادەن لە ڕێگای کۆچ.") : T(s); }
 
 /* ---------- compact header: nothing hides behind it ---------- */
-document.head.insertAdjacentHTML("beforeend", `<style>
+document.body.insertAdjacentHTML("beforeend", `<style>
 .top{padding-block:10px 8px;box-shadow:0 1px 0 var(--line)}
 .top h1{font-size:20px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .top .sub{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -3886,17 +3886,17 @@ V.home = () => {
       <span style="font-weight:600;font-size:13.5px">${td.day.list.slice(0, 3).map(x => esc(X(EXMAP[x[0]] || {}, "ar"))).join(" · ")}${td.day.list.length > 3 ? " …" : ""}</span>
       <a class="btn dark" href="#plan">${svg("play",16)} ${td.rest ? tr("شوف برنامجي","See my plan","پرۆگرامەکەم ببینە") : tr("ابدأ تمرين اليوم","Start today's workout","ڕاهێنانی ئەمڕۆ دەست پێبکە")}</a></section>`
     : `<section class="card hero"><div class="ring"></div><span class="eyebrow">${tr("ابدأ من هنا","Start here","لێرەوە دەست پێبکە")}</span><h2 class="h2" style="font-size:24px">${tr("سوّيلي برنامج خاص بيّه","Make my own plan","پرۆگرامی تایبەتی خۆم دروست بکە")}</h2><span style="font-weight:600">${tr("التطبيق يبني برنامج على قياسك خلال ثواني.","The app builds a plan that fits you in seconds.","ئەپەکە لە چەند چرکەیەکدا پرۆگرامێکی گونجاو بۆت دروست دەکات.")}</span><button class="btn dark" onclick="makePlan()">${svg("ai",16)} ${tr("سوّي برنامجي","Make my plan","پرۆگرامەکەم دروست بکە")}</button></section>`;
-  const q = [["#body","body","var(--teal)","#123432",tr("جسمك 3D","Body 3D","جەستەی 3D")],["#lib","db","#8FD0FF","#10283A",tr("التمارين","Exercises","ڕاهێنانەکان")],["#food","food","var(--amber)","#3A2A10",tr("الأكل","Food","خواردن")],["#supps","pill","#C9A7FF","#2A1F3A",tr("المكملات","Supplements","تەواوکەرەکان")]];
+  const q = [["#body","body","var(--teal)","rgba(76,201,234,.14)",tr("جسمك 3D","Body 3D","جەستەی 3D")],["#lib","db","#7FB6FF","rgba(90,167,240,.14)",tr("التمارين","Exercises","ڕاهێنانەکان")],["#food","food","var(--amber)","rgba(245,165,36,.14)",tr("الأكل","Food","خواردن")],["#supps","pill","#C9A7FF","rgba(201,167,255,.14)",tr("المكملات","Supplements","تەواوکەرەکان")]];
   const kPct = tg.kcal ? eaten.kcal / tg.kcal : 0, pPct = tg.pLo ? eaten.p / tg.pLo : 0;
   return `${hero}
   <div class="qa">${q.map(([h, ic, col, bg, l]) => `<a href="${h}"><i style="background:${bg};color:${col}">${svg(ic,26)}</i>${l}</a>`).join("")}</div>
   <div class="rings">
     <a href="#food">${S.profile?.ed ? `<span style="color:var(--teal)">${svg("food",26)}</span>` : ring(kPct, "var(--teal)", Math.round(kPct*100) + "%")}<span class="k">${tr("سعرات اليوم","Calories today","کالۆری ئەمڕۆ")}</span></a>
-    <a href="#food">${ring(pPct, "#8FD0FF", fmt(eaten.p) + tr("غ","g","گ"))}<span class="k">${tr("بروتين","Protein","پرۆتین")}</span></a>
+    <a href="#food">${ring(pPct, "#5AA7F0", fmt(eaten.p) + tr("غ","g","گ"))}<span class="k">${tr("بروتين","Protein","پرۆتین")}</span></a>
     <a href="#badges">${ring(Math.min(1, streak() / 7), "var(--amber)", String(streak()))}<span class="k">${tr("يوم ورا بعض","Day streak","ڕۆژ لە دوای یەک")}</span></a>
   </div>
-  <a class="card" href="#workout" style="flex-direction:row;align-items:center;gap:12px"><span style="width:44px;height:44px;border-radius:14px;background:#123432;color:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg("db",22)}</span><span class="grow" style="min-width:0"><span class="h3" style="display:block">${tr("طريقة الكوتش: بنچ","Coach's method: bench","ڕێگای کۆچ: بێنچ")}</span><span class="muted small">${T("سِت القمة: {w} كغ", {w:tw})}</span></span><span class="chev">${svg("chev",16)}</span></a>
-  ${whyGoalsCard() || `<a class="card" href="#why" style="flex-direction:row;align-items:center;gap:12px;border-color:var(--teal)"><span style="width:44px;height:44px;border-radius:14px;background:#123432;color:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg("search",22)}</span><span class="grow" style="min-width:0"><span class="h3" style="display:block">${tr("ليش جسمي ما يتغير؟","Why isn't my body changing?","بۆچی جەستەم ناگۆڕێت؟")}</span><span class="muted small">${tr("فحص كامل خلال 5 دقايق، ويطلعلك الحل.","A full check in 5 minutes, with the fix.","پشکنینێکی تەواو لە 5 خولەکدا، لەگەڵ چارەسەر.")}</span></span><span class="chev">${svg("chev",16)}</span></a>`}
+  <a class="card" href="#workout" style="flex-direction:row;align-items:center;gap:12px"><span style="width:44px;height:44px;border-radius:14px;background:rgba(76,201,234,.14);color:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg("db",22)}</span><span class="grow" style="min-width:0"><span class="h3" style="display:block">${tr("طريقة الكوتش: بنچ","Coach's method: bench","ڕێگای کۆچ: بێنچ")}</span><span class="muted small">${T("سِت القمة: {w} كغ", {w:tw})}</span></span><span class="chev">${svg("chev",16)}</span></a>
+  ${whyGoalsCard() || `<a class="card" href="#why" style="flex-direction:row;align-items:center;gap:12px;border-color:var(--teal)"><span style="width:44px;height:44px;border-radius:14px;background:rgba(76,201,234,.14);color:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg("search",22)}</span><span class="grow" style="min-width:0"><span class="h3" style="display:block">${tr("ليش جسمي ما يتغير؟","Why isn't my body changing?","بۆچی جەستەم ناگۆڕێت؟")}</span><span class="muted small">${tr("فحص كامل خلال 5 دقايق، ويطلعلك الحل.","A full check in 5 minutes, with the fix.","پشکنینێکی تەواو لە 5 خولەکدا، لەگەڵ چارەسەر.")}</span></span><span class="chev">${svg("chev",16)}</span></a>`}
   ${tipOfDay() ? `<a class="card" href="#tips" style="gap:6px;border-color:#4A3713"><span class="eyebrow" style="color:var(--amber)">${svg("ai",14)} ${T("نصيحة اليوم من الكوتش")}</span><span style="font-weight:600;line-height:1.6">${T(tipOfDay())}</span></a>` : ""}
   <div class="grid2">
     <a class="card" href="#challenge"><span style="color:var(--teal)">${svg("shield",22)}</span><span class="h3">${T("تحدي 30 يوم")}</span><span class="muted small">${S.challenge.start ? S.challenge.done.length + " / 30" : tr("ابدأ اليوم","Start today","ئەمڕۆ دەست پێبکە")}</span></a>
@@ -3904,6 +3904,55 @@ V.home = () => {
   </div>
   <a class="card danger" href="#hormones" style="flex-direction:row;align-items:center;gap:12px"><span style="color:var(--red)">${svg("warn",22)}</span><span class="grow"><span class="h3" style="display:block">${T("خطر الهرمونات")}</span><span class="muted small">${T("الحقيقة عن المنشطات")}</span></span><span class="chev">${svg("chev",16)}</span></a>`;
 };
+
+/* ---------- THEME v3: slate glass + cyan (Renas's reference design) ---------- */
+document.body.insertAdjacentHTML("beforeend", `<style>
+:root{--bg:#141A20;--surface:rgba(40,50,60,.55);--raised:rgba(70,86,100,.35);--line:rgba(160,190,210,.13);--ink:#EEF3F6;--muted:#8E9BA5;--soft:#C3CDD3;
+  --teal:#4CC9EA;--teal-ink:#05202A;--teal-wash:rgba(76,201,234,.12);--blue:#5AA7F0;--glow:0 0 0 1px rgba(76,201,234,.35),0 0 24px rgba(76,201,234,.18)}
+body{background:radial-gradient(120% 60% at 50% -10%,#24313B 0%,#161D23 45%,#11161B 100%) fixed;background-color:#11161B}
+body::before,.top{background:rgba(20,26,32,.82)!important;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.card,.list,.stat,.issue,.isec,.pday,.mini3>*,.rings>a,.langrow,.opt,.b3stage,.tgl,.sld,.peek2{border-radius:18px}
+.card,.list,.stat,.issue,.isec:not(.warm):not(.red),.pday,.mini3>*,.rings>a{background:linear-gradient(180deg,rgba(52,64,76,.55),rgba(30,38,46,.6));border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 10px 26px rgba(0,0,0,.22)}
+.hero{background:linear-gradient(160deg,rgba(76,201,234,.22),rgba(30,40,50,.75) 55%,rgba(24,31,38,.85));color:var(--ink);border:1px solid rgba(76,201,234,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 0 30px rgba(76,201,234,.12),0 12px 30px rgba(0,0,0,.3)}
+.hero .ring{border-color:rgba(76,201,234,.10)}
+.hero .eyebrow{color:var(--teal)}
+.hero .todayx span{background:rgba(76,201,234,.14);color:var(--teal)}
+.btn{background:linear-gradient(135deg,#5BD6F2,#3A9EDB);color:#04141B;box-shadow:0 6px 18px rgba(58,158,219,.28);border-radius:16px}
+.btn.ghost{background:rgba(40,50,60,.55);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.btn.dark{background:rgba(8,14,18,.75);color:var(--ink);border:1px solid rgba(76,201,234,.35);box-shadow:none}
+.btn.amber{background:linear-gradient(135deg,#F7B84A,#E8901F);color:#2A1A00}
+.chip,.ptabs button{background:rgba(40,50,60,.55);border:1px solid var(--line);color:var(--soft)}
+.chip.on,.chip.teal.on,.ptabs button.on,.seg button.on{background:linear-gradient(135deg,#5BD6F2,#3A9EDB);color:#04141B;border-color:transparent}
+.seg{background:rgba(30,38,46,.7);border:1px solid var(--line)}
+.icon-btn{background:rgba(40,50,60,.6);border:1px solid var(--line)}
+.input{background:rgba(14,19,24,.7)!important;border:1px solid var(--line)!important;border-radius:14px!important}
+.li{border-bottom-color:var(--line)}
+.li .ic,.qa a i{box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.nav{background:rgba(16,21,26,.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line)}
+.nav a{position:relative;color:#7F8C95}
+.nav a.on{color:var(--teal);font-weight:700}
+.nav a.on svg{filter:drop-shadow(0 0 6px rgba(76,201,234,.7))}
+.nav a.on::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:var(--teal);box-shadow:0 0 10px rgba(76,201,234,.8)}
+.meter{background:rgba(255,255,255,.07)}
+.meter>span{background:linear-gradient(90deg,#3A9EDB,#5BD6F2)}
+.tag.t-strong{background:rgba(76,201,234,.15);color:var(--teal)}
+.prof,.parthero{background:linear-gradient(150deg,rgba(76,201,234,.16),rgba(30,40,50,.75) 60%);border:1px solid rgba(76,201,234,.28)}
+.langrow.on{border-color:var(--teal);background:rgba(76,201,234,.08);box-shadow:var(--glow)}
+.langrow .ab{color:var(--teal)}
+.sheet{background:linear-gradient(180deg,#222C35,#171E24)}
+.b3stage{background:radial-gradient(120% 80% at 50% 30%,#22313B 0%,#141B21 60%,#0E1317 100%);border:1px solid var(--line)}
+.b3peek{background:rgba(16,22,28,.88)!important;border-color:rgba(76,201,234,.45)!important;box-shadow:0 0 24px rgba(76,201,234,.15)}
+.tech{gap:8px}
+.tech .tk{display:flex;gap:10px;align-items:flex-start;line-height:1.6}
+.tech .tk i{width:22px;height:22px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-style:normal}
+.tech .tk.ok i{background:rgba(94,211,184,.18);color:#5ED3B8}
+.tech .tk.bad i{background:rgba(240,138,138,.16);color:#F08A8A}
+html[lang=en] .h2,html[lang=en] .h3,html[lang=en] .top h1,html[lang=en] .eyebrow,html[lang=en] .sec-h,html[lang=en] .pday .hd b{text-transform:uppercase;letter-spacing:.03em}
+html[lang=en] .nav a{text-transform:uppercase;font-size:9.5px;letter-spacing:.04em}
+.h2{letter-spacing:.005em}
+.qa a i{border-color:rgba(160,190,210,.16)}
+.rings svg circle:first-child{stroke:rgba(255,255,255,.08)}
+</style>`);
 
 
 /* ---------- router ---------- */
