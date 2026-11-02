@@ -56,12 +56,14 @@ class _CrAppScreenState extends State<CrAppScreen> {
       // Only remember it for the native reminders. Changing the Flutter
       // locale here would rebuild this screen and reload the page.
       if (['ar', 'ku', 'en'].contains(l) && CrI18n.lang != l) {
-        CrI18n.lang = l;
-        CrReminders.instance.syncLanguage();
+        CrI18n.lang = l; // reminders pick it up when the reminders screen opens
       }
       return;
     }
-    if (msg == 'nav:notif') context.push('/renas/notif');
+    if (msg == 'nav:notif') {
+      CrReminders.instance.syncLanguage();
+      context.push('/renas/notif');
+    }
   }
 
   @override

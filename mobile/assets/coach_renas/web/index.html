@@ -561,7 +561,7 @@ const LANGS = [["ar","عربي"],["ku","کوردی"],["en","EN"]];
 const langBtn = () => `<button class="icon-btn" style="width:auto;padding:0 12px;font-weight:700;font-size:13px;gap:6px" onclick="switchLang()" aria-label="${T("اللغة")}">${svg("globe",16)}${LANGS[(LANGS.findIndex(l=>l[0]===S.lang)+1)%3][1]}</button>`;
 function setLang(l){ S.lang = l; save(); applyLang(); render(); }
 function switchLang(){ setLang(LANGS[(LANGS.findIndex(l=>l[0]===S.lang)+1)%3][0]); toast(T("صارت اللغة عربي")); }
-function applyLang(){ const l = isKU() ? "ckb" : isEN() ? "en" : "ar", d = isEN() ? "ltr" : "rtl"; document.documentElement.lang = l; document.documentElement.dir = d; $("#app").lang = l; $("#app").dir = d; $("#nav").dir = d; document.title = T("مع الكوتش ريناس"); if (FULL) crPost("lang:" + (isKU() ? "ku" : isEN() ? "en" : "ar")); }
+function applyLang(){ const l = isKU() ? "ckb" : isEN() ? "en" : "ar", d = isEN() ? "ltr" : "rtl"; document.documentElement.lang = l; document.documentElement.dir = d; $("#app").lang = l; $("#app").dir = d; $("#nav").dir = d; document.title = T("مع الكوتش ريناس"); if (FULL) { const pl = isKU() ? "ku" : isEN() ? "en" : "ar"; setTimeout(() => crPost("lang:" + pl), 300); } }
 const gtag = g => `<span class="tag ${GRADE[g][1]}">${T(GRADE[g][0])}</span>`;
 
 const V = {};
