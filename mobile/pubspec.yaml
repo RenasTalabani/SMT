@@ -81,7 +81,6 @@ flutter:
   assets:
     - assets/images/
     - assets/translations/
-    - assets/models/
     - assets/coach_renas/
     - assets/coach_renas/web/
   # Coach Renas design fonts (SIL Open Font License, see assets/fonts/OFL.txt)

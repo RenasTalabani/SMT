@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +12,7 @@ import 'core/i18n/kurdish_localizations.dart';
 import 'core/network/api_client.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'coach_renas/cr_core.dart';
 import 'coach_renas/cr_reminders.dart';
 
 @pragma('vm:entry-point')
@@ -22,6 +26,11 @@ void main() async {
   await initializeDateFormatting(); // Arabic month/day names (Kurdish: core/i18n/dates.dart)
 
   ApiClient().init();
+  try {
+    // Kurdish / English texts of the native reminders screen.
+    CrI18n.ku = Map<String, dynamic>.from(jsonDecode(await rootBundle.loadString('assets/coach_renas/i18n_ku.json')) as Map);
+    CrI18n.en = Map<String, dynamic>.from(jsonDecode(await rootBundle.loadString('assets/coach_renas/i18n_en.json')) as Map);
+  } catch (_) {}
   await CrReminders.instance.init();
 
   try {
