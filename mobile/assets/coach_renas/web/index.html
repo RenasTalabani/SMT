@@ -411,7 +411,8 @@ let S;
 try { S = Object.assign(structuredClone(SEED), JSON.parse(localStorage.getItem("lamassu2") || "{}")); } catch { S = structuredClone(SEED); }
 const save = () => { try { localStorage.setItem("lamassu2", JSON.stringify(S)); } catch {} };
 /* Embedded inside the Coach Renas phone app (offline module): the app owns login, language, shop and the AI coach. */
-const EMBED = !!(window.CR && window.CR.postMessage) || /CoachRenasApp/.test(navigator.userAgent) || /[?&]embed=1/.test(location.search);
+const FULL = /CoachRenasFull/.test(navigator.userAgent); // the phone app shows this whole page as the app
+const EMBED = !FULL && !!(window.CR && window.CR.postMessage) || /CoachRenasApp/.test(navigator.userAgent) || /[?&]embed=1/.test(location.search);
 let EMBED_ROOT = null;
 if (EMBED) { S.entered = true; S.onboarded = true; S.toured = true; document.documentElement.classList.add("embed"); }
 function crPost(m){ try { window.CR.postMessage(m); } catch (e) {} }
@@ -551,7 +552,7 @@ const LANGS = [["ar","عربي"],["ku","کوردی"],["en","EN"]];
 const langBtn = () => `<button class="icon-btn" style="width:auto;padding:0 12px;font-weight:700;font-size:13px;gap:6px" onclick="switchLang()" aria-label="${T("اللغة")}">${svg("globe",16)}${LANGS[(LANGS.findIndex(l=>l[0]===S.lang)+1)%3][1]}</button>`;
 function setLang(l){ S.lang = l; save(); applyLang(); render(); }
 function switchLang(){ setLang(LANGS[(LANGS.findIndex(l=>l[0]===S.lang)+1)%3][0]); toast(T("صارت اللغة عربي")); }
-function applyLang(){ const l = isKU() ? "ckb" : isEN() ? "en" : "ar", d = isEN() ? "ltr" : "rtl"; document.documentElement.lang = l; document.documentElement.dir = d; $("#app").lang = l; $("#app").dir = d; $("#nav").dir = d; document.title = T("مع الكوتش ريناس"); }
+function applyLang(){ const l = isKU() ? "ckb" : isEN() ? "en" : "ar", d = isEN() ? "ltr" : "rtl"; document.documentElement.lang = l; document.documentElement.dir = d; $("#app").lang = l; $("#app").dir = d; $("#nav").dir = d; document.title = T("مع الكوتش ريناس"); if (FULL) crPost("lang:" + (isKU() ? "ku" : isEN() ? "en" : "ar")); }
 const gtag = g => `<span class="tag ${GRADE[g][1]}">${T(GRADE[g][0])}</span>`;
 
 const V = {};
@@ -561,7 +562,7 @@ V.login = () => {
   $("#nav").innerHTML = ""; $("#top").innerHTML = "";
   return `
   <div class="row between" style="padding-top:20px">
-    <div><div class="num" style="font-size:26px">${T("لاما")}<span style="color:var(--teal)">${T("سو")}</span></div><div class="muted small">${T("تمرين · أكل · مكملات")}</div></div>
+    <div><div class="num" style="font-size:26px">${isEN() ? "Coach " : isKU() ? "کۆچ " : "الكوتش "}<span style="color:var(--teal)">${isEN() ? "Renas" : isKU() ? "ڕێناس" : "ريناس"}</span></div><div class="muted small">${T("تمرين · أكل · مكملات")}</div></div>
     <div class="seg" role="group" aria-label="${T("اللغة")}" style="width:auto">${LANGS.map(([k,l])=>`<button class="${S.lang===k?"on":""}" onclick="setLang('${k}')">${l}</button>`).join("")}</div>
   </div>
   <h2 class="h2" style="font-size:42px;line-height:1.35;margin-top:28px">${T("تمرّن صح.")}<br><span style="color:var(--teal)">${T("صير أقوى.")}</span></h2>
@@ -3508,6 +3509,7 @@ function render(){
   const [name, ...rest] = h.split("-"); const arg = rest.join("-");
   if (EMBED && !EMBED_ROOT) { $("#view").innerHTML = ""; return; }
   if (EMBED && ["home","shop","coach","me","login","start","tour","checkout","plans","notif","done","panel"].includes(name) && h !== EMBED_ROOT) { crPost("nav:" + name); history.back(); return; }
+  if (FULL && name === "notif") { crPost("nav:notif"); history.back(); return; } // phone reminders are native
   const fn = V[name] || V.home;
   $("#view").innerHTML = fn(arg);
   if (name !== "login") nav(TAB_OF[name] || "home");

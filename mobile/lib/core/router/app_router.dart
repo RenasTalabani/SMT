@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
+import '../../coach_renas/screens/cr_web_screen.dart' show CrAppScreen;
 import '../../screens/auth/login_screen.dart';
 import '../../screens/auth/register_screen.dart';
 import '../../screens/client/client_shell.dart';
@@ -67,14 +68,20 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isSplash  = state.matchedLocation == '/splash';
       if (isSplash) return null;
 
+      // Coach Renas build: the app is the approved Coach Renas page (/app);
+      // the old City Gym screens and the old sign-in are never shown.
+      if (crStandalone) {
+        final loc = state.matchedLocation;
+        if (loc == '/app' || (loc.startsWith('/renas/') )) return null;
+        return '/app';
+      }
+
       final isLoggedIn  = auth.isLoggedIn;
       final isGuest     = auth.isGuest;
       final isAuthRoute = state.matchedLocation.startsWith('/auth');
 
       if (!isLoggedIn && !isGuest && !isAuthRoute) return '/auth/login';
 
-      // Coach Renas build: the old City Gym screens are never shown.
-      if (crStandalone && RegExp(r'^/(client|coach|admin)(/|$)').hasMatch(state.matchedLocation)) return '/renas';
 
       if ((isLoggedIn || isGuest) && isAuthRoute) {
         if (crStandalone) return '/renas'; // --dart-define=APP_MODE=coach_renas
@@ -92,6 +99,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/splash',
         builder: (_, __) => const SplashScreen(),
       ),
+
+      // Coach Renas: the whole approved app
+      GoRoute(path: '/app', builder: (_, __) => const CrAppScreen()),
 
       // Auth
       GoRoute(path: '/auth/login',    builder: (_, __) => const LoginScreen()),

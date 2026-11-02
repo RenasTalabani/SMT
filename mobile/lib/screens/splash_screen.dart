@@ -56,8 +56,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (!mounted) return;
 
     final auth = ref.read(authProvider);
-    if (crStandalone && (auth.isGuest || (auth.isLoggedIn && auth.user != null))) {
-      context.go('/renas');
+    if (crStandalone) {
+      context.go('/app');
       return;
     }
     if (auth.isLoggedIn && auth.user != null) {
