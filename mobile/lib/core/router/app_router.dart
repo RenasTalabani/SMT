@@ -73,6 +73,9 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       if (!isLoggedIn && !isGuest && !isAuthRoute) return '/auth/login';
 
+      // Coach Renas build: the old City Gym screens are never shown.
+      if (crStandalone && RegExp(r'^/(client|coach|admin)(/|$)').hasMatch(state.matchedLocation)) return '/renas';
+
       if ((isLoggedIn || isGuest) && isAuthRoute) {
         if (crStandalone) return '/renas'; // --dart-define=APP_MODE=coach_renas
         if (isGuest) return '/client';

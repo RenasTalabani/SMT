@@ -8,6 +8,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../core/storage/secure_storage.dart';
 import '../../providers/auth_provider.dart';
+import '../../coach_renas/cr_routes.dart' show crStandalone;
 import '../../services/biometric_service.dart';
 import '../../widgets/city_gym_logo.dart';
 
@@ -94,6 +95,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void _navigateIfLoggedIn() {
     if (!mounted) return;
     final auth = ref.read(authProvider);
+    if (crStandalone && auth.isLoggedIn && auth.user != null) {
+      context.go('/renas');
+      return;
+    }
     if (auth.isLoggedIn && auth.user != null) {
       final role = auth.user!.role;
       if (role == 'admin') {
@@ -275,6 +280,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 28),
 
                   // ── OR divider ───────────────────────────────────────────────
+                  if (!crStandalone) ...[ // social sign-in not configured for Coach Renas yet
                   Row(
                     children: [
                       Expanded(
@@ -333,6 +339,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ],
                     ],
                   ).animate().fadeIn(delay: 700.ms, duration: 400.ms),
+                  ],
 
                   // ── Biometric button ─────────────────────────────────────────
                   if (_biometricAvailable && _biometricEnabled) ...[

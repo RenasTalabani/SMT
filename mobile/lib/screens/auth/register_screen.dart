@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../coach_renas/cr_routes.dart' show crStandalone;
 import '../../widgets/city_gym_logo.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -88,6 +89,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     if (!mounted) return;
 
     final auth = ref.read(authProvider);
+    if (crStandalone && auth.error == null && auth.isLoggedIn && auth.user != null) {
+      context.go('/renas');
+      return;
+    }
     if (auth.error == null && auth.isLoggedIn && auth.user != null) {
       final role = auth.user!.role;
       if (role == 'admin') {
