@@ -2,7 +2,6 @@
 // encyclopedia, 513 animated exercises, food & training guides, the
 // "why isn't my body changing?" check) bundled as one HTML file in
 // assets/coach_renas/web/index.html and shown in a WebView. No internet needed.
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../cr_core.dart';
+import '../cr_reminders.dart';
 
 /// The whole Coach Renas app as approved (the bundled page with its own
 /// bottom bar, languages, 3D body, exercises, food, supplements, coach).
@@ -53,9 +53,11 @@ class _CrAppScreenState extends State<CrAppScreen> {
     if (!mounted) return;
     if (msg.startsWith('lang:')) {
       final l = msg.substring(5);
+      // Only remember it for the native reminders. Changing the Flutter
+      // locale here would rebuild this screen and reload the page.
       if (['ar', 'ku', 'en'].contains(l) && CrI18n.lang != l) {
         CrI18n.lang = l;
-        context.setLocale(Locale(l));
+        CrReminders.instance.syncLanguage();
       }
       return;
     }
