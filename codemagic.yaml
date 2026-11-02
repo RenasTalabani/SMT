@@ -18,7 +18,7 @@ workflows:
         bundle_identifier: com.coachrenas.app
       vars:
         APP_STORE_APPLE_ID: "0000000000" # App Store Connect → your app → App Information → Apple ID
-        API_URL: "https://api.YOUR-DOMAIN/api" # your real server, once it is online
+        API_URL: "https://coach.138.199.156.90.sslip.io/api" # Coach Renas API on Hetzner
     scripts:
       - name: Flutter packages
         script: cd mobile && flutter pub get
@@ -48,7 +48,7 @@ workflows:
       android_signing:
         - coach_renas_upload_key # upload your .jks keystore in Codemagic with this reference name
       vars:
-        API_URL: "https://api.YOUR-DOMAIN/api"
+        API_URL: "https://coach.138.199.156.90.sslip.io/api"
     scripts:
       - name: Flutter packages
         script: cd mobile && flutter pub get

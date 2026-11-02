@@ -38,6 +38,10 @@ const coachRenasRoutes  = require('./modules/coach-renas/coach-renas.routes'); /
 
 const app = express();
 
+// Behind a reverse proxy (Caddy on the server) every request arrives from the
+// proxy's address; without this the rate limiter would treat all users as one.
+if (process.env.TRUST_PROXY_HOPS) app.set('trust proxy', parseInt(process.env.TRUST_PROXY_HOPS, 10));
+
 // ── Security & compression ────────────────────────────────────────────────────
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(compression());

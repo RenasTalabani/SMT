@@ -2,9 +2,9 @@ class ApiConstants {
   // static const String baseUrl = 'http://10.0.2.2:5000/api'; // Android emulator
   // static const String baseUrl = 'http://localhost:5000/api'; // iOS simulator
   // Override at build time: flutter build appbundle --dart-define=API_URL=https://api.example.com/api
-  static const String baseUrl = String.fromEnvironment('API_URL', defaultValue: 'http://192.168.0.104:5000/api'); // Physical device
+  static const String baseUrl = String.fromEnvironment('API_URL', defaultValue: 'https://coach.138.199.156.90.sslip.io/api'); // Coach Renas API (Hetzner)
 
-  static const String socketUrl = String.fromEnvironment('SOCKET_URL', defaultValue: 'http://192.168.0.104:5000');
+  static const String socketUrl = String.fromEnvironment('SOCKET_URL', defaultValue: 'https://coach.138.199.156.90.sslip.io');
 
   // Auth
   static const String login = '/auth/login';

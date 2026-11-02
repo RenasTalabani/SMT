@@ -1,0 +1,22 @@
+# Coach Renas API on the shared Hetzner box (next to SMT Express).
+# Lives in /opt/coach-renas. Joins SMT's network so SMT's Caddy can reach it;
+# publishes no ports of its own. Secrets live only in /opt/coach-renas/.env.
+services:
+  coach-renas-api:
+    build: ./backend
+    container_name: coach-renas-api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      PORT: "5000"
+      TRUST_PROXY_HOPS: "1"
+    volumes:
+      - uploads:/app/uploads
+    mem_limit: 512m
+    networks: [smt_default]
+volumes:
+  uploads:
+networks:
+  smt_default:
+    external: true
