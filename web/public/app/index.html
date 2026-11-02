@@ -558,7 +558,7 @@ const TABS = [["home","الرئيسية","home"],["body","الجسم","body"],["
 function nav(active){ $("#nav").setAttribute("aria-label", T("القائمة")); $("#nav").innerHTML = `<div class="nav-in">${TABS.map(([h,l,i]) => `<a href="#${h}" class="${active===h?"on":""}" ${active===h?'aria-current="page"':""}>${svg(i,22,active===h?2:1.8)}${T(l)}</a>`).join("")}</div>`; }
 function setTop(title, back, sub, extra){ if (EMBED) { const root = (location.hash || "").slice(1) === EMBED_ROOT; back = root ? "" : (back || ""); $("#top").innerHTML = `<button class="icon-btn" onclick="${root ? "crPost('close')" : "history.back()"}" aria-label="${T("رجوع")}">${svg("back",18,2)}</button>` + `<h1>${sub?`<span class="sub">${sub}</span>`:""}${title}</h1>` + (extra && !/switchLang/.test(extra) ? extra : ""); return; } $("#top").innerHTML = (back ? `<a class="icon-btn" href="#${back}" aria-label="${T("رجوع")}">${svg("back",18,2)}</a>` : "") + `<h1>${sub?`<span class="sub">${sub}</span>`:""}${title}</h1>` + (extra || ""); }
 const LANGS = [["ar","عربي"],["ku","کوردی"],["en","EN"]];
-const langBtn = () => `<button class="icon-btn langpill" onclick="switchLang()" aria-label="${T("اللغة")}">${svg("globe",16)}${({ar:"العربية",ku:"کوردی",en:"English"})[S.lang] || "العربية"}<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg></button>`;
+const langBtn = () => `<button class="icon-btn langpill" onclick="switchLang()" aria-label="${T("اللغة")}">${svg("globe",16)}${({ar:"عربي",ku:"کوردی",en:"EN"})[S.lang] || "عربي"}<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg></button>`;
 function setLang(l){ S.lang = l; save(); applyLang(); render(); }
 function switchLang(){ setLang(LANGS[(LANGS.findIndex(l=>l[0]===S.lang)+1)%3][0]); toast(T("صارت اللغة عربي")); }
 function applyLang(){ const l = isKU() ? "ckb" : isEN() ? "en" : "ar", d = isEN() ? "ltr" : "rtl"; document.documentElement.lang = l; document.documentElement.dir = d; $("#app").lang = l; $("#app").dir = d; $("#nav").dir = d; document.title = T("مع الكوتش ريناس"); if (FULL) { const pl = isKU() ? "ku" : isEN() ? "en" : "ar"; setTimeout(() => crPost("lang:" + pl), 300); } }
@@ -637,7 +637,7 @@ V.workout = () => {
   const warm = [[20,8],[r05(W.w*.5,.5),5],[r05(W.w*.7,.5),3],[r05(W.w*.85,.5),1]].filter(([w],i,a) => i===0 || w > a[i-1][0]);
   const tbl = rows => `<div class="tbl-wrap"><table><thead><tr><th>${T("السِت")}</th><th>${T("الوزن")}</th><th>${T("العدات")}</th></tr></thead><tbody>${rows.map(([w,r],i)=>`<tr><td>${i+1}</td><td>${w} ${KG()}</td><td>${r}</td></tr>`).join("")}</tbody></table></div>`;
   if (W.step === 0) return `
-    <div class="card"><span class="eyebrow" style="color:var(--teal)">${T("طريقة الكوتش ريناس")}</span><span class="h3">${esc(X(ex,"ar"))} <span class="muted" dir="ltr">(${ex.en})</span></span><span class="muted">${esc(X(ex,"cue"))}</span></div>
+    <div class="card"><span class="eyebrow" style="color:var(--teal)">${T("طريقة الكوتش ريناس")}</span><span class="h3">${esc(X(ex,"ar"))}</span><span class="muted">${esc(X(ex,"cue"))}</span></div>
     <div class="card"><span class="h3">${T("قبل لا تبدي: عندك سبوتر أو قضبان أمان؟")}</span><span class="muted">${T("بسِت القمة تروح لأكثر عدد. إذا ماكو أحد يساعدك، توقف وانت باقيلك عدتين.")}</span>
       <div class="grid2"><button class="btn" onclick="S.spotter=true;W.step=1;render()">${T("إي، عندي")}</button><button class="btn ghost" onclick="S.spotter=false;W.step=1;render()">${T("لا، وحدي")}</button></div></div>
     <p class="note">${T("إذا عندك ألم صدر أو دوخة أو ضغط عالي ما مسيطر عليه، لا تتمرن وراجع طبيب.")}</p>`;
@@ -730,7 +730,7 @@ V.ex = id => {
   setTop(esc(X(e,"ar")), "lib");
   const sib = LIB.ex.filter(x => x.g === e.g && x.id !== e.id).slice(0, 4);
   return `
-  <div class="card"><span class="muted" dir="ltr" style="text-align:end">${esc(e.en)}</span>
+  <div class="card">
     <div class="chips"><span class="tag t-strong">${esc(X(e,"m"))}</span><span class="tag t-prac">${esc(X(e,"eq"))}</span><span class="tag t-prac">${esc(X(e,"lv"))}</span>${e.star?`<span class="tag t-amber">★ ${T("يمط العضلة")}</span>`:""}</div></div>
   ${typeof animSVG==="function"?animSVG():""}
   <div class="card"><span class="h3" style="color:var(--teal)">${T("التكنيك الصح")}</span><span>${esc(X(e,"cue"))}</span>${e.sets?`<span class="small"><b>${tr("المجموعات","Sets","سێتەکان")}:</b> <span dir="ltr">${esc(X(e,"sets"))}</span></span>`:""}</div>
@@ -3717,7 +3717,7 @@ V.body = arg => {
 };
 
 /* area page */
-const PTABS = [["prob","المشاكل","check"],["inj","الإصابات","warn"],["train","التمارين","db"],["mus","العضلات","body"],["food","الأكل","food"]];
+const PTABS = [["prob",["المشاكل","Problems","کێشەکان"],"check"],["inj",["الإصابات","Injuries","برینەکان"],"warn"],["train",["التمارين","Exercises","ڕاهێنانەکان"],"db"],["mus",["العضلات","Muscles","ماسولکەکان"],"body"],["food",["الأكل","Food","خواردن"],"food"]];
 let PTAB = "prob";
 V.part = arg => {
   const [r, k, ...g] = (arg || "").split("-"), grp = g.join("-"), R = REGION[r]; if (!R) { location.hash = "body"; return ""; }
@@ -3725,15 +3725,15 @@ V.part = arg => {
   setTop(mus ? T(mus.ar) : T(R.ar), "body", mus ? T(R.ar) : tr("منطقة بالجسم","Body area","ناوچەیەکی جەستە"), langBtn());
   if (mus && !V.part.m) { PTAB = "musx"; } V.part.m = mus ? grp : null;
   const img = B3.snap && B3.snap.r === r && B3.snap.img;
-  const tabs = (mus ? [["musx", tr("هذي العضلة","This muscle","ئەم ماسولکەیە"), "body"]] : []).concat(PTABS.map(([k2, l, ic]) => [k2, T(l), ic]));
+  const tabs = (mus ? [["musx", tr("هذي العضلة","This muscle","ئەم ماسولکەیە"), "body"]] : []).concat(PTABS.map(([k2, l, ic]) => [k2, pl3(l), ic]));
   if (!tabs.some(t => t[0] === PTAB)) PTAB = tabs[0][0];
   const count = { prob:I.problems.length, inj:I.injuries.length };
   let body = "";
-  if (PTAB === "musx") { const L = exForMus(grp); body = `<div class="isec"><div class="hd"><i style="background:var(--raised);color:var(--teal)">${svg("body",16)}</i>${T(mus.ar)}</div><span class="muted" dir="ltr" style="text-align:start">${esc(mus.en)} · <i>${esc(mus.la || "")}</i></span><span>${T(mus.fn)}</span><a class="btn ghost" href="#body-m_${grp}" style="min-height:42px">${svg("body",16)} ${tr("شوفها على الجسم","See it on the body","لەسەر جەستە ببینە")}</a></div>${L.length ? `<span class="h3">${tr("تمارين هذي العضلة","Exercises for this muscle","ڕاهێنانەکانی ئەم ماسولکەیە")} <span class="muted small">(${L.length})</span></span>${exRows(L.slice(0, 15))}` : ""}`; }
+  if (PTAB === "musx") { const L = exForMus(grp); body = `<div class="isec"><div class="hd"><i style="background:var(--raised);color:var(--teal)">${svg("body",16)}</i>${T(mus.ar)}</div><span>${T(mus.fn)}</span><a class="btn ghost" href="#body-m_${grp}" style="min-height:42px">${svg("body",16)} ${tr("شوفها على الجسم","See it on the body","لەسەر جەستە ببینە")}</a></div>${L.length ? `<span class="h3">${tr("تمارين هذي العضلة","Exercises for this muscle","ڕاهێنانەکانی ئەم ماسولکەیە")} <span class="muted small">(${L.length})</span></span>${exRows(L.slice(0, 15))}` : ""}`; }
   if (PTAB === "prob") body = I.problems.length ? I.problems.map(it => `<a class="issue" href="#issue-${r}-p-${it.id}"><span class="dot" style="background:var(--teal)"></span><span class="grow" style="min-width:0"><span class="t">${esc(T(it.t))}</span><span class="p">${esc(T(it.fix[0] || ""))}</span></span><span class="chev">${svg("chev",16)}</span></a>`).join("") : `<p class="note">${T("قريباً.")}</p>`;
-  if (PTAB === "inj") body = I.injuries.length ? I.injuries.map(it => { const sv = SEV[it.sev] || SEV.medium; return `<a class="issue" href="#issue-${r}-i-${it.id}"><span class="dot" style="background:${it.sev==="doctor"?"var(--red)":it.sev==="light"?"var(--teal)":"var(--amber)"}"></span><span class="grow" style="min-width:0"><span class="t">${esc(T(it.t))}</span><span class="p">${esc(T(it.what || ""))}</span></span><span class="tag ${sv[1]}">${T(sv[0])}</span></a>`; }).join("") + `<div class="isec red"><div class="hd" style="color:var(--red)">${T("علامات خطر عامة: روح للطبيب إذا:")}</div><ul>${RED_FLAGS.map(x => `<li>${T(x)}</li>`).join("")}</ul></div>` : `<p class="note">${T("قريباً.")}</p>`;
+  if (PTAB === "inj") body = I.injuries.length ? I.injuries.map(it => { const sv = SEV[it.sev] || SEV.medium; return `<a class="issue" href="#issue-${r}-i-${it.id}"><span class="dot" style="background:${it.sev==="doctor"?"var(--red)":it.sev==="light"?"var(--teal)":"var(--amber)"}"></span><span class="grow" style="min-width:0"><span class="t">${esc(isEN() ? T(it.t) : T(it.t).replace(/\s*\([A-Za-z][^)]*\)\s*$/, ""))}</span><span class="p">${esc(T(it.what || ""))}</span></span><span class="tag ${sv[1]}">${T(sv[0])}</span></a>`; }).join("") + `<div class="isec red"><div class="hd" style="color:var(--red)">${T("علامات خطر عامة: روح للطبيب إذا:")}</div><ul>${RED_FLAGS.map(x => `<li>${T(x)}</li>`).join("")}</ul></div>` : `<p class="note">${T("قريباً.")}</p>`;
   if (PTAB === "train") { const groups = regionExercises(r); body = groups.length ? groups.map(([t, l]) => `<span class="h3">${esc(t)} <span class="muted small">(${l.length})</span></span>${exRows(l)}`).join("") : `<p class="note">${T("ما عدنا تمارين جيم لهذي المنطقة.")}</p>`; }
-  if (PTAB === "mus") body = regionMus(r).map(id => { const d = MUS[id]; return `<a class="issue" href="#part-${r}-m-${id}"><span class="dot" style="background:var(--teal)"></span><span class="grow" style="min-width:0"><span class="t">${T(d.ar)} <span class="muted small" dir="ltr">${esc(d.en)}</span></span><span class="p">${T(d.fn)}</span></span><span class="chev">${svg("chev",16)}</span></a>`; }).join("") + (R.tip ? `<div class="isec warm"><div class="hd">${T("نصيحة الكوتش")}</div><span>${T(R.tip)}</span></div>` : "");
+  if (PTAB === "mus") body = regionMus(r).map(id => { const d = MUS[id]; return `<a class="issue" href="#part-${r}-m-${id}"><span class="dot" style="background:var(--teal)"></span><span class="grow" style="min-width:0"><span class="t">${T(d.ar)}</span><span class="p">${T(d.fn)}</span></span><span class="chev">${svg("chev",16)}</span></a>`; }).join("") + (R.tip ? `<div class="isec warm"><div class="hd">${T("نصيحة الكوتش")}</div><span>${T(R.tip)}</span></div>` : "");
   if (PTAB === "food") body = guideHTML("m", r);
   return `<div class="parthero"><div class="fig">${img ? `<img src="${img}" alt="">` : bodyFig(r)}</div><div class="grow" style="display:flex;flex-direction:column;gap:6px;min-width:0"><span class="h2" style="font-size:22px">${mus ? T(mus.ar) : T(R.ar)}</span><span class="small" style="color:var(--soft);line-height:1.6">${esc(T(mus ? mus.fn : I.intro || ""))}</span><div class="peek2"><div class="st"><span>${tr("{n} مشكلة","{n} problems","{n} کێشە").replace("{n}", count.prob)}</span><span>${tr("{n} إصابة","{n} injuries","{n} برین").replace("{n}", count.inj)}</span></div></div></div></div>
   <div class="ptabs" role="tablist">${tabs.map(([k2, l, ic]) => `<button role="tab" aria-selected="${PTAB===k2}" class="${PTAB===k2?"on":""}" onclick="PTAB='${k2}';render()">${svg(ic,15)}${l}${count[k2] != null ? ` <span class="n">${count[k2]}</span>` : ""}</button>`).join("")}</div>
@@ -3753,7 +3753,7 @@ V.issue = arg => {
   const exs = (it.ex || []).map(i => EXMAP[i]).filter(Boolean);
   return `<div class="parthero" style="align-items:stretch"><div class="fig">${bodyFig(r, 92)}</div><div class="grow" style="display:flex;flex-direction:column;gap:6px;min-width:0;justify-content:center">
       <span class="muted small" style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:4px;background:#E55B5B"></span>${tr("مكان الألم","Where it hurts","شوێنی ئازار")}: ${T(R.ar)}</span>
-      <span class="h2" style="font-size:21px;line-height:1.35">${k === "p" ? "«" + esc(title) + "»" : esc(m ? m[1] : title)}</span>${m ? `<span class="muted small" dir="ltr" style="text-align:start">${esc(m[2])}</span>` : ""}
+      <span class="h2" style="font-size:21px;line-height:1.35">${k === "p" ? "«" + esc(title) + "»" : esc(m && !isEN() ? m[1] : title)}</span>
       ${k === "i" ? `<span><span class="tag ${sv[1]}">${T(sv[0])}</span></span>` : ""}</div></div>
     ${it.what ? `<div class="isec"><span style="line-height:1.7">${T(it.what)}</span></div>` : ""}
     ${sec("كيف تحس بيها", it.feel, "warn", "var(--amber)")}
@@ -3855,6 +3855,55 @@ V.plan = () => {
   <button class="btn ghost" onclick="obNew();location.hash='start'">${T("غيّر أجوبتي")}</button>`;
 };
 function aiNote(s){ return FULL ? tr("المدرب الذكي الكامل يوصل بالتحديث الجاي. هسه الأجوبة أمثلة جاهزة من طريقة الكوتش.","The full AI coach arrives in the next update. For now, answers are ready examples from the coach's method.","ڕاهێنەری زیرەکی تەواو لە نوێکردنەوەی داهاتوودا دێت. ئێستا وەڵامەکان نموونەی ئامادەن لە ڕێگای کۆچ.") : T(s); }
+
+/* ---------- compact header: nothing hides behind it ---------- */
+document.head.insertAdjacentHTML("beforeend", `<style>
+.top{padding-block:10px 8px;box-shadow:0 1px 0 var(--line)}
+.top h1{font-size:20px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .sub{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .icon-btn{width:40px;height:40px;flex-shrink:0}
+.top .langpill{height:36px;font-size:12px;padding:0 10px!important}
+#view>*:first-child{margin-top:4px}
+.hero h2.h2,.hero .h2{overflow-wrap:anywhere}
+.qa{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.qa a{display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;color:var(--ink);font-size:11.5px;font-weight:600;text-align:center;line-height:1.3}
+.qa a i{width:56px;height:56px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-style:normal;border:1px solid var(--line)}
+.rings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.rings a{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink);text-decoration:none;text-align:center}
+.rings .k{font-size:11.5px;color:var(--muted)}
+.todayx{display:flex;flex-wrap:wrap;gap:6px}
+.todayx span{font-size:12px;font-weight:700;padding:5px 10px;border-radius:10px;background:rgba(0,0,0,.14)}
+</style>`);
+function ring(pct, col, label){ const r = 24, c = 2 * Math.PI * r, v = Math.max(0, Math.min(1, pct)); return `<svg width="60" height="60" viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="${r}" fill="none" stroke="var(--raised)" stroke-width="6"/><circle cx="30" cy="30" r="${r}" fill="none" stroke="${col}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${(c*v).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 30 30)"/><text x="30" y="34" text-anchor="middle" font-size="12" font-weight="800" fill="var(--ink)" font-family="var(--display)">${label}</text></svg>`; }
+function todayPlanDay(){ const p = S.myplan; if (!p) return null; const pat = {2:[0,3],3:[0,2,4],4:[0,1,3,4],5:[0,1,2,4,5],6:[0,1,2,3,4,5]}[p.nDays] || [0,2,4]; const wd = (new Date().getDay() + 1) % 7; const k = pat.indexOf(wd); if (k >= 0) return { day:p.days[k], rest:false }; const nx = pat.find(x => x > wd) ?? pat[0]; return { day:p.days[pat.indexOf(nx)], rest:true }; }
+V.home = () => {
+  const hr = new Date().getHours(), greet = hr < 12 ? tr("صباح الخير","Good morning","بەیانیت باش") : tr("مساء الخير","Good evening","ئێوارەت باش");
+  setTop(isEN() ? "Coach Renas" : isKU() ? "کۆچ ڕێناس" : "الكوتش ريناس", null, greet + "، " + esc(S.name || T("محمد")), langBtn() + `<a class="icon-btn" href="#notif" aria-label="${T("الرسائل والتذكيرات")}">${svg("bell",20)}</a><a class="icon-btn" href="#me" aria-label="${T("حسابي")}">${svg("user",20)}</a>`);
+  const tg = targets(), eaten = logTotals(), td = todayPlanDay(), L = S.lifts.bench, tw = L.w + LIFTS.bench.inc;
+  const hero = td ? `<section class="card hero"><div class="ring"></div><span class="eyebrow">${td.rest ? tr("اليوم راحة · التمرين الجاي","Rest day today · next workout","ئەمڕۆ پشوو · ڕاهێنانی داهاتوو") : tr("تمرين اليوم","Today's workout","ڕاهێنانی ئەمڕۆ")}</span>
+      <h2 class="h2" style="font-size:24px">${esc(pl3(td.day.name))}</h2>
+      <div class="todayx"><span>${td.day.list.length} ${tr("تمارين","exercises","ڕاهێنان")}</span><span>~${td.day.list.length * 8} ${tr("دقيقة","min","خولەک")}</span></div>
+      <span style="font-weight:600;font-size:13.5px">${td.day.list.slice(0, 3).map(x => esc(X(EXMAP[x[0]] || {}, "ar"))).join(" · ")}${td.day.list.length > 3 ? " …" : ""}</span>
+      <a class="btn dark" href="#plan">${svg("play",16)} ${td.rest ? tr("شوف برنامجي","See my plan","پرۆگرامەکەم ببینە") : tr("ابدأ تمرين اليوم","Start today's workout","ڕاهێنانی ئەمڕۆ دەست پێبکە")}</a></section>`
+    : `<section class="card hero"><div class="ring"></div><span class="eyebrow">${tr("ابدأ من هنا","Start here","لێرەوە دەست پێبکە")}</span><h2 class="h2" style="font-size:24px">${tr("سوّيلي برنامج خاص بيّه","Make my own plan","پرۆگرامی تایبەتی خۆم دروست بکە")}</h2><span style="font-weight:600">${tr("التطبيق يبني برنامج على قياسك خلال ثواني.","The app builds a plan that fits you in seconds.","ئەپەکە لە چەند چرکەیەکدا پرۆگرامێکی گونجاو بۆت دروست دەکات.")}</span><button class="btn dark" onclick="makePlan()">${svg("ai",16)} ${tr("سوّي برنامجي","Make my plan","پرۆگرامەکەم دروست بکە")}</button></section>`;
+  const q = [["#body","body","var(--teal)","#123432",tr("جسمك 3D","Body 3D","جەستەی 3D")],["#lib","db","#8FD0FF","#10283A",tr("التمارين","Exercises","ڕاهێنانەکان")],["#food","food","var(--amber)","#3A2A10",tr("الأكل","Food","خواردن")],["#supps","pill","#C9A7FF","#2A1F3A",tr("المكملات","Supplements","تەواوکەرەکان")]];
+  const kPct = tg.kcal ? eaten.kcal / tg.kcal : 0, pPct = tg.pLo ? eaten.p / tg.pLo : 0;
+  return `${hero}
+  <div class="qa">${q.map(([h, ic, col, bg, l]) => `<a href="${h}"><i style="background:${bg};color:${col}">${svg(ic,26)}</i>${l}</a>`).join("")}</div>
+  <div class="rings">
+    <a href="#food">${S.profile?.ed ? `<span style="color:var(--teal)">${svg("food",26)}</span>` : ring(kPct, "var(--teal)", Math.round(kPct*100) + "%")}<span class="k">${tr("سعرات اليوم","Calories today","کالۆری ئەمڕۆ")}</span></a>
+    <a href="#food">${ring(pPct, "#8FD0FF", fmt(eaten.p) + tr("غ","g","گ"))}<span class="k">${tr("بروتين","Protein","پرۆتین")}</span></a>
+    <a href="#badges">${ring(Math.min(1, streak() / 7), "var(--amber)", String(streak()))}<span class="k">${tr("يوم ورا بعض","Day streak","ڕۆژ لە دوای یەک")}</span></a>
+  </div>
+  <a class="card" href="#workout" style="flex-direction:row;align-items:center;gap:12px"><span style="width:44px;height:44px;border-radius:14px;background:#123432;color:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg("db",22)}</span><span class="grow" style="min-width:0"><span class="h3" style="display:block">${tr("طريقة الكوتش: بنچ","Coach's method: bench","ڕێگای کۆچ: بێنچ")}</span><span class="muted small">${T("سِت القمة: {w} كغ", {w:tw})}</span></span><span class="chev">${svg("chev",16)}</span></a>
+  ${whyGoalsCard() || `<a class="card" href="#why" style="flex-direction:row;align-items:center;gap:12px;border-color:var(--teal)"><span style="width:44px;height:44px;border-radius:14px;background:#123432;color:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg("search",22)}</span><span class="grow" style="min-width:0"><span class="h3" style="display:block">${tr("ليش جسمي ما يتغير؟","Why isn't my body changing?","بۆچی جەستەم ناگۆڕێت؟")}</span><span class="muted small">${tr("فحص كامل خلال 5 دقايق، ويطلعلك الحل.","A full check in 5 minutes, with the fix.","پشکنینێکی تەواو لە 5 خولەکدا، لەگەڵ چارەسەر.")}</span></span><span class="chev">${svg("chev",16)}</span></a>`}
+  ${tipOfDay() ? `<a class="card" href="#tips" style="gap:6px;border-color:#4A3713"><span class="eyebrow" style="color:var(--amber)">${svg("ai",14)} ${T("نصيحة اليوم من الكوتش")}</span><span style="font-weight:600;line-height:1.6">${T(tipOfDay())}</span></a>` : ""}
+  <div class="grid2">
+    <a class="card" href="#challenge"><span style="color:var(--teal)">${svg("shield",22)}</span><span class="h3">${T("تحدي 30 يوم")}</span><span class="muted small">${S.challenge.start ? S.challenge.done.length + " / 30" : tr("ابدأ اليوم","Start today","ئەمڕۆ دەست پێبکە")}</span></a>
+    <a class="card" href="#coach"><span style="color:var(--amber)">${svg("ai",22)}</span><span class="h3">${tr("اسأل المدرب","Ask the coach","پرسیار لە ڕاهێنەر بکە")}</span><span class="muted small">${T("تمرين، أكل عراقي، مكملات")}</span></a>
+  </div>
+  <a class="card danger" href="#hormones" style="flex-direction:row;align-items:center;gap:12px"><span style="color:var(--red)">${svg("warn",22)}</span><span class="grow"><span class="h3" style="display:block">${T("خطر الهرمونات")}</span><span class="muted small">${T("الحقيقة عن المنشطات")}</span></span><span class="chev">${svg("chev",16)}</span></a>`;
+};
 
 
 /* ---------- router ---------- */
