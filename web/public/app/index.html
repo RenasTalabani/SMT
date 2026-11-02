@@ -395,7 +395,7 @@ const I = {
   ball:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
   pill:'<rect x="3" y="9" width="18" height="6" rx="3" transform="rotate(-45 12 12)"/><path d="M9.5 9.5l5 5"/>',
   body:'<circle cx="12" cy="4.5" r="2"/><path d="M6 8.5l6 1 6-1M12 9.5v5.5M12 15l-3 6M12 15l3 6M9 9.2l-1.5 6M15 9.2l1.5 6"/>',
-  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+  sliders:'<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
   check:'<path d="M5 12l5 5L20 7"/>',
   cam:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
   x:'<path d="M6 6l12 12M18 6L6 18"/>',
@@ -558,7 +558,7 @@ const TABS = [["home","الرئيسية","home"],["body","الجسم","body"],["
 function nav(active){ $("#nav").setAttribute("aria-label", T("القائمة")); $("#nav").innerHTML = `<div class="nav-in">${TABS.map(([h,l,i]) => `<a href="#${h}" class="${active===h?"on":""}" ${active===h?'aria-current="page"':""}>${svg(i,22,active===h?2:1.8)}${T(l)}</a>`).join("")}</div>`; }
 function setTop(title, back, sub, extra){ if (EMBED) { const root = (location.hash || "").slice(1) === EMBED_ROOT; back = root ? "" : (back || ""); $("#top").innerHTML = `<button class="icon-btn" onclick="${root ? "crPost('close')" : "history.back()"}" aria-label="${T("رجوع")}">${svg("back",18,2)}</button>` + `<h1>${sub?`<span class="sub">${sub}</span>`:""}${title}</h1>` + (extra && !/switchLang/.test(extra) ? extra : ""); return; } $("#top").innerHTML = (back ? `<a class="icon-btn" href="#${back}" aria-label="${T("رجوع")}">${svg("back",18,2)}</a>` : "") + `<h1>${sub?`<span class="sub">${sub}</span>`:""}${title}</h1>` + (extra || ""); }
 const LANGS = [["ar","عربي"],["ku","کوردی"],["en","EN"]];
-const langBtn = () => `<button class="icon-btn" style="width:auto;padding:0 12px;font-weight:700;font-size:13px;gap:6px" onclick="switchLang()" aria-label="${T("اللغة")}">${svg("globe",16)}${LANGS[(LANGS.findIndex(l=>l[0]===S.lang)+1)%3][1]}</button>`;
+const langBtn = () => `<button class="icon-btn langpill" onclick="switchLang()" aria-label="${T("اللغة")}">${svg("globe",16)}${({ar:"العربية",ku:"کوردی",en:"English"})[S.lang] || "العربية"}<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg></button>`;
 function setLang(l){ S.lang = l; save(); applyLang(); render(); }
 function switchLang(){ setLang(LANGS[(LANGS.findIndex(l=>l[0]===S.lang)+1)%3][0]); toast(T("صارت اللغة عربي")); }
 function applyLang(){ const l = isKU() ? "ckb" : isEN() ? "en" : "ar", d = isEN() ? "ltr" : "rtl"; document.documentElement.lang = l; document.documentElement.dir = d; $("#app").lang = l; $("#app").dir = d; $("#nav").dir = d; document.title = T("مع الكوتش ريناس"); if (FULL) { const pl = isKU() ? "ku" : isEN() ? "en" : "ar"; setTimeout(() => crPost("lang:" + pl), 300); } }
@@ -572,7 +572,7 @@ V.login = () => {
   return `
   <div class="row between" style="padding-top:20px">
     <div><div class="num" style="font-size:26px">${isEN() ? "Coach " : isKU() ? "کۆچ " : "الكوتش "}<span style="color:var(--teal)">${isEN() ? "Renas" : isKU() ? "ڕێناس" : "ريناس"}</span></div><div class="muted small">${T("تمرين · أكل · مكملات")}</div></div>
-    <div class="seg" role="group" aria-label="${T("اللغة")}" style="width:auto">${LANGS.map(([k,l])=>`<button class="${S.lang===k?"on":""}" onclick="setLang('${k}')">${l}</button>`).join("")}</div>
+    ${langBtn()}
   </div>
   <h2 class="h2" style="font-size:42px;line-height:1.35;margin-top:28px">${T("تمرّن صح.")}<br><span style="color:var(--teal)">${T("صير أقوى.")}</span></h2>
   <p class="muted" style="font-size:15px;margin:0">${T("مدربك العراقي بجيبك: كل أنواع التمارين، أكل عراقي، ونصايح مكملات صادقة.")}</p>
@@ -846,7 +846,7 @@ V.food = () => {
     <textarea id="mealtxt" class="input" aria-label="${T("شنو أكلت؟")}"></textarea>
     <div class="row"><button class="btn sm" onclick="aiMeal()" ${sampleFn?"":"disabled"}>${T("احسب")}</button>${imgOK?`<label class="btn sm ghost" style="cursor:pointer">${svg("cam",16)} ${T("صوّر الأكل")}<input type="file" accept="image/*" class="sr" onchange="aiMeal(this.files[0])"></label>`:""}</div>
     <div id="mealout"></div>
-    ${sampleFn ? "" : `<span class="note">${T("افتح الصفحة داخل Claude حتى يشتغل الحساب بالذكاء الاصطناعي.")}</span>`}
+    ${sampleFn ? "" : `<span class="note">${aiNote("افتح الصفحة داخل Claude حتى يشتغل الحساب بالذكاء الاصطناعي.")}</span>`}
   </div>
   <details class="card"><summary><span class="grow h3">${T("معلوماتك (للحساب)")}</span><span class="plus">+</span></summary>
     <div class="seg"><button class="${b.sex==="m"?"on":""}" onclick="S.body.sex='m';save();render()">${T("رجل")}</button><button class="${b.sex==="f"?"on":""}" onclick="S.body.sex='f';save();render()">${T("امرأة")}</button></div>
@@ -880,7 +880,7 @@ V.supps = () => {
     <textarea id="suptxt" class="input" aria-label="${T("اسم المكمل أو المكونات")}"></textarea>
     <div class="row"><button class="btn sm" onclick="aiSupp()" ${sampleFn?"":"disabled"}>${T("افحص")}</button>${imgOK?`<label class="btn sm ghost" style="cursor:pointer">${svg("cam",16)} ${T("صوّر العلبة")}<input type="file" accept="image/*" class="sr" onchange="aiSupp(this.files[0])"></label>`:""}</div>
     <div id="supout"></div>
-    ${sampleFn ? "" : `<span class="note">${T("افتح الصفحة داخل Claude حتى يشتغل الفحص بالذكاء الاصطناعي.")}</span>`}
+    ${sampleFn ? "" : `<span class="note">${aiNote("افتح الصفحة داخل Claude حتى يشتغل الفحص بالذكاء الاصطناعي.")}</span>`}
   </div>
   ${tier("A","t-strong","مثبتة وتفيد","تستاهل")}
   ${tier("B","t-weak","تفيد بحالات معيّنة","لرياضات أو حالات خاصة")}
@@ -983,7 +983,7 @@ V.coach = () => {
   return `${msgs}
   ${chatBusy ? `<div class="row"><span class="muted">${T("يفكر…")}</span><button class="chip" onclick="chatCtl&&chatCtl.abort()">${T("وقّف")}</button></div>` : ""}
   ${chatErr ? `<span class="note" style="color:var(--amber)">${esc(chatErr)}</span>` : ""}
-  <span class="note">${sampleFn ? T("معلومات عامة مو نصيحة طبية. أول سؤال يطلب منك موافقة، والأجوبة تنحسب من استخدامك لـ Claude.") : T("هنا الأجوبة أمثلة جاهزة. افتح الصفحة داخل Claude حتى يجاوبك المدرب الذكي جواب حقيقي.")}</span>
+  <span class="note">${sampleFn ? T("معلومات عامة مو نصيحة طبية. أول سؤال يطلب منك موافقة، والأجوبة تنحسب من استخدامك لـ Claude.") : aiNote("هنا الأجوبة أمثلة جاهزة. افتح الصفحة داخل Claude حتى يجاوبك المدرب الذكي جواب حقيقي.")}</span>
   <div style="height:70px"></div>
   <div class="composer"><form onsubmit="event.preventDefault();send()"><label for="ask" class="sr">${T("اسأل المدرب الذكي")}</label><input id="ask" class="input" style="border-radius:24px" placeholder="${T("اسأل أي شي…")}" autocomplete="off" ${chatBusy?"disabled":""}><button class="icon-btn" style="background:var(--teal);color:var(--teal-ink);border:0;width:48px;height:48px;border-radius:24px" aria-label="${T("إرسال")}" ${chatBusy?"disabled":""}>${svg("send",20,2.2)}</button></form></div>`;
 };
@@ -992,7 +992,7 @@ function askAbout(id){ const e = EXMAP[id]; location.hash = "coach"; setTimeout(
 async function send(){
   const box = $("#ask"), q = (box?.value || "").trim(); if (!q || chatBusy) return;
   chatErr = ""; CHAT.push({role:"user", content:q});
-  if (!sampleFn) { CHAT.push({role:"assistant", content:T("هاي نسخة تجريبية. افتح الصفحة داخل Claude حتى أجاوبك جواب حقيقي. جرّب الأسئلة الجاهزة.")}); render(); return; }
+  if (!sampleFn) { CHAT.push({role:"assistant", content:aiNote("هاي نسخة تجريبية. افتح الصفحة داخل Claude حتى أجاوبك جواب حقيقي. جرّب الأسئلة الجاهزة.")}); render(); return; }
   const turns = CHAT.slice(-10); chatBusy = true; chatCtl = new AbortController();
   const ai = {role:"assistant", content:""}; render();
   try {
@@ -1164,7 +1164,6 @@ V.start = () => {
   const nav2 = (ok, next = T("التالي")) => `<div class="grid2" style="margin-top:6px">${st ? `<button class="btn ghost" onclick="OB.step--;render()">${T("رجوع")}</button>` : `<span></span>`}<button class="btn" ${ok?"":"disabled"} onclick="OB.step++;render()">${next}</button></div>`;
   let body = "";
   if (st === 0) body = `<section class="card hero"><div class="ring"></div><h2 class="h2">${T("أهلاً بيك ويه الكوتش ريناس")}</h2><span style="font-weight:500">${T("8 أسئلة قصيرة، وبعدها نطلعلك برنامج تمرين وسعرات على قياسك.")}</span></section>
-    <div class="field"><span class="h3">${T("اختار لغتك")}</span><div class="seg">${LANGS.map(([k,l])=>`<button class="${S.lang===k?"on":""}" onclick="setLang('${k}')">${l}</button>`).join("")}</div></div>
     <p class="note">${T("أجوبتك تبقى بس على جهازك وما تنشارك ويه أحد.")}</p>` + nav2(true, T("يلا نبدي"));
   if (st === 1) body = `<span class="h3">${T("شنو هدفك الرئيسي خلال الـ 12 أسبوع الجاية؟")}</span><span class="note" style="display:flex;gap:6px;align-items:flex-start">${svg("shield",14)}<span>${T("على أساسه نحدد نوع البرنامج، عدد العدات، والسعرات.")}</span></span>${opts("goal", OBQ.goal)}` + nav2(!!OB.goal);
   if (st === 2) body = `<span class="h3">${T("شكد صارلك تتمرن بانتظام؟")}</span><span class="note" style="display:flex;gap:6px;align-items:flex-start">${svg("shield",14)}<span>${T("حتى نختار الأوزان والحجم المناسب إلك، بدون ما نضغط عليك أكثر من اللازم.")}</span></span><span class="h3" style="margin-top:6px">${T("معلوماتك الأساسية")}</span><span class="note" style="display:flex;gap:6px;align-items:flex-start">${svg("shield",14)}<span>${T("تنستخدم بس لحساب السعرات والبروتين وتقدير نسبة الدهون.")}</span></span>${opts("level", OBQ.level)}
@@ -1270,7 +1269,7 @@ V.panel = id => {
     <div class="card" style="border-color:#4A3713"><span class="h3" style="color:var(--amber)">${svg("ai",18)} ${T("ملخص ورد بالذكاء الاصطناعي")}</span>
       ${ai.text ? `<span style="white-space:pre-wrap">${esc(ai.text)}</span>` : ai.busy ? `<span class="muted">${T("يفكر…")}</span>` : `<span class="muted">${T("يقرا التقرير ويكتبلك ملخص ومسودة رد، وإنت تعدلها قبل الإرسال.")}</span>`}
       <button class="btn sm" onclick="panelSummarize('${c.id}')" ${sampleFn&&!ai.busy?"":"disabled"}>${T("لخّص واكتب رد")}</button>
-      ${sampleFn?"":`<span class="note">${T("افتح الصفحة داخل Claude حتى يشتغل الذكاء الاصطناعي.")}</span>`}</div>
+      ${sampleFn?"":`<span class="note">${aiNote("افتح الصفحة داخل Claude حتى يشتغل الذكاء الاصطناعي.")}</span>`}</div>
     <div class="field"><label for="reply">${T("ردّك")}</label><textarea id="reply" class="input" style="min-height:110px">${esc(ai.draft||"")}</textarea></div>
     <button class="btn" onclick="panelSend('${c.id}')">${T("أرسل الرد")}</button>`;
   }
@@ -1482,7 +1481,7 @@ V.scan = () => {
     <div class="row"><input id="bc" class="input" inputmode="numeric" dir="ltr" placeholder="6281234567890" aria-label="${T("أرقام الباركود")}"><button class="btn sm" onclick="scanCode($('#bc').value)">${T("دوّر")}</button></div></div>
   <div id="scanout"></div>
   <div class="card"><span class="h3">${T("ما لقيناه؟ صوّر جدول القيم الغذائية")}</span><span class="muted">${T("الذكاء الاصطناعي يقرا السعرات والبروتين من الملصق.")}</span>
-    ${imgOK ? `<label class="btn sm ghost" style="cursor:pointer">${svg("cam",16)} ${T("صوّر الملصق")}<input type="file" accept="image/*" class="sr" onchange="labelImg(this.files[0])"></label>` : `<span class="note">${T("افتح الصفحة داخل Claude حتى يشتغل الحساب بالذكاء الاصطناعي.")}</span>`}</div>
+    ${imgOK ? `<label class="btn sm ghost" style="cursor:pointer">${svg("cam",16)} ${T("صوّر الملصق")}<input type="file" accept="image/*" class="sr" onchange="labelImg(this.files[0])"></label>` : `<span class="note">${aiNote("افتح الصفحة داخل Claude حتى يشتغل الحساب بالذكاء الاصطناعي.")}</span>`}</div>
   <p class="note">${T("بالتطبيق الحقيقي الكاميرا تمسح مباشرة، وقاعدة الباركود أكبر بكثير.")}</p>`;
 };
 function scanShow(name, kcal, p){ $("#scanout").innerHTML = `<div class="card"><div class="row between"><span class="h3">${esc(name)}</span><span class="num">${fmt(kcal)} ${T("سعرة")}</span></div><span class="muted">${fmt(p)} ${T("غ بروتين")}</span><button class="btn sm" onclick='S.log.push({n:${JSON.stringify(String(name)).replace(/'/g,"&#39;")},kcal:${Math.round(kcal)},p:${Math.round(p)}});save();toast(T("انضاف"));'>${T("ضيف ليومي")}</button></div>`; }
@@ -3505,11 +3504,364 @@ V.tguide = arg => {
   return `<div class="seg">${tabs.map(([k,...l]) => `<button class="${TG.tab===k?"on":""}" onclick="TG.tab='${k}';render()">${tr(...l)}</button>`).join("")}</div>${body || `<p class="note">${tr("قريباً","Coming soon","بەم زووانە")}</p>`}`;
 };
 
+/* ======================= V2: Renas's review (Nov 2026) =======================
+   1. language first + modern language picker
+   2. simpler account page
+   3. body page = only the body; each area and each problem opens its own page
+   4. body tools hidden behind one button
+   5. a personal plan made for each person (not a ready plan for everyone)
+*/
+document.head.insertAdjacentHTML("beforeend", `<style>
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:60;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .18s ease}
+.sheet{width:100%;max-width:520px;background:var(--surface);border-radius:24px 24px 0 0;border:1px solid var(--line);padding:10px 16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;animation:up .22s ease}
+.sheet .grab{width:42px;height:5px;border-radius:3px;background:var(--line);align-self:center;margin-bottom:4px}
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.langrow{display:flex;align-items:center;gap:14px;padding:14px;border-radius:16px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);width:100%;text-align:start}
+.langrow.on{border-color:var(--teal);background:rgba(43,196,190,.08)}
+.langrow .ab{width:44px;height:44px;border-radius:14px;background:var(--raised);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:var(--teal);flex-shrink:0}
+.langrow .nm{font-weight:700;font-size:17px;display:block}
+.langrow .ck{width:24px;height:24px;border-radius:12px;border:2px solid #4A5459;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--teal-ink)}
+.langrow.on .ck{background:var(--teal);border-color:var(--teal)}
+.langpill{width:auto!important;padding:0 12px!important;gap:6px;font-weight:700;font-size:13px}
+.sec-h{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.02em;margin:6px 4px -4px}
+.prof{display:flex;align-items:center;gap:14px;padding:16px;border-radius:20px;background:linear-gradient(135deg,#13292A,#171B1E);border:1px solid #1D3B39}
+.prof .av{width:58px;height:58px;border-radius:29px;background:var(--teal);color:var(--teal-ink);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;flex-shrink:0}
+.mini3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.mini3 a,.mini3 div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 10px;display:flex;flex-direction:column;gap:2px;color:var(--ink);text-decoration:none;min-width:0}
+.mini3 .v{font-weight:800;font-size:20px;font-family:var(--display)}
+.mini3 .k{font-size:11.5px;color:var(--muted)}
+.li .ic{width:34px;height:34px;border-radius:11px;background:var(--raised);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.b3fab{position:absolute;z-index:4;display:flex;gap:6px;inset-inline-end:10px;bottom:10px}
+.b3fab button{min-height:38px;border-radius:19px;border:1px solid var(--line);background:rgba(14,17,19,.85);color:var(--ink);font-weight:700;font-size:12.5px;padding:0 12px;display:flex;align-items:center;gap:6px;backdrop-filter:blur(6px)}
+.b3fab button.on{background:var(--teal);color:var(--teal-ink);border-color:var(--teal)}
+.b3fab button.pain.on{background:var(--red);border-color:var(--red);color:#2E1717}
+.peek2{display:flex;flex-direction:column;gap:8px}
+.peek2 .nm{font-weight:800;font-size:18px;line-height:1.3}
+.peek2 .ds{font-size:13px;color:var(--soft);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.peek2 .st{display:flex;gap:6px;flex-wrap:wrap}
+.peek2 .st span{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:9px;background:var(--raised);color:var(--soft)}
+.toolsheet{display:flex;flex-direction:column;gap:12px}
+.toolsheet .grp{display:flex;flex-direction:column;gap:8px}
+.toolsheet .grp>b{font-size:13px;color:var(--muted)}
+.tgl{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:14px;background:var(--bg);border:1px solid var(--line);width:100%;color:var(--ink);font-weight:600;font-size:14px}
+.tgl .sw{width:42px;height:24px;border-radius:12px;background:#3A4246;position:relative;flex-shrink:0;transition:.2s}
+.tgl .sw::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:18px;height:18px;border-radius:9px;background:#fff;transition:.2s}
+.tgl.on .sw{background:var(--teal)}
+.tgl.on .sw::after{inset-inline-start:21px}
+.sld{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:14px;background:var(--bg);border:1px solid var(--line)}
+.sld .row{font-size:13.5px;font-weight:600}
+.parthero{display:flex;gap:14px;align-items:center;padding:14px;border-radius:22px;background:linear-gradient(135deg,#13292A,#171B1E);border:1px solid #1D3B39}
+.parthero .fig{width:96px;flex-shrink:0;border-radius:16px;background:#0f1416;border:1px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.parthero .fig img{width:100%;height:150px;object-fit:cover}
+.ptabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.ptabs::-webkit-scrollbar{display:none}
+.ptabs button{flex-shrink:0;min-height:38px;border-radius:19px;border:1px solid var(--line);background:var(--surface);color:var(--soft);font-weight:700;font-size:13px;padding:0 14px;display:flex;align-items:center;gap:6px}
+.ptabs button.on{background:var(--teal);border-color:var(--teal);color:var(--teal-ink)}
+.ptabs .n{font-size:11px;opacity:.75}
+.issue{display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;background:var(--surface);border:1px solid var(--line);color:var(--ink);text-decoration:none}
+.issue .dot{width:10px;height:10px;border-radius:5px;flex-shrink:0}
+.issue .t{font-weight:700;font-size:15px;display:block;line-height:1.4}
+.issue .p{font-size:12.5px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px}
+.isec{display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:18px;background:var(--surface);border:1px solid var(--line)}
+.isec>.hd{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px}
+.isec>.hd i{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-style:normal;flex-shrink:0}
+.isec ol,.isec ul{margin:0;padding-inline-start:20px;display:flex;flex-direction:column;gap:6px;line-height:1.6}
+.isec.warm{background:var(--amber-wash);border-color:transparent}
+.isec.red{background:rgba(229,91,91,.08);border-color:var(--red-line)}
+.pulse{animation:pulse 1.4s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(1.6)}}
+.think{display:flex;flex-direction:column;align-items:center;gap:18px;padding-top:30px;text-align:center}
+.think .orb{width:120px;height:120px;border-radius:60px;background:conic-gradient(from 0deg,var(--teal),#1d3b39,var(--teal));animation:spin 1.6s linear infinite;display:flex;align-items:center;justify-content:center}
+.think .orb span{width:100px;height:100px;border-radius:50px;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--teal)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tsteps{display:flex;flex-direction:column;gap:10px;width:100%;text-align:start}
+.tsteps div{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:var(--surface);border:1px solid var(--line);color:var(--muted);font-weight:600;transition:.3s}
+.tsteps div.on{color:var(--ink);border-color:var(--teal)}
+.tsteps div.ok{color:var(--ink)}
+.tsteps .b{width:22px;height:22px;border-radius:11px;border:2px solid #4A5459;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--teal-ink)}
+.tsteps div.ok .b{background:var(--teal);border-color:var(--teal)}
+.tsteps div.on .b{border-color:var(--teal);border-top-color:transparent;animation:spin .8s linear infinite}
+.pday{display:flex;flex-direction:column;gap:0;border-radius:18px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.pday .hd{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;background:var(--raised)}
+.pday .hd b{font-size:15px}
+.pday .ex{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--line);color:var(--ink);text-decoration:none}
+.pday .ex .sr{font-family:var(--display);font-weight:800;color:var(--teal);font-size:13px;white-space:nowrap;direction:ltr}
+.langhero{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:30px 0 10px}
+</style>`);
+
+/* ---------- 1. language ---------- */
+const LANG_INFO = [["ku","کوردی","Kurdî · Sorani","KU"],["ar","العربية","Arabic","ع"],["en","English","English","EN"]];
+function langName(k){ return (LANG_INFO.find(l => l[0] === k) || LANG_INFO[1])[1]; }
+function closeSheet(){ document.getElementById("sheet")?.remove(); }
+function openSheet(html){ closeSheet(); document.body.insertAdjacentHTML("beforeend", `<div id="sheet" class="sheet-bg" onclick="if(event.target===this)closeSheet()"><div class="sheet" role="dialog" aria-modal="true"><span class="grab"></span>${html}</div></div>`); }
+function langRows(onpick){ return LANG_INFO.map(([k, n, sub, ab]) => `<button class="langrow ${S.lang===k?"on":""}" onclick="${onpick}('${k}')"><span class="ab">${ab}</span><span class="grow"><span class="nm">${n}</span><span class="muted small">${sub}</span></span><span class="ck">${S.lang===k?svg("check",14,3):""}</span></button>`).join(""); }
+function switchLang(){ openSheet(`<span class="h3">${tr("اختار اللغة","Choose language","زمان هەڵبژێرە")}</span><span class="muted small">${tr("3 لغات: کوردی، العربية، English","3 languages: Kurdish, Arabic, English","3 زمان: کوردی، عەرەبی، ئینگلیزی")}</span>${langRows("pickLang")}`); }
+function pickLang(k){ closeSheet(); if (k !== S.lang) { setLang(k); toast(tr("صارت اللغة عربي","Language: English","زمان: کوردی")); } }
+function guessLang(){ const n = (navigator.languages || [navigator.language || ""]).join(",").toLowerCase(); return /ckb|\bku/.test(n) ? "ku" : /^en|,en/.test(n) && !/ar/.test(n.slice(0, 5)) ? "en" : "ar"; }
+V.lang = () => {
+  $("#nav").innerHTML = ""; $("#top").innerHTML = "";
+  if (!S.langSet && !V.lang.g) { V.lang.g = 1; const g = guessLang(); if (g !== S.lang) { S.lang = g; applyLang(); } }
+  return `<div class="langhero"><div class="num" style="font-size:30px">${isEN() ? "Coach " : isKU() ? "کۆچ " : "الكوتش "}<span style="color:var(--teal)">${isEN() ? "Renas" : isKU() ? "ڕێناس" : "ريناس"}</span></div>
+    <span style="width:64px;height:64px;border-radius:20px;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--teal);margin-top:14px">${svg("globe",30)}</span>
+    <h2 class="h2" style="margin-top:8px">${tr("اختار لغتك","Choose your language","زمانەکەت هەڵبژێرە")}</h2>
+    <span class="muted">زمانەکەت هەڵبژێرە · اختار لغتك · Choose your language</span></div>
+  <div style="display:flex;flex-direction:column;gap:10px">${langRows("langFirst")}</div>
+  <button class="btn" style="margin-top:8px" onclick="S.langSet=true;save();location.hash='login'">${tr("كمّل","Continue","بەردەوام بە")}</button>
+  <p class="note" style="text-align:center">${tr("تگدر تغيّرها بعدين من حسابي.","You can change it later in My account.","دواتر دەتوانیت لە هەژمارەکەم بیگۆڕیت.")}</p>`;
+};
+function langFirst(k){ S.lang = k; save(); applyLang(); render(); }
+
+/* ---------- 2. account ---------- */
+V.me = () => {
+  setTop(T("حسابي"), "home", null, langBtn());
+  const p = S.myplan || PROGRAMS.find(x => x.id === S.plan) || PROGRAMS[0];
+  const done = S.hist.filter(x => !x.ex).length, h = S.hist.filter(x => x.l === "bench"), last = h.length ? Math.round(e1rm(h[h.length-1].w, h[h.length-1].r) * 2) / 2 : 0;
+  const row = (href, ic, col, label, right = "") => `<${href.startsWith("#") ? `a href="${href}"` : `button onclick="${href}"`} class="li"><span class="ic" style="color:${col}">${svg(ic,18)}</span><span class="grow t">${label}</span>${right ? `<span class="muted small">${right}</span>` : ""}<span class="chev">${svg("chev",16)}</span></${href.startsWith("#") ? "a" : "button"}>`;
+  return `<div class="prof"><span class="av">${esc((S.name || T("محمد")).slice(0,1))}</span><span class="grow" style="min-width:0"><span style="font-weight:800;font-size:19px;display:block">${esc(S.name || T("محمد"))}</span><span class="muted small" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(T(p.t))}</span></span><a class="chip" href="#plan">${tr("برنامجي","My plan","پرۆگرامەکەم")}</a></div>
+  <div class="mini3"><div><span class="v" style="color:var(--amber)">${streak()}</span><span class="k">${tr("يوم ورا بعض","Day streak","ڕۆژ لە دوای یەک")}</span></div><div><span class="v">${done}</span><span class="k">${tr("تمرين","Workouts","ڕاهێنان")}</span></div><a href="#body-fat"><span class="v" style="color:var(--teal)">${last || "–"}</span><span class="k">${tr("أقصى بنچ (كغ)","Best bench (kg)","باشترین بێنچ (کگ)")}</span></a></div>
+  <span class="sec-h">${tr("تمريني","My training","ڕاهێنانەکەم")}</span>
+  <div class="list">${row("#plan","book","var(--teal)",tr("برنامجي","My plan","پرۆگرامەکەم"))}${row("#checkin","check","var(--teal)",T("التقرير الأسبوعي"))}${row("#badges","shield","var(--amber)",T("إنجازاتي"))}${row("#why","search","var(--teal)",tr("ليش جسمي ما يتغير؟","Why isn't my body changing?","بۆچی جەستەم ناگۆڕێت؟"))}</div>
+  <span class="sec-h">${tr("الإعدادات","Settings","ڕێکخستنەکان")}</span>
+  <div class="list">${row("switchLang()","globe","var(--teal)",tr("اللغة","Language","زمان"),langName(S.lang))}${row("#notif","bell","var(--teal)",tr("التذكيرات","Reminders","بیرخستنەوەکان"))}${row("#plans","bag","var(--teal)",T("اشتراكي"))}${row("#privacy","user","var(--teal)",T("الخصوصية وصوري"))}${row("#safety","shield","var(--teal)",T("الأمان، رمضان والصيف"))}</div>
+  <span class="sec-h">${tr("مساعدة","Help","یارمەتی")}</span>
+  <div class="list">${row("#tour","play","var(--teal)",T("شلون يشتغل تطبيق الكوتش ريناس"))}${row("#panel","ai","var(--amber)",T("لوحة الكوتش"),T("إلك إنت، ريناس"))}</div>
+  <details class="card" style="padding:12px 14px"><summary style="font-weight:700;color:var(--muted);cursor:pointer">${tr("الحساب والبيانات","Account & data","هەژمار و داتا")}</summary>
+    <div class="list" style="margin-top:10px">${row("#delete","x","var(--red)",`<span style="color:var(--red)">${T("احذف حسابي")}</span>`)}${row("confirmReset()","x","var(--red)",`<span style="color:var(--red)">${T("مسح بياناتي من هذا الجهاز")}</span>`)}</div></details>
+  <a class="btn ghost" href="#login" onclick="S.entered=false;save()">${T("تسجيل الخروج")}</a>`;
+};
+
+/* ---------- 3. body: only the body; details on their own pages ---------- */
+B3.tools = false;
+const FIG_XY = { head:[60,20], neck:[60,40], shoulder:[37,54], chest:[52,66], arm:[27,80], elbow:[23,98], forearm:[19,114], core:[60,96], upperback:[60,64,1], lowback:[60,104,1], hip:[47,126], thigh:[48,150], knee:[48,178], calf:[48,202], ankle:[48,228] };
+function bodyFig(r, w = 96){
+  const p = FIG_XY[r] || [60,96], back = p[2], M = (d) => d, m = s => s.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, (_, x, y) => `${120 - +x} ${y}`);
+  const armL = "M36 50 L26 58 L18 112 L16 128 L22 129 L28 112 L37 74 Z", legL = "M45 124 L59 126 L57 178 L55 234 L45 236 L43 180 Z";
+  return `<svg viewBox="0 0 120 250" width="${w}" role="img" aria-label="${esc(T(REGION[r]?.ar || ""))}"><defs><linearGradient id="fg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A3236"/><stop offset="1" stop-color="#1C2225"/></linearGradient></defs>
+    <g fill="url(#fg)" stroke="#3A464B" stroke-width="1.2"><circle cx="60" cy="20" r="13"/><rect x="54" y="32" width="12" height="10" rx="3"/><path d="M38 44 Q60 38 82 44 L88 60 L84 100 Q82 118 76 126 L44 126 Q38 118 36 100 L32 60 Z"/><path d="${armL}"/><path d="${m(armL)}"/><path d="${legL}"/><path d="${m(legL)}"/><circle cx="19" cy="132" r="4.5"/><circle cx="101" cy="132" r="4.5"/><ellipse cx="50" cy="240" rx="7" ry="4"/><ellipse cx="70" cy="240" rx="7" ry="4"/></g>
+    ${back ? `<text x="60" y="248" fill="#7C878C" font-size="8" text-anchor="middle">${tr("من الخلف","back view","لە پشتەوە")}</text>` : ""}
+    <circle cx="${p[0]}" cy="${p[1]}" r="9" fill="rgba(229,91,91,.28)" class="pulse"/><circle cx="${p[0]}" cy="${p[1]}" r="4.5" fill="#E55B5B" stroke="#fff" stroke-width="1.2"/></svg>`;
+}
+function b3Snap(){ try { if (!B3.renderer || !B3.scene || !B3.cam) return null; B3.renderer.render(B3.scene, B3.cam); return B3.renderer.domElement.toDataURL("image/jpeg", 0.82); } catch { return null; } }
+function b3OpenPart(){ const r = B3.reg || B3.sel?.reg || (B3.sel && B3.sel.kind === "m" ? MUS[B3.sel.group]?.reg : null); if (!r) return; B3.snap = { r, img:b3Snap() }; const s = B3.sel; location.hash = "part-" + r + (s && s.kind === "m" && MUS[s.group] ? "-m-" + s.group : ""); }
+function selCard(){
+  const s = B3.sel, r = B3.reg || s?.reg || (s && s.kind === "m" ? MUS[s.group]?.reg : null);
+  if (!s && !r) return "";
+  if (s && s.kind === "ex") return "";
+  let name = "", desc = "", tag = "";
+  if (s) {
+    if (s.kind === "m") { const d = MUS[s.group]; name = s.whole && d ? T(d.ar) : anatName(s.key); desc = d ? T(d.fn) : T("عضلة صغيرة أو عميقة، تشتغل ويه العضلات اللي حواليها."); tag = T("عضلة"); }
+    else if (s.kind === "j") { const d = JOINTS[s.group] || {}; name = s.whole ? T(d.ar || "") : anatName(s.key); desc = d.moves ? T("الحركات") + ": " + T(d.moves) : ""; tag = T("مفصل"); }
+    else if (s.kind === "b") { const d = BONES[s.group] || {}; name = s.whole ? T(d.ar || "") : anatName(s.key); desc = d.fn ? T(d.fn) : ""; tag = T("عظم"); }
+    else if (s.kind === "o") { const o = s.whole ? ORGANS.find(x => x[1] === s.group) : orgInfo(s.key); name = s.whole ? T(o[2]) : anatName(s.key); desc = T(o[3] || ""); tag = T("عضو"); }
+    else { name = anatName(s.key); desc = T(REGION[s.group]?.ar || ""); tag = T("منطقة"); }
+  } else { name = T(REGION[r]?.ar || ""); desc = T(RINFO[r]?.intro || ""); tag = T("منطقة"); }
+  const I = r && RINFO[r];
+  return `<div class="peek2"><div class="row between" style="gap:8px;align-items:flex-start"><span class="grow" style="min-width:0"><span class="tag" style="margin-inline-end:6px">${tag}</span><span class="nm">${esc(name)}</span></span><button class="b3x" aria-label="${tr("سكّر","Close","داخستن")}" onclick="B3.sel=null;B3.reg=null;anatHighlight();anatFocus();b3Info()">${svg("x",14)}</button></div>
+    ${desc ? `<span class="ds">${esc(desc)}</span>` : ""}
+    ${I ? `<div class="st"><span>${tr("{n} مشكلة وحلها","{n} problems & fixes","{n} کێشە و چارەسەر").replace("{n}", I.problems.length)}</span><span>${tr("{n} إصابة","{n} injuries","{n} برین").replace("{n}", I.injuries.length)}</span>${r && regionExercises(r).length ? `<span>${tr("تمارين","Exercises","ڕاهێنان")}</span>` : ""}</div>` : ""}
+    ${r ? `<button class="btn" style="min-height:44px" onclick="b3OpenPart()">${tr("شوف التفاصيل","See details","وردەکاری ببینە")} ${svg("chev",16)}</button>` : ""}</div>`;
+}
+function b3Info(){
+  const box = document.getElementById("b3info"); if (!box) return; stopAnim(); LABC.key = null;
+  if (B3.tab === "shape") { box.innerHTML = shapeInfo(); return; }
+  const s = B3.sel; let h = "";
+  if (s && s.kind === "ex" && s.today) h = `<div class="card"><span class="h2" style="font-size:22px">${T("عضلات تمرين اليوم")}: ${esc(s.today)}</span><span class="muted">${T("العضلات المضوّية هي اللي راح تشتغل اليوم حسب برنامجك.")}</span><div class="chips">${s.ids.map(id => `<button class="chip" onclick="b3Pick('m','${id}')">${T(MUS[id].ar)}</button>`).join("")}</div></div>${exRows(s.exs.map(i => EXMAP[i]))}`;
+  else if (s && s.kind === "ex") { const e = EXMAP[s.id]; h = `<div class="card"><span class="h2" style="font-size:22px">${esc(X(e,"ar"))}</span><span class="small"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#FFC94A"></span> <b>${T("العضلات الأساسية (أصفر)")}</b></span><div class="chips">${s.ids.map(id => `<button class="chip" onclick="b3Pick('m','${id}')">${T(MUS[id].ar)}</button>`).join("")}</div></div>`; }
+  const pk = document.getElementById("b3peek");
+  if (pk) { const sc = selCard(); pk.style.display = sc ? "flex" : "none"; pk.innerHTML = sc; }
+  if (!s && !B3.reg && (S.pains || []).length) h += `<div class="card" style="gap:8px;border-color:var(--red-line)"><div class="row between"><span class="h3" style="color:var(--red)">${T("أماكن الألم اللي سجلتها")}</span><button class="chip" onclick="S.pains=[];save();painMarkers();b3Info()">${T("امسح")}</button></div>${S.pains.slice().reverse().map(q => `<a class="li" style="border-radius:12px;border:1px solid var(--line)" href="#part-${q.reg}"><span class="grow"><span class="t" style="display:block">${esc(anatName(q.key))}</span><span class="muted small">${T(REGION[q.reg]?.ar || "")} · ${esc(q.d)}</span></span><span class="chev">${svg("chev",16)}</span></a>`).join("")}</div>`;
+  box.innerHTML = h;
+}
+function b3Tools(){
+  const tg = (on, act, label) => `<button class="tgl ${on?"on":""}" onclick="${act};b3Tools()"><span>${label}</span><span class="sw"></span></button>`;
+  openSheet(`<div class="row between"><span class="h3">${tr("أدوات الجسم","Body tools","ئامرازەکانی جەستە")}</span><button class="b3x" onclick="closeSheet()" aria-label="${tr("سكّر","Close","داخستن")}">${svg("x",14)}</button></div>
+  <div class="toolsheet">
+    <div class="grp"><b>${tr("العرض","View","پیشاندان")}</b>${tg(B3.labels, "B3.labels=!B3.labels;LABC.key=null;B3.dirty=true;b3SyncUI()", T("الأسماء"))}${tg(B3.deep, "b3Deep()", tr("العضلات العميقة","Deep muscles","ماسولکە قووڵەکان"))}${tg(B3.iso, "B3.iso=!B3.iso;anatHighlight();b3SyncUI()", T("عزل المختار"))}${tg(B3.auto, "B3.auto=!B3.auto;b3SyncUI()", T("دوران تلقائي"))}</div>
+    <div class="grp"><b>${T("حرّك الجسم")}</b><div class="chips"><button class="chip" onclick="b3PosePreset('stand')">${T("وقفة عادية")}</button><button class="chip" onclick="b3PosePreset('legs')">${T("شوف بين الرجلين")}</button><button class="chip" onclick="b3PosePreset('arms')">${T("شوف تحت الإبط")}</button><button class="chip ${B3.poseAnim?"teal on":""}" onclick="B3.poseAnim=!B3.poseAnim;if(!B3.poseAnim)applyPose(true);b3SyncUI();b3Tools()">▶ ${T("حركة")}</button></div>
+      <div class="sld"><div class="row between"><span>${T("فتح الرجلين")}</span><span id="b3p-legs" class="num">${Math.round(B3.pose.legs)}°</span></div><input type="range" min="0" max="40" value="${B3.pose.legs}" oninput="b3PoseSet('legs',this.value)" style="width:100%;accent-color:var(--teal)"></div>
+      <div class="sld"><div class="row between"><span>${T("رفع الذراعين")}</span><span id="b3p-arms" class="num">${Math.round(B3.pose.arms)}°</span></div><input type="range" min="0" max="80" value="${B3.pose.arms}" oninput="b3PoseSet('arms',this.value)" style="width:100%;accent-color:var(--teal)"></div>
+      <div class="sld"><div class="row between"><span>${T("شفافية العضلات والجلد")}</span><span id="b3alv" class="num">${B3.alpha}%</span></div><input type="range" min="15" max="100" value="${B3.alpha}" oninput="b3Alpha(this.value)" style="width:100%;accent-color:var(--teal)"></div></div>
+    <div class="grp"><b>${tr("الجسم","Body","جەستە")}</b><div class="seg">${[["m","رجل"],["f","امرأة"]].map(([k,l]) => `<button class="${B3.sex===k?"on":""}" onclick="b3SexA('${k}');b3Tools()">${T(l)}</button>`).join("")}</div></div>
+    <button class="btn ghost" onclick="closeSheet();b3Today()">${svg("db",16)} ${T("عضلات تمرين اليوم")}</button>
+  </div>`);
+}
+V.body = arg => {
+  setTop(T("جسمك 3D"), "home", null, langBtn());
+  if (!arg && location.hash !== "#body" + "-x") { B3.mode = B3.mode || "all"; }
+  if (arg === "fat") B3.tab = "shape";
+  else if (arg) { if (/^ex\d+$/.test(arg)) { const e = EXMAP[+arg.slice(2)]; if (e) { B3.tab = "anat"; B3.mode = "mus"; B3.deep = false; B3.sel = { kind:"ex", id:e.id, ids:exMuscles(e) }; } }
+    else if (/^r_/.test(arg) && REGION[arg.slice(2)]) { B3.tab = "anat"; B3.mode = "mus"; B3.sel = null; B3.reg = arg.slice(2); }
+    else { let k = "m", id = arg; if (/^[mjb]_/.test(arg)) { k = arg[0]; id = arg.slice(2); } const d = (k==="m"?MUS:k==="j"?JOINTS:BONES)[id]; if (d) { B3.tab = "anat"; B3.mode = { m:"mus", j:"joint", b:"bone" }[k]; B3.sel = { kind:k, group:id, whole:true }; B3.reg = k === "b" ? BONE_REG[id] : d.reg; } } }
+  if (!B3.sh.sex) { B3.sh.sex = S.body.sex === "f" ? "f" : "m"; B3.sex = B3.sh.sex; } if (B3.sh.fat == null) B3.sh.fat = shEstimate();
+  const modes = [["all","الكل"],["mus","العضلات"],["joint","المفاصل"],["bone","العظام"],["organ","الأعضاء"],["skin","الجلد"]], lim = B3.sh.sex === "m" ? [4,45] : [12,50];
+  return `<div class="seg" role="group"><button data-b3tab="anat" class="${B3.tab==="anat"?"on":""}" onclick="b3Tab('anat')">${T("التشريح")}</button><button data-b3tab="shape" class="${B3.tab==="shape"?"on":""}" onclick="b3Tab('shape')">${T("شكل جسمك والدهون")}</button></div>
+  <div id="b3anatui" style="display:${B3.tab==="anat"?"flex":"none"};flex-direction:column;gap:8px">
+    <div class="b3search"><span style="color:var(--muted)">${svg("search",18)}</span><input id="b3q" class="input" style="border:0;background:transparent;padding:0" placeholder="${T("دوّر: كتف، ركبة، ديسك، بايسبس، سكوات…")}" value="${esc(B3.q)}" oninput="b3Search(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();b3SearchGo()}" enterkeyhint="search"></div><div id="b3res"></div>
+    <div class="ptabs" role="group">${modes.map(([k,l]) => `<button data-b3mode="${k}" class="${B3.mode===k?"on":""}" onclick="b3SetMode('${k}');document.querySelectorAll('[data-b3mode]').forEach(b=>b.classList.toggle('on',b.dataset.b3mode==='${k}'))">${T(l)}</button>`).join("")}</div>
+  </div>
+  <div id="b3stage" class="b3stage" style="height:66vh"><div id="b3labels"></div><div id="b3load" class="b3load">${T("يجهّز الجسم…")}</div>
+    <div class="b3tools b3tl">${[["front","قدام"],["side","جنب"],["back","ورا"]].map(([v,l]) => `<button onclick="b3View('${v}')">${T(l)}</button>`).join("")}</div>
+    <div id="b3peek" class="b3peek" style="display:none"></div>
+    <div class="b3fab"><button class="pain ${B3.pain?"on":""}" id="b3o-pain" onclick="B3.pain=!B3.pain;this.classList.toggle('on',B3.pain);b3SyncUI();if(B3.pain)toast(T('دوس على المكان اللي يألمك على الجسم'))">${svg("warn",15)} ${T("وين يألمك؟")}</button><button onclick="b3Tools()">${svg("sliders",15)} ${tr("أدوات","Tools","ئامراز")}</button></div>
+    <span id="b3labbtn" hidden></span><span id="b3deep" hidden></span><span id="b3sexa" hidden></span>
+  </div>
+  <div id="b3shapeui" class="card" style="display:${B3.tab==="shape"?"":"none"};gap:12px">
+    <div class="grid2"><div class="seg">${[["m","رجل"],["f","امرأة"]].map(([k,l]) => `<button data-shsex="${k}" class="${B3.sh.sex===k?"on":""}" onclick="shSex('${k}')">${T(l)}</button>`).join("")}</div><div class="seg">${[["fat","الدهون"],["skin","الشكل"]].map(([k,l]) => `<button data-shview="${k}" class="${B3.sh.view===k?"on":""}" onclick="shView('${k}')">${T(l)}</button>`).join("")}</div></div>
+    <div class="field"><div class="row between"><label for="shfat" style="font-weight:700">${T("نسبة الدهون")}</label><span id="shfatv" class="num" style="font-size:18px">${B3.sh.fat}%</span></div><input id="shfat" type="range" min="${lim[0]}" max="${lim[1]}" value="${B3.sh.fat}" oninput="shSet('fat',this.value)" style="width:100%;accent-color:#FFD12E"></div>
+    <div class="field"><div class="row between"><label for="shmus" style="font-weight:700">${T("الكتلة العضلية")}</label><span id="shmusv" class="num" style="font-size:18px">${B3.sh.mus}%</span></div><input id="shmus" type="range" min="0" max="100" value="${B3.sh.mus}" oninput="shSet('mus',this.value)" style="width:100%;accent-color:var(--teal)"></div>
+  </div>
+  <div id="b3opts" hidden><span id="b3o-iso"></span><span id="b3o-auto"></span><span id="b3o-anim"></span><input id="b3pl" type="hidden"><input id="b3pa" type="hidden"><input id="b3al" type="hidden"></div>
+  <p class="note" style="text-align:center">${tr("دوس على أي جزء من الجسم حتى تشوف اسمه وتفاصيله","Tap any part of the body to see its name and details","دەست لە هەر بەشێکی جەستە بدە بۆ بینینی ناو و وردەکارییەکەی")}</p>
+  <div id="b3info" style="display:flex;flex-direction:column;gap:12px"></div>`;
+};
+
+/* area page */
+const PTABS = [["prob","المشاكل","check"],["inj","الإصابات","warn"],["train","التمارين","db"],["mus","العضلات","body"],["food","الأكل","food"]];
+let PTAB = "prob";
+V.part = arg => {
+  const [r, k, ...g] = (arg || "").split("-"), grp = g.join("-"), R = REGION[r]; if (!R) { location.hash = "body"; return ""; }
+  const I = RINFO[r] || { intro:"", injuries:[], problems:[] }, mus = k === "m" && MUS[grp] ? MUS[grp] : null;
+  setTop(mus ? T(mus.ar) : T(R.ar), "body", mus ? T(R.ar) : tr("منطقة بالجسم","Body area","ناوچەیەکی جەستە"), langBtn());
+  if (mus && !V.part.m) { PTAB = "musx"; } V.part.m = mus ? grp : null;
+  const img = B3.snap && B3.snap.r === r && B3.snap.img;
+  const tabs = (mus ? [["musx", tr("هذي العضلة","This muscle","ئەم ماسولکەیە"), "body"]] : []).concat(PTABS.map(([k2, l, ic]) => [k2, T(l), ic]));
+  if (!tabs.some(t => t[0] === PTAB)) PTAB = tabs[0][0];
+  const count = { prob:I.problems.length, inj:I.injuries.length };
+  let body = "";
+  if (PTAB === "musx") { const L = exForMus(grp); body = `<div class="isec"><div class="hd"><i style="background:var(--raised);color:var(--teal)">${svg("body",16)}</i>${T(mus.ar)}</div><span class="muted" dir="ltr" style="text-align:start">${esc(mus.en)} · <i>${esc(mus.la || "")}</i></span><span>${T(mus.fn)}</span><a class="btn ghost" href="#body-m_${grp}" style="min-height:42px">${svg("body",16)} ${tr("شوفها على الجسم","See it on the body","لەسەر جەستە ببینە")}</a></div>${L.length ? `<span class="h3">${tr("تمارين هذي العضلة","Exercises for this muscle","ڕاهێنانەکانی ئەم ماسولکەیە")} <span class="muted small">(${L.length})</span></span>${exRows(L.slice(0, 15))}` : ""}`; }
+  if (PTAB === "prob") body = I.problems.length ? I.problems.map(it => `<a class="issue" href="#issue-${r}-p-${it.id}"><span class="dot" style="background:var(--teal)"></span><span class="grow" style="min-width:0"><span class="t">${esc(T(it.t))}</span><span class="p">${esc(T(it.fix[0] || ""))}</span></span><span class="chev">${svg("chev",16)}</span></a>`).join("") : `<p class="note">${T("قريباً.")}</p>`;
+  if (PTAB === "inj") body = I.injuries.length ? I.injuries.map(it => { const sv = SEV[it.sev] || SEV.medium; return `<a class="issue" href="#issue-${r}-i-${it.id}"><span class="dot" style="background:${it.sev==="doctor"?"var(--red)":it.sev==="light"?"var(--teal)":"var(--amber)"}"></span><span class="grow" style="min-width:0"><span class="t">${esc(T(it.t))}</span><span class="p">${esc(T(it.what || ""))}</span></span><span class="tag ${sv[1]}">${T(sv[0])}</span></a>`; }).join("") + `<div class="isec red"><div class="hd" style="color:var(--red)">${T("علامات خطر عامة: روح للطبيب إذا:")}</div><ul>${RED_FLAGS.map(x => `<li>${T(x)}</li>`).join("")}</ul></div>` : `<p class="note">${T("قريباً.")}</p>`;
+  if (PTAB === "train") { const groups = regionExercises(r); body = groups.length ? groups.map(([t, l]) => `<span class="h3">${esc(t)} <span class="muted small">(${l.length})</span></span>${exRows(l)}`).join("") : `<p class="note">${T("ما عدنا تمارين جيم لهذي المنطقة.")}</p>`; }
+  if (PTAB === "mus") body = regionMus(r).map(id => { const d = MUS[id]; return `<a class="issue" href="#part-${r}-m-${id}"><span class="dot" style="background:var(--teal)"></span><span class="grow" style="min-width:0"><span class="t">${T(d.ar)} <span class="muted small" dir="ltr">${esc(d.en)}</span></span><span class="p">${T(d.fn)}</span></span><span class="chev">${svg("chev",16)}</span></a>`; }).join("") + (R.tip ? `<div class="isec warm"><div class="hd">${T("نصيحة الكوتش")}</div><span>${T(R.tip)}</span></div>` : "");
+  if (PTAB === "food") body = guideHTML("m", r);
+  return `<div class="parthero"><div class="fig">${img ? `<img src="${img}" alt="">` : bodyFig(r)}</div><div class="grow" style="display:flex;flex-direction:column;gap:6px;min-width:0"><span class="h2" style="font-size:22px">${mus ? T(mus.ar) : T(R.ar)}</span><span class="small" style="color:var(--soft);line-height:1.6">${esc(T(mus ? mus.fn : I.intro || ""))}</span><div class="peek2"><div class="st"><span>${tr("{n} مشكلة","{n} problems","{n} کێشە").replace("{n}", count.prob)}</span><span>${tr("{n} إصابة","{n} injuries","{n} برین").replace("{n}", count.inj)}</span></div></div></div></div>
+  <div class="ptabs" role="tablist">${tabs.map(([k2, l, ic]) => `<button role="tab" aria-selected="${PTAB===k2}" class="${PTAB===k2?"on":""}" onclick="PTAB='${k2}';render()">${svg(ic,15)}${l}${count[k2] != null ? ` <span class="n">${count[k2]}</span>` : ""}</button>`).join("")}</div>
+  <div style="display:flex;flex-direction:column;gap:10px">${body}</div>
+  <button class="btn ghost" onclick="B3.reg='${r}';b3AskAI()">${svg("ai",18)} ${T("اسأل المدرب الذكي عن حالتي")}</button>
+  <p class="note">${T("معلومات عامة للتوعية، مو تشخيص. راجع طبيب أو أخصائي علاج طبيعي إذا الألم يستمر.")}</p>`;
+};
+
+/* one problem / injury = its own page */
+V.issue = arg => {
+  const [r, k, ...rest] = (arg || "").split("-"), id = rest.join("-"), I = RINFO[r], R = REGION[r];
+  const it = I && (k === "p" ? I.problems : I.injuries).find(x => String(x.id) === id);
+  if (!it) { location.hash = "part-" + r; return ""; }
+  setTop(T(R.ar), "part-" + r, k === "p" ? tr("مشكلة وحلها","Problem & fix","کێشە و چارەسەر") : tr("إصابة وعلاجها","Injury & treatment","برین و چارەسەر"), langBtn());
+  const sec = (title, list, ic, col, cls = "", ordered) => !list || !list.length ? "" : `<div class="isec ${cls}"><div class="hd"><i style="background:var(--raised);color:${col}">${svg(ic,15)}</i>${T(title)}</div><${ordered?"ol":"ul"}>${list.map(x => `<li>${T(x)}</li>`).join("")}</${ordered?"ol":"ul"}></div>`;
+  const sv = SEV[it.sev] || SEV.medium, title = T(it.t), m = title.match(/^(.*?)\s*\(([A-Za-z][^)]*)\)\s*$/);
+  const exs = (it.ex || []).map(i => EXMAP[i]).filter(Boolean);
+  return `<div class="parthero" style="align-items:stretch"><div class="fig">${bodyFig(r, 92)}</div><div class="grow" style="display:flex;flex-direction:column;gap:6px;min-width:0;justify-content:center">
+      <span class="muted small" style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:4px;background:#E55B5B"></span>${tr("مكان الألم","Where it hurts","شوێنی ئازار")}: ${T(R.ar)}</span>
+      <span class="h2" style="font-size:21px;line-height:1.35">${k === "p" ? "«" + esc(title) + "»" : esc(m ? m[1] : title)}</span>${m ? `<span class="muted small" dir="ltr" style="text-align:start">${esc(m[2])}</span>` : ""}
+      ${k === "i" ? `<span><span class="tag ${sv[1]}">${T(sv[0])}</span></span>` : ""}</div></div>
+    ${it.what ? `<div class="isec"><span style="line-height:1.7">${T(it.what)}</span></div>` : ""}
+    ${sec("كيف تحس بيها", it.feel, "warn", "var(--amber)")}
+    ${sec(k === "p" ? "ليش؟" : "ليش تصير", it.why, "search", "var(--teal)")}
+    ${k === "p" ? sec("الحل", it.fix, "check", "var(--amber)", "warm", true) : sec("شنو تسوي هسه", it.now, "check", "var(--amber)", "warm", true)}
+    ${sec("العلاج والتأهيل خطوة بخطوة", it.rehab, "play", "var(--teal)", "", true)}
+    ${exs.length ? `<span class="h3">${T(k === "p" ? "التمارين" : "تمارين التأهيل")}</span>${exRows(exs)}` : ""}
+    ${it.time || it.back ? `<div class="grid2"><div class="stat"><span class="muted small">${T("مدة التعافي")}</span><span style="font-weight:700">${T(it.time || "")}</span></div><div class="stat"><span class="muted small">${T("الرجعة للتمرين")}</span><span class="small">${T(it.back || "")}</span></div></div>` : ""}
+    ${it.doctor && it.doctor.length ? `<div class="isec red"><div class="hd" style="color:var(--red)">${T("روح للطبيب فوراً إذا:")}</div><ul>${it.doctor.map(x => `<li>${T(x)}</li>`).join("")}</ul></div>` : ""}
+    <button class="btn ghost" onclick="B3.reg='${r}';b3AskAI()">${svg("ai",18)} ${T("اسأل المدرب الذكي عن حالتي")}</button>
+    <p class="note">${T("معلومات عامة للتوعية، مو تشخيص. راجع طبيب أو أخصائي علاج طبيعي إذا الألم يستمر.")}</p>`;
+};
+TAB_OF.part = "body"; TAB_OF.issue = "body"; TAB_OF.lang = "home"; TAB_OF.planmake = "home";
+
+/* ---------- 5. a personal plan, made for each person ---------- */
+function rng(seed){ let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function exKit(e){ const q = (e.eq || "") + " " + (EXEN.ex?.[e.id]?.eq || ""); if (/مطاط|band/i.test(q)) return "band"; if (/دمبل|كيتل|dumbbell|kettlebell/i.test(q) && !/بار|كيبل|جهاز|سميث|barbell|cable|machine/i.test(q.replace(/بار \/ دمبل|دمبل \/ بار/g, "دمبل"))) return "db"; if (/^(وزن الجسم|جسم|حصيرة|حايط|مقعد|صندوق|درجة|مقعد أو صندوق|وزن الجسم \/ دمبل|ضد التقويس \/ جسم|حبل قفز|كرة سويسرية)/.test((e.eq || "").trim()) || /bodyweight|body weight|mat|wall/i.test(q)) return "bw"; if (/عقلة|pull-up bar/i.test(q) && !/جهاز|كيبل/.test(q)) return "bar"; return "gym"; }
+const KIT_OK = { gym:["gym","db","bw","band","bar"], db:["db","bw","bar"], bands:["band","bw"], none:["bw"] };
+const DAY_TYPES = {
+  full:["legs","chest","row","hinge","shoulder","pull","single","core","iso"], fullB:["hinge","shoulder","pull","single","chest","row","core","iso"], fullC:["legs","row","chest","single","shoulder","core","iso"],
+  upper:["chest","row","shoulder","pull","chest","iso","iso"], lower:["legs","hinge","single","legs","core","iso"],
+  push:["chest","shoulder","chest","shoulder","iso","core"], pull:["pull","row","row","pull","iso","core"], legs:["legs","hinge","single","legs","core","iso"]
+};
+const DAY_NAME = { full:["جسم كامل أ","Full body A","هەموو جەستە أ"], fullB:["جسم كامل ب","Full body B","هەموو جەستە ب"], fullC:["جسم كامل ج","Full body C","هەموو جەستە ج"], upper:["الجزء العلوي","Upper body","بەشی سەرەوە"], lower:["الجزء السفلي","Lower body","بەشی خوارەوە"], push:["دفع: صدر وكتف وتراي","Push: chest, shoulders, triceps","پاڵنان: سنگ، شان، ترایسێپس"], pull:["سحب: ظهر وباي","Pull: back & biceps","ڕاکێشان: پشت و بایسێپس"], legs:["أرجل","Legs","قاچ"] };
+const SPLITS = { 2:["full","fullB"], 3:["full","fullB","fullC"], 4:["upper","lower","upper","lower"], 5:["push","pull","legs","upper","lower"], 6:["push","pull","legs","push","pull","legs"] };
+const INJ_AVOID = { lowback:["hinge","olympic","strongman"], knee:["single","olympic"], shoulder:["shoulder","olympic"], elbow:["iso"], hip:["single"], ankle:["single","cardio"], neck:["strongman","olympic"], forearm:[] };
+const INJ_NAME = { shoulder:/dip|overhead|upright|behind|snatch|handstand|arnold|military/i, lowback:/deadlift|good morning|bent-over|barbell row|jefferson|back extension/i, knee:/pistol|sissy|jump|lunge|split squat/i, elbow:/skull|dip|close-grip/i, forearm:/wrist|reverse curl|farmer/i, neck:/shrug|neck|wrestler/i, ankle:/jump|calf raise|skip/i, hip:/lunge|split squat|sumo/i };
+function lvRank(e){ const l = e.lv || ""; return /متقدم/.test(l) ? 2 : /متوسط/.test(l) ? 1 : 0; }
+function genPlan(pf, body, seed){
+  const R = rng(seed), lvl = pf.level === "adv" ? 2 : pf.level === "mid" ? 1 : 0, light = pf.flags || body.age >= 55 || body.age < 18;
+  const kit = KIT_OK[pf.place] || KIT_OK.gym, avoid = new Set((pf.inj || []).flatMap(r => INJ_AVOID[r] || []));
+  const jumpy = e => /jump|burpee|plyo|skater|tuck|hop|bound|clap|sprint|قفز|بيربي/i.test((e.en || "") + " " + (e.ar || ""));
+  const noJump = lvl === 0 || light || pf.goal === "strength" || (pf.inj || []).some(r => ["knee","ankle","lowback","hip"].includes(r));
+  const pool = LIB.ex.filter(e => kit.includes(exKit(e)) && !["mobility","olympic","strongman"].includes(e.g) && lvRank(e) <= (light ? 0 : lvl) && !(noJump && jumpy(e)) && !(pf.inj || []).some(r => INJ_NAME[r] && INJ_NAME[r].test(e.en || "")));
+  const days = Math.max(2, Math.min(6, pf.days || 3)), split = SPLITS[days] || SPLITS[3];
+  const nEx = light ? 4 : lvl === 0 ? 5 : lvl === 1 ? 6 : 7;
+  const used = new Map();
+  const pick = (g, taken) => {
+    const ALT = { pull:["row","core"], row:["pull","core"], hinge:["single","core"], legs:["single","calisthenics"], single:["legs"], shoulder:["chest","calisthenics"], chest:["calisthenics","shoulder"], iso:["core"], core:["calisthenics"] };
+    let c = [];
+    for (const gg of [g, ...(ALT[g] || [])]) { c = pool.filter(e => e.g === gg && !taken.has(e.id) && !avoid.has(e.g)); if (c.length) break; }
+    if (!c.length) return null;
+    const w = c.map(e => (e.star ? 3 : 1) * (e.basic ? 2 : 1) * (lvRank(e) === lvl ? 2 : 1) * (lvl === 0 && lvRank(e) === 0 ? 2 : 1) / (1 + (used.get(e.id) || 0) * 3) * (0.5 + R()));
+    let i = 0, best = -1; w.forEach((v, j) => { if (v > best) { best = v; i = j; } });
+    const e = c[i]; used.set(e.id, (used.get(e.id) || 0) + 1); return e;
+  };
+  const isoLike = e => /fly|raise|curl|extension|kickback|pullover|crossover|shrug|calf/i.test(e.en || "");
+  const scheme = (e, slot) => { const iso = e.g === "iso" || e.g === "core" || isoLike(e), big = slot < 2 && !iso && ["legs","hinge","chest","row","pull","shoulder"].includes(e.g);
+    if (light) return iso ? "2×12–15" : "2–3×10–12";
+    if (pf.goal === "strength") return big ? (lvl ? "4×4–6" : "3×5–6") : iso ? "3×10–12" : "3×6–8";
+    if (pf.goal === "muscle") return big ? (lvl === 2 ? "4×6–10" : "3–4×8–10") : iso ? "3×12–15" : "3×10–12";
+    if (pf.goal === "fat") return iso ? "3×15" : "3×10–12";
+    return iso ? "2–3×12–15" : "3×8–12"; };
+  const out = split.map((type, di) => {
+    const slots = DAY_TYPES[type].filter(g => !avoid.has(g)).slice(0, nEx), taken = new Set(), list = [];
+    slots.forEach((g, si) => { const e = pick(g, taken); if (e) { taken.add(e.id); list.push([e.id, scheme(e, si)]); } });
+    if (["fat","fit"].includes(pf.goal) || pf.goal === "sport") { const cd = pool.filter(e => e.g === "cardio" && !taken.has(e.id) && !avoid.has("cardio")); if (cd.length) { const e = cd[Math.floor(R() * cd.length)]; list.push([e.id, pf.goal === "fat" ? "15–20 min" : "10–15 min"]); } }
+    for (const r of (pf.inj || []).filter(x => x !== "none")) { const mob = LIB.ex.filter(e => e.g === "mobility" && kit.includes(exKit(e)) && (e.pm || []).some(m => MUS[m]?.reg === r) && !taken.has(e.id)); if (mob.length) { const e = mob[Math.floor(R() * mob.length)]; taken.add(e.id); list.unshift([e.id, "2×30s"]); break; } }
+    return { type, name:DAY_NAME[type], list };
+  });
+  const goalN = { strength:["قوة","Strength","هێز"], muscle:["بناء عضل","Muscle","ماسولکە"], fat:["حرق دهون","Fat loss","چەوری سووتاندن"], fit:["لياقة","Fitness","لەشجوانی"], sport:["أداء رياضي","Sport","وەرزش"] }[pf.goal] || ["لياقة","Fitness","لەشجوانی"];
+  const placeN = { gym:["جيم","gym","جیم"], db:["بيت + دمبل","home + dumbbells","ماڵ + دەمبڵ"], bands:["بيت + مطاط","home + bands","ماڵ + لاستیک"], none:["بيت بدون أدوات","home, no equipment","ماڵ بێ ئامراز"] }[pf.place] || ["جيم","gym","جیم"];
+  const rest = light ? ["60–90 ثانية","60–90 s","60–90 چرکە"] : pf.goal === "strength" ? ["2–3 دقايق بالتمارين الكبيرة","2–3 min on big lifts","2–3 خولەک لە ڕاهێنانە گەورەکان"] : pf.goal === "fat" ? ["45–60 ثانية","45–60 s","45–60 چرکە"] : ["60–90 ثانية","60–90 s","60–90 چرکە"];
+  return { id:"mine", seed, made:today(), goal:goalN, place:placeN, rest, light, days:out, nDays:days,
+    t:[`برنامجك: ${goalN[0]} · ${days} أيام · ${placeN[0]}`, `Your plan: ${goalN[1]} · ${days} days · ${placeN[1]}`, `پرۆگرامەکەت: ${goalN[2]} · ${days} ڕۆژ · ${placeN[2]}`] };
+}
+function pl3(a){ return Array.isArray(a) ? (isEN() ? a[1] : isKU() ? a[2] : a[0]) : T(a || ""); }
+function syncMyPlan(){ const i = PROGRAMS.findIndex(p => p.id === "mine"); if (i >= 0) PROGRAMS.splice(i, 1); if (!S.myplan) return; const p = S.myplan; PROGRAMS.push({ id:"mine", get t(){ return pl3(p.t); }, d:"", days:p.days.map(d => [pl3(d.name), d.list.map(x => x[0])]) }); }
+syncMyPlan();
+let MAKE = null;
+function makePlan(){ const pf = S.profile || { goal:"fit", level:"beg", days:3, place:"gym", inj:[] }; const seed = (crypto.getRandomValues ? crypto.getRandomValues(new Uint32Array(1))[0] : Date.now()) ^ Date.now(); MAKE = { t0:Date.now(), dur:6500 + Math.floor(Math.random() * 3000), seed, pf }; location.hash = "planmake"; }
+V.planmake = () => {
+  $("#nav").innerHTML = ""; setTop(tr("نبني برنامجك","Building your plan","پرۆگرامەکەت دروست دەکەین"), null);
+  if (!MAKE) { setTimeout(makePlan); return ""; }
+  const steps = [tr("نقرا هدفك ومستواك","Reading your goal and level","ئامانج و ئاستەکەت دەخوێنینەوە"), tr("نختار تمارين تناسب أدواتك","Choosing exercises for your equipment","ڕاهێنانی گونجاو بۆ ئامرازەکانت هەڵدەبژێرین"), tr("نبعد التمارين اللي تأذي إصابتك","Avoiding moves that hurt your injury","ئەو جووڵانە لادەبەین کە زیان بە برینەکەت دەگەیەنن"), tr("نوزع الأيام والعضلات","Spreading days and muscles","ڕۆژ و ماسولکەکان دابەش دەکەین"), tr("نحسب السِتات والعدات والراحة","Setting sets, reps and rest","سێت و دووبارە و پشوو دیاری دەکەین")];
+  const el = Math.max(0, Date.now() - MAKE.t0), k = Math.min(steps.length, Math.floor(el / (MAKE.dur / steps.length)));
+  if (!MAKE.timer) MAKE.timer = setInterval(() => { if (!/^#planmake/.test(location.hash)) { clearInterval(MAKE.timer); MAKE = null; return; } if (Date.now() - MAKE.t0 >= MAKE.dur) { clearInterval(MAKE.timer); S.myplan = genPlan(MAKE.pf, S.body, MAKE.seed); S.plan = "mine"; syncMyPlan(); save(); MAKE = null; location.replace("#plan"); return; } render(); }, 400);
+  return `<div class="think"><div class="orb"><span>${svg("ai",44)}</span></div><h2 class="h2" style="font-size:22px">${tr("التطبيق يفكر ببرنامجك…","The app is thinking about your plan…","ئەپەکە بیر لە پرۆگرامەکەت دەکاتەوە…")}</h2><span class="muted">${tr("برنامج خاص بيك إنت، مو برنامج جاهز للكل.","A plan made for you, not a ready plan for everyone.","پرۆگرامێک تەنها بۆ تۆ، نەک پرۆگرامێکی ئامادە بۆ هەمووان.")}</span>
+    <div class="tsteps">${steps.map((s, i) => `<div class="${i < k ? "ok" : i === k ? "on" : ""}"><span class="b">${i < k ? svg("check",12,3) : ""}</span>${s}</div>`).join("")}</div></div>`;
+};
+function obFinish(){
+  const pk = pickProgram(OB);
+  S.profile = { goal:OB.goal, level:OB.level, days:OB.days, place:OB.place, inj:OB.inj, flags:OB.parq.some(x=>x)||!!OB.preg, ed:OB.scoff.filter(x=>x).length>=2, at:today() };
+  S.body = { ...S.body, sex:OB.sex, age:OB.age, kg:OB.kg, cm:OB.cm, aim: OB.goal==="fat" ? "cut" : OB.goal==="muscle" ? "gain" : "keep" };
+  if (OB.age < 18) S.body.aim = "keep";
+  S.goal.level = OB.level; S.onboarded = true; S.startDate = today(); save(); OB = null; makePlan();
+}
+const _vstart = V.start;
+V.start = () => { if (OB && OB.step === 8) { setTimeout(obFinish); return ""; } return _vstart(); };
+V.plan = () => {
+  if (!S.myplan) { if (S.onboarded) { setTimeout(makePlan); } return ""; }
+  const p = S.myplan; setTop(T("برنامجي"), "home", null, langBtn());
+  const DAYN = ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة"], pat = {2:[0,3],3:[0,2,4],4:[0,1,3,4],5:[0,1,2,4,5],6:[0,1,2,3,4,5]}[p.nDays] || [0,2,4];
+  return `<section class="card hero"><div class="ring"></div><span class="eyebrow">${tr("برنامجك الخاص","Your own plan","پرۆگرامی تایبەتی تۆ")}</span><h2 class="h2" style="font-size:22px">${esc(pl3(p.t))}</h2><span style="font-weight:600">${tr("انبنى إلك يوم","Made for you on","بۆت دروستکرا لە")} <span dir="ltr">${esc(p.made)}</span> · ${tr("راحة بين السِتات","Rest between sets","پشوو لە نێوان سێتەکان")}: ${pl3(p.rest)}</span></section>
+  ${S.profile?.flags ? `<div class="isec red"><span>${T("جاوبت إي على سؤال صحي. ابدي ببرنامج خفيف، وراجع طبيب قبل التمرين الثقيل.")}</span></div>` : ""}
+  ${p.days.map((d, i) => `<div class="pday"><div class="hd"><b>${esc(pl3(d.name))}</b><span class="muted small">${T(DAYN[pat[i] ?? i])}</span></div>${d.list.map(([id, sc]) => { const e = EXMAP[id]; return e ? `<a class="ex" href="#ex-${id}"><span class="grow" style="min-width:0"><span style="font-weight:600;display:block">${esc(X(e,"ar"))}</span><span class="muted small">${esc(X(e,"eq") || "")}</span></span><span class="sr">${esc(sc)}</span><span class="chev">${svg("chev",14)}</span></a>` : ""; }).join("")}</div>`).join("")}
+  <div class="isec"><span class="small" style="line-height:1.7">${tr("كل أسبوع حاول تزيد شوية: كيلو أو عدة وحدة. إذا تمرين يألمك، بدّله من المكتبة.","Each week add a little: one kilo or one rep. If a move hurts, swap it from the library.","هەر هەفتە کەمێک زیاد بکە: کیلۆیەک یان دووبارەیەک. ئەگەر جووڵەیەک ئازاری هەبوو، لە کتێبخانەکە بیگۆڕە.")}</span></div>
+  <button class="btn" onclick="makePlan()">${svg("ai",18)} ${tr("سوّيلي برنامج جديد","Make me a new plan","پرۆگرامێکی نوێم بۆ دروست بکە")}</button>
+  <button class="btn ghost" onclick="obNew();location.hash='start'">${T("غيّر أجوبتي")}</button>`;
+};
+function aiNote(s){ return FULL ? tr("المدرب الذكي الكامل يوصل بالتحديث الجاي. هسه الأجوبة أمثلة جاهزة من طريقة الكوتش.","The full AI coach arrives in the next update. For now, answers are ready examples from the coach's method.","ڕاهێنەری زیرەکی تەواو لە نوێکردنەوەی داهاتوودا دێت. ئێستا وەڵامەکان نموونەی ئامادەن لە ڕێگای کۆچ.") : T(s); }
+
 
 /* ---------- router ---------- */
 let lastRoute = "";
 function render(){
-  if (!S.entered && location.hash !== "#login") { location.hash = "login"; return; }
+  if (!S.langSet && !S.entered && location.hash !== "#lang") { location.hash = "lang"; return; }
+  if (!S.entered && !/^#(login|lang)$/.test(location.hash)) { location.hash = "login"; return; }
   if (S.entered && !S.onboarded && !S.toured && !/^#(tour|login|privacy)/.test(location.hash)) { location.hash = "tour"; return; }
   if (S.entered && !S.onboarded && !/^#(start|tour|login|privacy)/.test(location.hash)) { location.hash = "start"; return; }
   if (typeof stopAnim === "function") stopAnim();
@@ -3521,7 +3873,7 @@ function render(){
   if (FULL && name === "notif") { crPost("nav:notif"); history.back(); return; } // phone reminders are native
   const fn = V[name] || V.home;
   $("#view").innerHTML = fn(arg);
-  if (name !== "login") nav(TAB_OF[name] || "home");
+  if (!["login","lang","planmake"].includes(name)) nav(TAB_OF[name] || "home");
   if (h !== lastRoute) { if (name !== "coach") window.scrollTo(0,0); lastRoute = h; }
   if (typeof afterRender === "function") afterRender(name, arg);
 }
