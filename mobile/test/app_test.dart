@@ -9,6 +9,9 @@ void main() {
 
   test('bundled page is the full Coach Renas app', () {
     expect(page.length, greaterThan(10 * 1024 * 1024));
+    expect(page, startsWith('<!doctype html>'));
+    expect(page, contains('name="viewport" content="width=device-width'));
+    expect(page, contains('../../fonts/Cairo-Bold.ttf'));
     expect(page, contains('CoachRenasFull'));
     expect(page, contains('crPost("nav:notif")'));
     expect(page, contains('ريناس'));
