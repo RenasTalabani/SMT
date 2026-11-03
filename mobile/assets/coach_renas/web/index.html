@@ -4006,6 +4006,91 @@ V.login = () => {
   return h;
 };
 
+/* ---- category pages: each tile opens its own page with all its exercises ---- */
+TAB_OF.cat = "train";
+function eqKind(e){
+  const q = e.eq || "";
+  if (/كيبل/.test(q)) return "cable";
+  if (/سميث|جهاز|تريدمل|دراج|ليگ برس|مشاية|روينغ|ستيبر|إليبت|سكي/.test(q)) return "machine";
+  const ib = q.search(/بار|EZ|لاندماين/), id = q.search(/دمبل/);
+  if (id === 0 || (id >= 0 && (ib < 0 || id < ib))) return "dumbbell";
+  if (ib >= 0 && !/^عقلة/.test(q)) return "barbell";
+  if (/كيتل/.test(q)) return "kettle";
+  if (/وزن الجسم|^جسم|عقلة|متوازي|حلقات|حايط|حصيرة|أرض|جسم$/.test(q)) return "body";
+  if (/يوك|أطلس|تاير|برميل|كيس رمل|زلاجة|سلد|حبال المعركة|لوگ/.test(q)) return "strong";
+  if (/مطاط|كرة|فوم|صندوق|درجة|حبل|TRX|عصا|منزلقات/.test(q)) return "small";
+  if (/مقعد|كرسي|GHD|هايبر|قرص|عجلة|مقبض|مقوي/.test(q)) return "bench";
+  if (/^بدون|باب|عمود/.test(q)) return "body";
+  return "other";
+}
+const EQK = {
+  machine:  ()=>tr("أجهزة","Machines","ئامێرەکان"),
+  cable:    ()=>tr("كيبل","Cables","کەیبڵ"),
+  barbell:  ()=>tr("بار","Barbell","بار"),
+  dumbbell: ()=>tr("دمبل","Dumbbells","دەمبڵ"),
+  kettle:   ()=>tr("كيتل بيل","Kettlebell","کێتڵبێڵ"),
+  body:     ()=>tr("بدون أدوات","No equipment","بێ ئامراز"),
+  small:    ()=>tr("مطاط وأدوات صغيرة","Bands & small gear","لاستیک و ئامرازی بچووک"),
+  bench:    ()=>tr("مقاعد وأقراص","Benches & plates","کورسی و پلێت"),
+  strong:   ()=>tr("أدوات السترونغ مان","Strongman gear","ئامرازی سترۆنگمان"),
+  other:    ()=>tr("أدوات ثانية","Other gear","ئامرازی تر"),
+};
+const GRP_ORDER = ["chest","shoulder","pull","row","legs","single","hinge","iso","core","calisthenics","olympic","strongman","cardio","mobility"];
+const CAT_DEF = {
+  gym:    { f:e => e.g !== "mobility" && !["body"].includes(eqKind(e)) || ["pull"].includes(e.g) && /عقلة/.test(e.eq), by:"eq", order:["machine","cable","barbell","dumbbell","kettle","bench","body","small","strong","other"] },
+  home:   { f:e => !["barbell","machine","cable","strong"].includes(eqKind(e)) && (e.home === true || (e.home === undefined && ["body","small","dumbbell","kettle"].includes(eqKind(e)))), by:"eq", order:["body","dumbbell","kettle","small","bench","other"] },
+  cali:   { f:e => e.g === "calisthenics" || (eqKind(e) === "body" && !["mobility","cardio"].includes(e.g)), by:"g" },
+  cardio: { f:e => e.g === "cardio" || ["run","jump"].includes(e.pat), by:"eq", order:["machine","body","small","other","kettle","dumbbell","barbell","cable"] },
+};
+let catTab = {};
+V.cat = id => {
+  const C = CATS.find(c => c[0] === id); if (!C) return V.train();
+  setTop(T(C[1]), "train", null, langBtn());
+  const progs = id === "sport" ? [] : PROGRAMS.filter(p => p.cat === id);
+  const progList = progs.length ? `<span class="h3">${tr("برامج جاهزة","Ready programs","بەرنامەی ئامادە")}</span>
+    <div class="list">${progs.map(p => `<a class="li" href="#prog-${p.id}"><span class="grow"><span class="t" style="display:block">${T(p.t)}</span><span class="muted">${T(p.d)}</span></span><span class="chev">${svg("chev",16)}</span></a>`).join("")}</div>` : "";
+  if (id === "sport") return `<span class="muted">${tr("اختار رياضتك وشوف شتسوي بالجيم حتى تصير أقوى وأسرع وتتجنب الإصابات.","Pick your sport and see what to do in the gym to get stronger, faster and avoid injuries.","وەرزشەکەت هەڵبژێرە و ببینە لە جیمدا چی بکەیت بۆ ئەوەی بەهێزتر و خێراتر بیت و لە برین دوور بیت.")}</span>
+    <div class="list">${SPORTS.map(s => `<a class="li" href="#sport-${s.id}"><span class="grow"><span class="t" style="display:block">${T(s.n)}</span><span class="muted">${s.why.slice(0,2).map(x=>T(x)).join(" · ")}</span></span><span class="chev">${svg("chev",18)}</span></a>`).join("")}</div>`;
+  const D = CAT_DEF[id];
+  if (!D) return progList || `<p class="muted">${tr("قريباً","Coming soon","بەم زووانە")}</p>`;
+  const all = LIB.ex.filter(D.f);
+  const keyOf = e => D.by === "eq" ? eqKind(e) : e.g;
+  const counts = {}; all.forEach(e => { const k = keyOf(e); counts[k] = (counts[k]||0) + 1; });
+  const order = (D.by === "eq" ? D.order : GRP_ORDER).filter(k => counts[k]);
+  Object.keys(counts).forEach(k => { if (!order.includes(k)) order.push(k); });
+  const cur = order.includes(catTab[id]) ? catTab[id] : order[0];
+  const label = k => D.by === "eq" ? (EQK[k] ? EQK[k]() : k) : G(k);
+  const items = all.filter(e => keyOf(e) === cur);
+  const subOf = e => D.by === "eq" ? e.g : eqKind(e);
+  const subs = {}; items.forEach(e => { const s = subOf(e); (subs[s] = subs[s] || []).push(e); });
+  const subOrder = (D.by === "eq" ? GRP_ORDER : Object.keys(EQK)).filter(s => subs[s]).concat(Object.keys(subs).filter(s => !(D.by === "eq" ? GRP_ORDER : Object.keys(EQK)).includes(s)));
+  const subLabel = s => D.by === "eq" ? G(s) : (EQK[s] ? EQK[s]() : s);
+  const row = e => `<a class="li" href="#ex-${e.id}"><span class="grow"><span class="t" style="display:block">${esc(X(e,"ar"))}</span><span class="muted">${esc(X(e,"m"))}</span></span><span class="tag t-prac">${esc(X(e,"lv"))}</span></a>`;
+  return `
+  <span class="muted">${tr("{n} تمرين. اختار القسم، واضغط على أي تمرين تشوف شلون تسويه والعضلات اللي يشغلها.","{n} exercises. Pick a section, then tap any exercise to see how to do it and which muscles it works.","{n} ڕاهێنان. بەشێک هەڵبژێرە، پاشان دەست لە هەر ڕاهێنانێک بدە بۆ بینینی چۆنیەتی کردنی و ئەو ماسولکانەی کاریان لێدەکات.").replace("{n}", all.length)}</span>
+  <div class="cattabs">${order.map(k => `<button class="chip ${k===cur?"on":""}" onclick="catTab['${id}']='${k}';render()">${esc(label(k))} <b>${counts[k]}</b></button>`).join("")}</div>
+  ${subOrder.map(s => `<div class="catsec"><span class="sec-h">${esc(subLabel(s))} · ${subs[s].length}</span><div class="list">${subs[s].map(row).join("")}</div></div>`).join("")}
+  ${progList}`;
+};
+const _vtrain = V.train;
+V.train = () => {
+  let h = _vtrain();
+  h = h.replace(/ role="tablist"/, "").replace(/role="tab" aria-selected="(true|false)" class="chip (on)?"/g, 'class="chip cattile"')
+       .replace(/onclick="trainCat='(\w+)';render\(\)"/g, `onclick="location.hash='cat-$1'"`);
+  const i = h.lastIndexOf('<div class="list">'); if (i > 0) h = h.slice(0, i);
+  return h;
+};
+document.body.insertAdjacentHTML("beforeend", `<style>
+.cattabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;margin:0 -16px;padding-inline:16px}
+.cattabs::-webkit-scrollbar{display:none}
+.cattabs .chip{flex-shrink:0;white-space:nowrap}
+.cattabs .chip b{opacity:.65;font-weight:700;margin-inline-start:4px}
+.catsec{display:flex;flex-direction:column;gap:8px}
+.catsec .sec-h{font-weight:800;font-size:14px;color:var(--teal);padding-inline:4px}
+.cattile{background:var(--surface)!important;color:var(--ink)!important}
+.cattile svg{color:var(--teal)}
+</style>`);
+
 
 /* ---------- router ---------- */
 let lastRoute = "";
