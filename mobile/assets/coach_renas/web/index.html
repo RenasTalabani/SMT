@@ -3972,6 +3972,21 @@ html[lang=en] .nav a{text-transform:uppercase;font-size:9.5px;letter-spacing:.04
 .animleg{background:rgba(10,14,18,.45)}
 </style>`);
 
+/* ---------- real exercise videos (Kling) ---------- */
+const EXVID = { 1:"media/ex-1.mp4" };
+document.body.insertAdjacentHTML("beforeend", `<style>
+.exvid{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:#141A20;box-shadow:0 10px 26px rgba(0,0,0,.3)}
+.exvid video{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;background:#141A20}
+.exvid .badge{position:absolute;top:10px;inset-inline-start:10px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:9px;background:rgba(10,14,18,.7);color:var(--teal);backdrop-filter:blur(6px)}
+.anim.hasvid svg{display:none}
+</style>`);
+const _vex = V.ex;
+V.ex = id => {
+  let h = _vex(id); const v = EXVID[+id];
+  if (v && h.includes('<div class="anim">')) h = h.replace('<div class="anim">', `<div class="exvid"><video src="${v}" autoplay muted loop playsinline preload="auto"></video><span class="badge">${tr("فيديو حقيقي","Real video","ڤیدیۆی ڕاستەقینە")}</span></div><div class="anim hasvid">`);
+  return h;
+};
+
 
 /* ---------- router ---------- */
 let lastRoute = "";

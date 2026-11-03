@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
 
 import '../cr_core.dart';
 import '../cr_reminders.dart';
@@ -47,6 +48,9 @@ class _CrAppScreenState extends State<CrAppScreen> {
         },
       ))
       ..loadFlutterAsset('assets/coach_renas/web/index.html');
+    // Exercise videos play by themselves (muted, looping).
+    final p = _c.platform;
+    if (p is AndroidWebViewController) p.setMediaPlaybackRequiresUserGesture(false);
   }
 
   void _onMessage(String msg) {
