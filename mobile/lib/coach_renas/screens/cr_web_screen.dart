@@ -2,6 +2,8 @@
 // encyclopedia, 513 animated exercises, food & training guides, the
 // "why isn't my body changing?" check) bundled as one HTML file in
 // assets/coach_renas/web/index.html and shown in a WebView. No internet needed.
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -62,6 +64,13 @@ class _CrAppScreenState extends State<CrAppScreen> {
       if (['ar', 'ku', 'en'].contains(l) && CrI18n.lang != l) {
         CrI18n.lang = l; // reminders pick it up when the reminders screen opens
       }
+      return;
+    }
+    if (msg.startsWith('plan:')) {
+      try {
+        final items = jsonDecode(msg.substring(5));
+        if (items is List) CrReminders.instance.setPlan(items);
+      } catch (_) {}
       return;
     }
     if (msg == 'nav:notif') {

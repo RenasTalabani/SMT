@@ -25,6 +25,10 @@ class CrReminders extends ChangeNotifier {
   static final CrReminders instance = CrReminders._();
 
   static const _prefsKey = 'coach_renas_reminders_v1';
+  static const _planKey = 'coach_renas_plan_v1';
+
+  /// Dated reminders sent by the plan page: {d: "YYYY-MM-DD", kind: "day"|"miss", t, b}.
+  List<Map<String, dynamic>> plan = [];
   static const all = <CrReminder>[
     CrReminder('workout', 100, ['18:00'], days: [6, 1, 3]), // Sat, Mon, Wed
     CrReminder('water', 200, ['11:00', '14:00', '17:00', '20:00']),
@@ -61,6 +65,8 @@ class CrReminders extends ChangeNotifier {
       final p = await SharedPreferences.getInstance();
       final raw = p.getString(_prefsKey);
       if (raw != null) settings = Map<String, dynamic>.from(jsonDecode(raw) as Map);
+      final pr = p.getString(_planKey);
+      if (pr != null) plan = (jsonDecode(pr) as List).map((e) => Map<String, dynamic>.from(e as Map)).toList();
       _ready = true;
     } catch (_) {
       _ready = false;
@@ -88,6 +94,21 @@ class CrReminders extends ChangeNotifier {
     try {
       final p = await SharedPreferences.getInstance();
       await p.setString(_prefsKey, jsonEncode(settings));
+    } catch (_) {}
+    await reschedule();
+  }
+
+  /// The plan page sends the coming training days. Replaces the old ones.
+  Future<void> setPlan(List items) async {
+    plan = items.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+    try {
+      final p = await SharedPreferences.getInstance();
+      final had = p.getBool('coach_renas_plan_asked') ?? false;
+      await p.setString(_planKey, jsonEncode(plan));
+      if (!had && plan.isNotEmpty) {
+        await p.setBool('coach_renas_plan_asked', true);
+        await requestPermission();
+      }
     } catch (_) {}
     await reschedule();
   }
@@ -129,9 +150,34 @@ class CrReminders extends ChangeNotifier {
           await _plugin.cancel(r.id + i);
         }
       }
+      for (var i = 0; i < 60; i++) {
+        await _plugin.cancel(2000 + i);
+      }
       final now = tz.TZDateTime.now(tz.local);
+      // Plan reminders: training-day nudge at the workout time, and a kind
+      // "you missed yesterday" message the next morning (sent only for days
+      // not yet logged; the page resends after every workout).
+      final hasPlan = plan.isNotEmpty;
+      if (hasPlan && isOn('workout')) {
+        final wt = time('workout').split(':');
+        final wh = int.tryParse(wt[0]) ?? 18, wm = int.tryParse(wt.length > 1 ? wt[1] : '0') ?? 0;
+        var n = 0;
+        for (final it in plan) {
+          if (n >= 60) break;
+          final ds = (it['d'] as String? ?? '').split('-');
+          if (ds.length != 3) continue;
+          final miss = it['kind'] == 'miss';
+          final at = tz.TZDateTime(tz.local, int.parse(ds[0]), int.parse(ds[1]), int.parse(ds[2]), miss ? 10 : wh, miss ? 0 : wm);
+          if (!at.isAfter(now)) continue;
+          await _plugin.zonedSchedule(2000 + n, it['t'] as String? ?? 'Coach Renas', it['b'] as String? ?? '', at, _details,
+              androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+              uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime);
+          n++;
+        }
+      }
       for (final r in all) {
         if (!isOn(r.key)) continue;
+        if (hasPlan && r.key == 'workout') continue; // the plan's own days replace the fixed ones
         final ts = times(r.key);
         final everyDay = r.days == null;
         for (var ti = 0; ti < ts.length; ti++) {

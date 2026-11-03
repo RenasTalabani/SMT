@@ -4091,6 +4091,248 @@ document.body.insertAdjacentHTML("beforeend", `<style>
 .cattile svg{color:var(--teal)}
 </style>`);
 
+/* =========================================================
+   MY PLAN: 12 weeks, sets × reps × kg, logging, coaching,
+   missed-day reminders, new plan at the end
+   ========================================================= */
+I.cal = '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="m9 15 2 2 4-4"/>';
+const PWEEKS = 12;
+const PAT = {2:[0,3],3:[0,2,4],4:[0,1,3,4],5:[0,1,2,4,5],6:[0,1,2,3,4,5]};
+const DAYN7 = ["السبت","الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة"];
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const dOf = s => { const [y,m,dd] = s.split("-").map(Number); return new Date(y, m-1, dd); };
+const addD = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const wd7 = d => (d.getDay() + 1) % 7; // 0 = Saturday
+function planInit(){
+  const p = S.myplan; if (!p) return null;
+  if (!p.start) { p.start = iso(new Date()); S.plog = {}; }
+  p.weeks = p.weeks || PWEEKS; p.tg = p.tg || {}; S.plog = S.plog || {};
+  return p;
+}
+function planPat(p){ return PAT[p.nDays] || PAT[3]; }
+function planW0(p){ const s = dOf(p.start); return addD(s, -wd7(s)); }  // Saturday of week 1
+function sessDate(p, w, k){ return addD(planW0(p), w * 7 + planPat(p)[k]); }
+function sessKey(w, k){ return w + "-" + k; }
+function sessState(p, w, k){
+  const d = sessDate(p, w, k), t = iso(new Date()), ds = iso(d);
+  if (S.plog[sessKey(w,k)]) return "done";
+  if (ds < p.start) return "off";
+  if (ds < t) return "miss";
+  if (ds === t) return "today";
+  return "next";
+}
+function planWeekNow(p){ return Math.max(0, Math.min(p.weeks - 1, Math.floor((new Date() - planW0(p)) / 864e5 / 7))); }
+function planStats(p){
+  let done = 0, miss = 0, total = 0;
+  for (let w = 0; w < p.weeks; w++) p.days.forEach((_, k) => { const s = sessState(p, w, k); if (s === "off") return; total++; if (s === "done") done++; if (s === "miss") miss++; });
+  return { done, miss, total };
+}
+function planOver(p){ return new Date() >= addD(planW0(p), p.weeks * 7); }
+function nextSess(p){
+  for (let w = 0; w < p.weeks; w++) for (let k = 0; k < p.days.length; k++) { const s = sessState(p, w, k); if (s === "today" || s === "next") return { w, k, s }; }
+  return null;
+}
+/* ---- targets ---- */
+function parseScheme(sc){
+  const s = String(sc);
+  if (/min|s$|ث/.test(s) && !/×\s*\d+\s*[–-]?\s*\d*$/.test(s.replace(/s$/,""))) return { time:true, sets: +(s.match(/^(\d+)×/)||[])[1] || 1, txt:s };
+  const m = s.match(/^(\d+)(?:[–-](\d+))?×(\d+)(?:[–-](\d+))?/);
+  if (!m) return { time:true, sets:1, txt:s };
+  return { sets:+m[1], lo:+m[3], hi:+(m[4]||m[3]) };
+}
+function startKg(e){
+  const k = exKit(e), lv = S.profile?.level === "adv" ? 2 : S.profile?.level === "mid" ? 1 : 0;
+  const iso2 = e.g === "iso" || /fly|raise|curl|extension|kickback|pullover|crossover|shrug|calf/i.test(e.en || "");
+  const bar = /بار/.test(e.eq || "") && !/عقلة/.test(e.eq || "");
+  let kg;
+  if (k === "db") kg = iso2 ? [4,6,8][lv] : [8,12,16][lv];
+  else if (bar) kg = ["legs","hinge"].includes(e.g) ? [20,40,60][lv] : iso2 ? [15,20,25][lv] : [20,30,50][lv];
+  else kg = iso2 ? [10,15,20][lv] : [20,30,45][lv];
+  let f = S.body?.sex === "f" ? 0.6 : 1; if (S.myplan?.light) f *= 0.7;
+  const step = k === "db" ? 1 : 2.5;
+  kg = Math.max(k === "db" ? 2 : bar ? 20 : 5, Math.round(kg * f / step) * step);
+  return kg;
+}
+function exInc(e){ return exKit(e) === "db" ? 1 : 2.5; }
+function tgOf(p, id, sc){
+  const e = EXMAP[id], sch = parseScheme(sc);
+  if (!p.tg[id]) {
+    if (sch.time) p.tg[id] = { time:true, sets:sch.sets, txt:sch.txt };
+    else { const bw = ["bw","band","bar"].includes(exKit(e)); p.tg[id] = { bw, sets:sch.sets, lo:sch.lo, hi:sch.hi, reps:sch.lo, kg: bw ? 0 : startKg(e), miss:0 }; }
+  }
+  return p.tg[id];
+}
+const lightWeek = w => w === 3 || w === 7;
+function tgShow(t, w){
+  if (t.time) return t.txt;
+  const kg = t.bw ? 0 : (lightWeek(w) ? Math.round(t.kg * 0.9 / 0.5) * 0.5 : t.kg);
+  return `${t.sets} × ${t.reps}${t.hi > t.reps ? "–" + t.hi : ""}${kg ? ` · ${kg} ${KG()}` : ""}`;
+}
+/* ---- reminders on the phone ---- */
+function planNotify(){
+  if (!FULL || !S.myplan) return;
+  const p = planInit(), items = [], t = iso(new Date());
+  for (let w = 0; w < p.weeks && items.length < 40; w++) p.days.forEach((d, k) => {
+    const ds = iso(sessDate(p, w, k)), st = sessState(p, w, k);
+    if (st !== "today" && st !== "next") return;
+    if (addD(dOf(ds), 0) - new Date() > 21 * 864e5) return;
+    const nm = pl3(d.name);
+    items.push({ d:ds, kind:"day", t:tr("اليوم يوم تمرينك 💪","Training day today 💪","ئەمڕۆ ڕۆژی ڕاهێنانە 💪"), b:tr("برنامجك: {n}. افتح التطبيق وسجّل سِتاتك.","Your plan: {n}. Open the app and log your sets.","پرۆگرامەکەت: {n}. ئەپەکە بکەرەوە و سێتەکانت تۆمار بکە.").replace("{n}", nm) });
+    items.push({ d:iso(addD(dOf(ds), 1)), kind:"miss", t:tr("فاتك تمرين البارحة","You missed yesterday's workout","ڕاهێنانی دوێنێت لەدەست چوو"), b:tr("ماكو مشكلة، كمّل اليوم. كل يوم تحاول يقربك من هدفك 💪","No problem, keep going today. Every try gets you closer to your goal 💪","کێشە نییە، ئەمڕۆ بەردەوام بە. هەموو هەوڵێک نزیکت دەکاتەوە لە ئامانجەکەت 💪") });
+  });
+  crPost("plan:" + JSON.stringify(items));
+}
+setTimeout(planNotify, 1500);
+/* ---- my plan page ---- */
+TAB_OF.plan = "plan"; TAB_OF.pday = "plan"; TAB_OF.psess = "plan"; TAB_OF.presult = "plan";
+let planWk = null;
+const stTag = s => ({ done:`<span class="pst done">${svg("check",12,3)} ${tr("خلصته","Done","تەواو")}</span>`, miss:`<span class="pst miss">${tr("فاتك","Missed","لەدەستچوو")}</span>`, today:`<span class="pst today">${tr("اليوم","Today","ئەمڕۆ")}</span>`, next:`<span class="pst">${tr("جاي","Coming","داهاتوو")}</span>`, off:`<span class="pst">—</span>` })[s];
+V.plan = () => {
+  if (!S.myplan) { if (S.onboarded) setTimeout(makePlan); return ""; }
+  const p = planInit(); save();
+  setTop(tr("برنامجي","My plan","پرۆگرامەکەم"), null, null, langBtn());
+  const st = planStats(p), wn = planWeekNow(p), over = planOver(p), nx = nextSess(p);
+  if (planWk === null) planWk = wn;
+  const pct = st.total ? Math.round(st.done / st.total * 100) : 0;
+  const wkDays = p.days.map((d, k) => ({ d, k, date:sessDate(p, planWk, k), s:sessState(p, planWk, k) }));
+  const strip = [0,1,2,3,4,5,6].map(i => { const date = addD(planW0(p), planWk * 7 + i), k = planPat(p).indexOf(i), s = k >= 0 ? sessState(p, planWk, k) : "rest", isT = iso(date) === iso(new Date());
+    return `<div class="wkd ${s} ${isT ? "now" : ""}"><span>${isEN() ? T(DAYN7[i]).slice(0,3) : T(DAYN7[i])}</span><b>${date.getDate()}</b><i>${s === "done" ? svg("check",11,3) : s === "miss" ? "✕" : k >= 0 ? "●" : ""}</i></div>`; }).join("");
+  return `
+  ${over ? `<section class="card hero"><div class="ring"></div><span class="eyebrow">${tr("خلصت 12 أسبوع 🎉","You finished 12 weeks 🎉","12 هەفتەت تەواو کرد 🎉")}</span><h2 class="h2" style="font-size:22px">${tr("خلصت {d} من {t} تمرين","You did {d} of {t} workouts","{d} لە {t} ڕاهێنانت کرد").replace("{d}",st.done).replace("{t}",st.total)}</h2><span>${tr("اطلب برنامج جديد. نبنيه على الأوزان اللي وصلتلها.","Ask for a new plan. We build it on the weights you reached.","داوای پرۆگرامێکی نوێ بکە. لەسەر ئەو کێشانەی گەیشتیتێ دروستی دەکەین.")}</span><button class="btn" onclick="makePlan()">${svg("ai",18)} ${tr("اطلب برنامج جديد","Ask for a new plan","داوای پرۆگرامی نوێ بکە")}</button></section>` : ""}
+  <section class="card hero phero"><div class="ring"></div>
+    <span class="eyebrow">${esc(pl3(p.t))}</span>
+    <div class="pbig"><b>${tr("الأسبوع","Week","هەفتەی")} ${wn + 1}</b><span>/ ${p.weeks}</span></div>
+    <div class="meter" style="height:10px"><span style="width:${pct}%"></span></div>
+    <div class="pnums"><div><b>${st.done}</b><span>${tr("خلصتها","done","تەواو")}</span></div><div><b>${st.total - st.done - st.miss}</b><span>${tr("باقية","left","ماوە")}</span></div><div><b class="${st.miss ? "red" : ""}">${st.miss}</b><span>${tr("فاتتك","missed","لەدەستچوو")}</span></div><div><b>${p.nDays}</b><span>${tr("أيام/أسبوع","days/week","ڕۆژ/هەفتە")}</span></div></div>
+  </section>
+  ${nx ? `<a class="card pnext" href="#psess-${nx.w}-${nx.k}"><span class="pico">${svg("db",26,2)}</span><span class="grow"><span class="muted small">${nx.s === "today" ? tr("تمرين اليوم","Today's workout","ڕاهێنانی ئەمڕۆ") : tr("التمرين الجاي","Next workout","ڕاهێنانی داهاتوو") + " · " + T(DAYN7[planPat(p)[nx.k]])}</span><span class="h3" style="display:block">${esc(pl3(p.days[nx.k].name))}</span><span class="muted small">${p.days[nx.k].list.length} ${tr("تمارين","exercises","ڕاهێنان")}</span></span><span class="btn sm">${nx.s === "today" ? tr("ابدأ","Start","دەستپێبکە") : tr("سوّيه هسه","Do it now","ئێستا بیکە")}</span></a>` : ""}
+  <div class="row between"><span class="h3">${tr("الأسبوع","Week","هەفتەی")} ${planWk + 1}${lightWeek(planWk) ? ` · <span class="muted small">${tr("أسبوع خفيف (−10%)","Light week (−10%)","هەفتەی سووک (−10%)")}</span>` : ""}</span>
+    <div class="row" style="gap:6px"><button class="icon-btn" aria-label="${tr("الأسبوع السابق","Previous week","هەفتەی پێشوو")}" onclick="planWk=Math.max(0,planWk-1);render()" ${planWk ? "" : "disabled"}><span style="display:flex;transform:scaleX(-1)">${svg("chev",16)}</span></button><button class="icon-btn" aria-label="${tr("الأسبوع الجاي","Next week","هەفتەی داهاتوو")}" onclick="planWk=Math.min(${p.weeks - 1},planWk+1);render()" ${planWk < p.weeks - 1 ? "" : "disabled"}>${svg("chev",16)}</button></div></div>
+  <div class="wkstrip">${strip}</div>
+  <div class="pdays">${wkDays.map(({d, k, date, s}) => `<a class="pdc ${s}" href="#pday-${planWk}-${k}"><span class="grow"><span class="muted small">${T(DAYN7[planPat(p)[k]])} · <span dir="ltr">${date.getDate()}/${date.getMonth()+1}</span></span><span class="t">${esc(pl3(d.name))}</span><span class="muted small">${d.list.length} ${tr("تمارين","exercises","ڕاهێنان")}</span></span>${stTag(s)}<span class="chev">${svg("chev",16)}</span></a>`).join("")}</div>
+  ${S.plast ? `<a class="card pcoach" href="#presult"><span class="pico amber">${svg("ai",22)}</span><span class="grow"><span class="muted small">${tr("كلام الكوتش عن آخر تمرين","Coach on your last workout","قسەی کۆچ دەربارەی دوایین ڕاهێنان")}</span><span style="font-weight:600;display:block">${esc(S.plast.head)}</span></span><span class="chev">${svg("chev",16)}</span></a>` : ""}
+  <button class="btn ghost" onclick="if(confirmNew())makePlan()">${svg("ai",18)} ${tr("اطلب برنامج جديد","Ask for a new plan","داوای پرۆگرامی نوێ بکە")}</button>`;
+};
+function confirmNew(){ return planOver(S.myplan) || planStats(S.myplan).done === 0 || window.confirm(tr("تبدي برنامج جديد؟ أوزانك تبقى وينبني عليها.","Start a new plan? Your weights are kept and the new plan builds on them.","پرۆگرامێکی نوێ دەست پێدەکەیت؟ کێشەکانت دەمێننەوە.")); }
+/* one day, its own page */
+V.pday = arg => {
+  const p = planInit(); if (!p) return V.plan();
+  const [w, k] = arg.split("-").map(Number), d = p.days[k]; if (!d) return V.plan();
+  const s = sessState(p, w, k), date = sessDate(p, w, k), log = S.plog[sessKey(w,k)];
+  setTop(pl3(d.name), "plan", `${tr("الأسبوع","Week","هەفتەی")} ${w+1} · ${T(DAYN7[planPat(p)[k]])} ${date.getDate()}/${date.getMonth()+1}`);
+  return `${stTag(s)}
+  <div class="pday">${d.list.map(([id, sc]) => { const e = EXMAP[id]; if (!e) return ""; const t = tgOf(p, id, sc), lg = log && log.res[id];
+    return `<a class="ex" href="#ex-${id}"><span class="grow" style="min-width:0"><span style="font-weight:600;display:block">${esc(X(e,"ar"))}</span><span class="muted small">${lg ? (lg.time ? tr("خلصته","Done","تەواو") : lg.sets.map(x => (x.kg ? x.kg + "×" : "") + x.r).join(" · ")) : esc(X(e,"m"))}</span></span><span class="sr">${lg ? (lg.hit ? "✓" : "✕") : esc(tgShow(t, w))}</span><span class="chev">${svg("chev",14)}</span></a>`; }).join("")}</div>
+  <div class="isec"><span class="small">${tr("راحة بين السِتات","Rest between sets","پشوو لە نێوان سێتەکان")}: ${pl3(p.rest)}</span></div>
+  ${s === "done" ? "" : `<a class="btn" href="#psess-${w}-${k}">${svg("db",18)} ${s === "miss" ? tr("سوّيه هسه","Do it now","ئێستا بیکە") : tr("ابدأ التمرين","Start workout","ڕاهێنان دەستپێبکە")}</a>`}`;
+};
+/* the workout: log every set */
+let PS = null;
+V.psess = arg => {
+  const p = planInit(); if (!p) return V.plan();
+  const [w, k] = arg.split("-").map(Number), d = p.days[k]; if (!d) return V.plan();
+  if (!PS || PS.key !== arg) PS = { key:arg, w, k, v:{} };
+  setTop(pl3(d.name), "pday-" + arg, `${tr("الأسبوع","Week","هەفتەی")} ${w+1}`);
+  const cards = d.list.map(([id, sc], i) => { const e = EXMAP[id]; if (!e) return ""; const t = tgOf(p, id, sc);
+    const kg = t.bw ? 0 : (lightWeek(w) ? Math.round(t.kg * 0.9 / 0.5) * 0.5 : t.kg);
+    if (!PS.v[id]) PS.v[id] = t.time ? { time:true, ok:false } : { sets:Array.from({length:t.sets}, () => ({ kg, r:t.reps })) };
+    const v = PS.v[id];
+    return `<div class="card psc"><div class="row between"><a href="#ex-${id}" class="h3" style="color:var(--ink);text-decoration:none">${i+1}. ${esc(X(e,"ar"))}</a></div>
+      <span class="ptarget">${tr("الهدف","Goal","ئامانج")}: <b dir="ltr">${esc(tgShow(t, w))}</b></span>
+      ${t.time ? `<label class="tgl" style="justify-content:space-between"><span>${tr("خلصته","I did it","تەواوم کرد")}</span><input type="checkbox" ${v.ok ? "checked" : ""} onchange="PS.v[${id}].ok=this.checked"></label>`
+      : `<div class="psets">${v.sets.map((x, j) => `<div class="pset"><span class="n">${j+1}</span>${t.bw ? "" : `<label><input type="number" inputmode="decimal" step="0.5" min="0" value="${x.kg}" onchange="PS.v[${id}].sets[${j}].kg=+this.value"><em>${KG()}</em></label><span class="x">×</span>`}<label><input type="number" inputmode="numeric" min="0" value="${x.r}" onchange="PS.v[${id}].sets[${j}].r=+this.value"><em>${tr("عدة","reps","دووبارە")}</em></label></div>`).join("")}</div>
+      <span class="note">${tr("غيّر الرقم إذا سوّيت أقل أو أكثر.","Change the numbers if you did less or more.","ژمارەکە بگۆڕە ئەگەر کەمتر یان زیاترت کرد.")}</span>`}
+    </div>`; }).join("");
+  return `${w === 0 && !Object.keys(S.plog).length ? `<div class="isec"><span class="small">${tr("أول تمرين: الأوزان تقدير. اختار وزن تكدر تسوي بيه كل العدات وتبقى عندك عدتين بالخزان.","First workout: weights are a guess. Pick a weight you can do all reps with, 2 reps left in the tank.","یەکەم ڕاهێنان: کێشەکان خەمڵاندنن. کێشێک هەڵبژێرە کە هەموو دووبارەکانی پێ بکەیت و دوو دووبارەت بمێنێتەوە.")}</span></div>` : ""}
+  ${cards}
+  <button class="btn" onclick="finishSess()">${svg("check",18,2.5)} ${tr("خلصت التمرين","Finish workout","ڕاهێنانەکەم تەواو کرد")}</button>`;
+};
+function finishSess(){
+  const p = planInit(), { w, k, key } = PS, d = p.days[k], res = {}, lines = []; let hits = 0, n = 0;
+  d.list.forEach(([id, sc]) => {
+    const e = EXMAP[id], v = PS.v[id]; if (!e || !v) return; const t = tgOf(p, id, sc), nm = X(e, "ar"); n++;
+    if (t.time) { res[id] = { time:true, hit:v.ok }; if (v.ok) hits++; lines.push([v.ok, nm, v.ok ? tr("خلصته. عاشت إيدك.","Done. Well done.","تەواو. دەستت خۆش.") : tr("ما خلصته. المرة الجاية حاول ولو نصه.","Not done. Next time try even half.","تەواو نەکرا. جاری داهاتوو تەنانەت نیوەشی هەوڵ بدە.")]); return; }
+    const goalKg = t.bw ? 0 : (lightWeek(w) ? Math.round(t.kg * 0.9 / 0.5) * 0.5 : t.kg);
+    const sets = v.sets.map(x => ({ kg:+x.kg || 0, r:+x.r || 0 }));
+    const kgOk = t.bw || sets.every(x => x.kg >= goalKg), allTop = kgOk && sets.every(x => x.r >= t.hi), allGoal = kgOk && sets.every(x => x.r >= t.reps);
+    const best = sets.reduce((a, x) => x.kg > a.kg || (x.kg === a.kg && x.r > a.r) ? x : a, { kg:0, r:0 });
+    let msg;
+    if (allTop && !lightWeek(w)) { if (t.bw) { t.hi += 2; t.reps = t.lo = t.reps + 1; } else { t.kg = Math.round((t.kg + exInc(e)) * 2) / 2; t.reps = t.lo; } t.miss = 0;
+      msg = t.bw ? tr("وصلت للهدف كله! المرة الجاية عدات أكثر.","You hit the full goal! More reps next time.","گەیشتیتە ئامانجی تەواو! جاری داهاتوو دووبارەی زیاتر.") : tr("وصلت للهدف كله! المرة الجاية {k} كيلو.","You hit the full goal! Next time {k} kg.","گەیشتیتە ئامانجی تەواو! جاری داهاتوو {k} کیلۆ.").replace("{k}", t.kg); }
+    else if (allGoal) { if (!lightWeek(w)) t.reps = Math.min(t.hi, t.reps + 1); t.miss = 0;
+      msg = tr("وصلت للهدف. المرة الجاية نفس الوزن وعدة زيادة.","Goal hit. Next time same weight, one more rep.","گەیشتیتە ئامانج. جاری داهاتوو هەمان کێش و دووبارەیەکی زیاتر."); }
+    else { t.miss = (t.miss || 0) + 1;
+      const what = t.bw ? tr("سوّيت {r} عدات، والهدف كان {g}.","You did {r} reps, the goal was {g}.","{r} دووبارەت کرد، ئامانج {g} بوو.").replace("{r}", best.r).replace("{g}", t.reps)
+                       : tr("شلت {k} كيلو × {r}، والهدف كان {g} كيلو × {gr}.","You lifted {k} kg × {r}, the goal was {g} kg × {gr}.","{k} کیلۆ × {r}ت هەڵگرت، ئامانج {g} کیلۆ × {gr} بوو.").replace("{k}", best.kg).replace("{r}", best.r).replace("{g}", goalKg).replace("{gr}", t.reps);
+      if (t.miss >= 2) { if (t.bw) t.reps = Math.max(t.lo, t.reps - 2); else { const nk = Math.max(t.bw ? 0 : 2, Math.round(Math.max(best.kg, t.kg * 0.9) * 2) / 2); t.kg = Math.min(t.kg, nk); } t.miss = 0;
+        msg = what + " " + tr("مرتين ما وصلت، فنزلناه شوية حتى تبني عليه وتعديه. كمّل!","Twice short, so we lowered it a little so you can build up and beat it. Keep going!","دوو جار نەگەیشتی، بۆیە کەمێک کەممان کردەوە تا لەسەری بنیات بنێیت و تێیپەڕێنیت. بەردەوام بە!"); }
+      else msg = what + " " + tr("ماكو مشكلة، إنت قريب. المرة الجاية نحاول نفس الهدف، راح توصله. كمّل حاول!","No problem, you're close. Next time we try the same goal, you'll get it. Keep trying!","کێشە نییە، نزیکیت. جاری داهاتوو هەمان ئامانج هەوڵ دەدەین، پێی دەگەیت. بەردەوام بە!"); }
+    const hit = allGoal || allTop; if (hit) hits++;
+    res[id] = { sets, hit }; lines.push([hit, nm, msg]);
+  });
+  S.plog[key] = { date:iso(new Date()), res };
+  const head = hits === n ? tr("تمرين كامل! وصلت لكل أهدافك 🔥","Perfect workout! You hit every goal 🔥","ڕاهێنانی تەواو! گەیشتیتە هەموو ئامانجەکان 🔥")
+    : hits >= n / 2 ? tr("شغل زين! وصلت {h} من {n}. كمّل نفس الشي.","Good work! {h} of {n} goals hit. Keep it up.","کاری باش! {h} لە {n} ئامانج. بەردەوام بە.").replace("{h}", hits).replace("{n}", n)
+    : tr("المهم إنك تمرنت. {h} من {n}، والمرة الجاية أحسن. لا توقف!","What matters is you trained. {h} of {n}, next time will be better. Don't stop!","گرنگ ئەوەیە ڕاهێنانت کرد. {h} لە {n}، جاری داهاتوو باشتر دەبێت. مەوەستە!").replace("{h}", hits).replace("{n}", n);
+  S.plast = { key, head, lines, at:Date.now() };
+  S.hist = S.hist || []; save(); PS = null; planNotify(); location.hash = "presult";
+}
+V.presult = () => {
+  const L = S.plast; if (!L) return V.plan();
+  setTop(tr("نتيجة تمرينك","Your workout result","ئەنجامی ڕاهێنانەکەت"), "plan");
+  const hits = L.lines.filter(x => x[0]).length;
+  return `<section class="card hero" style="align-items:center;text-align:center"><div class="ring"></div>${ring(L.lines.length ? hits / L.lines.length : 0, "var(--teal)", hits + "/" + L.lines.length)}<h2 class="h2" style="font-size:20px">${esc(L.head)}</h2></section>
+  <div class="list">${L.lines.map(([ok, nm, msg]) => `<div class="li" style="align-items:flex-start"><span class="pok ${ok ? "ok" : "bad"}">${ok ? svg("check",14,3) : "!"}</span><span class="grow"><span class="t" style="display:block">${esc(nm)}</span><span class="muted small" style="line-height:1.6">${esc(msg)}</span></span></div>`).join("")}</div>
+  <a class="btn" href="#plan">${tr("رجوع لبرنامجي","Back to my plan","گەڕانەوە بۆ پرۆگرامەکەم")}</a>`;
+};
+/* new plans keep the weights reached */
+const _genPlan = genPlan;
+genPlan = function(pf, body, seed){ const old = S.myplan && S.myplan.tg; const np = _genPlan(pf, body, seed); np.tg = {}; if (old) np.days.forEach(d => d.list.forEach(([id]) => { if (old[id]) np.tg[id] = { ...old[id], miss:0 }; })); np.start = iso(new Date()); np.weeks = PWEEKS; S.plog = {}; S.plast = null; planWk = null; setTimeout(planNotify, 500); return np; };
+/* bottom bar: big My plan button in the middle */
+TABS.splice(3, 0, ["plan", "برنامجي", "cal"]);
+function nav(active){ $("#nav").setAttribute("aria-label", T("القائمة")); $("#nav").innerHTML = `<div class="nav-in">${TABS.map(([h,l,i]) => h === "plan"
+  ? `<a href="#plan" class="big ${active==="plan"?"on":""}" ${active==="plan"?'aria-current="page"':""}><span class="bigb">${svg(i,26,2.2)}</span>${tr("برنامجي","My plan","پرۆگرامەکەم")}</a>`
+  : `<a href="#${h}" class="${active===h?"on":""}" ${active===h?'aria-current="page"':""}>${svg(i,22,active===h?2:1.8)}${T(l)}</a>`).join("")}</div>`; }
+document.body.insertAdjacentHTML("beforeend", `<style>
+.nav-in{grid-template-columns:repeat(3,minmax(0,1fr)) 76px repeat(3,minmax(0,1fr))!important}
+.nav a.big{overflow:visible}
+.nav a.big::before{display:none!important}
+.nav a.big .bigb{width:62px;height:62px;border-radius:50%;margin-top:-34px;margin-bottom:2px;display:flex;align-items:center;justify-content:center;color:#06222B;background:linear-gradient(160deg,#6FE0F7,#2FA6D6);box-shadow:0 0 0 5px #121618,0 8px 22px rgba(76,201,234,.45)}
+.nav a.big.on .bigb{box-shadow:0 0 0 5px #121618,0 0 26px rgba(76,201,234,.85)}
+.nav a.big{color:var(--teal);font-weight:700}
+.phero{gap:10px}
+.pbig{display:flex;align-items:baseline;gap:8px}.pbig b{font-family:var(--display);font-size:34px;font-weight:800}.pbig span{font-size:18px;opacity:.7;font-weight:700}
+.pnums{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.pnums div{background:rgba(0,0,0,.18);border-radius:12px;padding:8px 2px;display:flex;flex-direction:column}
+.pnums b{font-family:var(--display);font-size:20px}.pnums b.red{color:#FF7A7A}.pnums span{font-size:11px;opacity:.8}
+.pnext,.pcoach{flex-direction:row!important;align-items:center;gap:12px;color:var(--ink);text-decoration:none;border-color:var(--teal)!important}
+.pico{width:50px;height:50px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:rgba(76,201,234,.14);color:var(--teal);flex-shrink:0}
+.pico.amber{background:rgba(255,178,60,.14);color:var(--amber)}
+.btn.sm{height:38px;padding:0 14px;font-size:13px;width:auto;flex-shrink:0}
+.icon-btn[disabled]{opacity:.35}
+.wkstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.wkd{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;min-width:0;overflow:hidden;white-space:nowrap;letter-spacing:-.02em;border-radius:14px;background:var(--surface);border:1px solid var(--line);font-size:10.5px;color:var(--muted)}
+.wkd b{font-size:16px;color:var(--ink);font-family:var(--display)}.wkd i{font-style:normal;font-size:11px;height:14px;display:flex;align-items:center}
+.wkd.rest{opacity:.5}.wkd.done{border-color:var(--teal)}.wkd.done i{color:var(--teal)}.wkd.miss i{color:#FF7A7A}.wkd.next i,.wkd.today i{color:var(--teal)}
+.wkd.now{background:rgba(76,201,234,.16);border-color:var(--teal)}
+.pdays{display:flex;flex-direction:column;gap:8px}
+.pdc{display:flex;align-items:center;gap:10px;padding:14px;border-radius:18px;background:var(--surface);border:1px solid var(--line);color:var(--ink);text-decoration:none}
+.pdc .t{display:block;font-weight:700;font-size:15px}
+.pdc.today{border-color:var(--teal)}.pdc.miss{border-color:rgba(255,122,122,.45)}
+.pst{font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:9px;background:var(--raised);color:var(--muted);display:inline-flex;align-items:center;gap:4px;white-space:nowrap;align-self:flex-start}
+.pst.done{background:rgba(76,201,234,.16);color:var(--teal)}.pst.miss{background:rgba(255,122,122,.14);color:#FF8A8A}.pst.today{background:var(--teal);color:#06222B}
+.ptarget{font-size:13.5px;color:var(--muted)}.ptarget b{color:var(--teal);font-family:var(--display);font-size:15px}
+.psets{display:flex;flex-direction:column;gap:8px}
+.pset{display:flex;align-items:center;gap:8px}
+.pset .n{width:26px;height:26px;border-radius:50%;background:var(--raised);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.pset label{flex:1;display:flex;align-items:center;gap:6px;background:var(--raised);border:1px solid var(--line);border-radius:12px;padding:0 10px;height:46px}
+.pset input{flex:1;min-width:0;width:100%;background:transparent;border:0;color:var(--ink);font-size:18px;font-weight:800;font-family:var(--display);text-align:center;direction:ltr;outline:none}
+.pset em{font-style:normal;font-size:11.5px;color:var(--muted)}
+.pset .x{color:var(--muted);font-weight:700}
+.pok{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:900}
+.pok.ok{background:rgba(76,201,234,.18);color:var(--teal)}.pok.bad{background:rgba(255,178,60,.18);color:var(--amber)}
+</style>`);
+
 
 /* ---------- router ---------- */
 let lastRoute = "";
