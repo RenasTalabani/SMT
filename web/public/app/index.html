@@ -4333,6 +4333,126 @@ document.body.insertAdjacentHTML("beforeend", `<style>
 .pok.ok{background:rgba(76,201,234,.18);color:var(--teal)}.pok.bad{background:rgba(255,178,60,.18);color:var(--amber)}
 </style>`);
 
+/* ---- no exercise videos or animations for now: name and info only ---- */
+for (const k in EXVID) delete EXVID[k];
+animSVG = function(){ return ""; };
+
+/* =========================================================
+   THE COURSE: every exercise with sets, reps, kg, rest between
+   sets and rest before the next exercise + a guided workout
+   with a rest timer (press Done → the timer runs)
+   ========================================================= */
+function exBig(e){ const iso = e.g === "iso" || e.g === "core" || /fly|raise|curl|extension|kickback|pullover|crossover|shrug|calf/i.test(e.en || ""); return !iso && ["legs","hinge","chest","row","pull","shoulder"].includes(e.g); }
+function restSets(e){ const g = S.profile?.goal || "fit", light = S.myplan?.light; if (light) return 75; const big = exBig(e);
+  if (g === "strength") return big ? 150 : 90; if (g === "muscle") return big ? 90 : 60; if (g === "fat") return 45; return big ? 75 : 60; }
+function restBetween(){ const g = S.profile?.goal || "fit"; if (S.myplan?.light) return 90; return { strength:180, muscle:120, fat:60 }[g] || 90; }
+const fmtRest = s => s < 60 ? `${s} ${tr("ثانية","s","چرکە")}` : `${Math.floor(s/60)}${s % 60 ? ":" + String(s % 60).padStart(2,"0") : ""} ${tr("دقيقة","min","خولەک")}`;
+const clock = s => `${Math.floor(s/60)}:${String(Math.max(0,s) % 60).padStart(2,"0")}`;
+function tgKg(t, w){ return t.bw ? 0 : (lightWeek(w) ? Math.round(t.kg * 0.9 / 0.5) * 0.5 : t.kg); }
+function chips(t, w, e){ if (t.time) return `<span class="cc">${esc(t.txt)}</span><span class="cc rest">${svg("clock",12)} ${tr("راحة بين السِتات","rest between sets","پشوو نێوان سێتەکان")} ${fmtRest(restSets(e))}</span>`;
+  const kg = tgKg(t, w);
+  return `<span class="cc"><b>${t.sets}</b> ${tr("سِتات","sets","سێت")}</span><span class="cc"><b>${t.reps}${t.hi > t.reps ? "–" + t.hi : ""}</b> ${tr("عدة","reps","دووبارە")}</span>${kg ? `<span class="cc"><b>${kg}</b> ${KG()}</span>` : `<span class="cc">${tr("وزن الجسم","bodyweight","کێشی جەستە")}</span>`}<span class="cc rest">${svg("clock",12)} ${tr("راحة بين السِتات","rest between sets","پشوو نێوان سێتەکان")} ${fmtRest(restSets(e))}</span>`; }
+if (!I.clock) I.clock = '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/>';
+/* the day = the course */
+V.pday = arg => {
+  const p = planInit(); if (!p) return V.plan();
+  const [w, k] = arg.split("-").map(Number), d = p.days[k]; if (!d) return V.plan();
+  const s = sessState(p, w, k), date = sessDate(p, w, k), log = S.plog[sessKey(w,k)];
+  setTop(pl3(d.name), "plan", `${tr("الأسبوع","Week","هەفتەی")} ${w+1} · ${T(DAYN7[planPat(p)[k]])} ${date.getDate()}/${date.getMonth()+1}`);
+  const items = d.list.filter(([id]) => EXMAP[id]);
+  const totalSets = items.reduce((a, [id, sc]) => a + tgOf(p, id, sc).sets, 0);
+  const mins = Math.round(items.reduce((a, [id, sc]) => { const t = tgOf(p, id, sc), e = EXMAP[id]; return a + t.sets * (40 + restSets(e)); }, 0) / 60 + (items.length - 1) * restBetween() / 60);
+  return `<div class="row between">${stTag(s)}<span class="muted small">${items.length} ${tr("تمارين","exercises","ڕاهێنان")} · ${totalSets} ${tr("سِت","sets","سێت")} · ~${mins} ${tr("دقيقة","min","خولەک")}</span></div>
+  <div class="course">${items.map(([id, sc], i) => { const e = EXMAP[id], t = tgOf(p, id, sc), lg = log && log.res[id];
+    return `${i ? `<div class="cbreak">${svg("clock",13)} ${tr("راحة {t} قبل التمرين الجاي","Rest {t} before the next exercise","پشوو {t} پێش ڕاهێنانی داهاتوو").replace("{t}", fmtRest(restBetween()))}</div>` : ""}
+    <a class="crow" href="#ex-${id}"><span class="cn">${i+1}</span><span class="grow" style="min-width:0"><span class="t">${esc(X(e,"ar"))}</span><span class="cchips">${chips(t, w, e)}</span>${lg ? `<span class="muted small">${tr("سوّيت","You did","کردت")}: ${lg.time ? tr("خلصته","done","تەواو") : lg.sets.map(x => (x.kg ? x.kg + "×" : "") + x.r).join(" · ")} ${lg.hit ? "✓" : ""}</span>` : ""}</span><span class="chev">${svg("chev",14)}</span></a>`; }).join("")}</div>
+  ${s === "done" ? "" : `<a class="btn" href="#psess-${w}-${k}">${svg("db",18)} ${S.pact && S.pact.key === arg ? tr("كمّل التمرين","Continue workout","ڕاهێنان بەردەوام بکە") : s === "miss" ? tr("سوّيه هسه","Do it now","ئێستا بیکە") : tr("ابدأ التمرين","Start workout","ڕاهێنان دەستپێبکە")}</a>`}`;
+};
+/* the guided workout */
+let PT = null;
+function beep(){ try { const a = new (window.AudioContext || window.webkitAudioContext)(); [0, .25, .5].forEach(t => { const o = a.createOscillator(), g = a.createGain(); o.frequency.value = 880; o.connect(g); g.connect(a.destination); g.gain.setValueAtTime(.25, a.currentTime + t); g.gain.exponentialRampToValueAtTime(.001, a.currentTime + t + .2); o.start(a.currentTime + t); o.stop(a.currentTime + t + .21); }); } catch (e) {} try { navigator.vibrate && navigator.vibrate([300,150,300,150,300]); } catch (e) {} }
+function psInit(arg){
+  const p = planInit(), [w, k] = arg.split("-").map(Number), d = p.days[k];
+  if (S.pact && S.pact.key === arg) { PS = S.pact; return; }
+  const items = d.list.filter(([id]) => EXMAP[id]);
+  PS = { key:arg, w, k, i:0, rest:null, v:{} };
+  items.forEach(([id, sc]) => { const t = tgOf(p, id, sc), kg = tgKg(t, w);
+    PS.v[id] = t.time ? { time:true, ok:false, sets:Array.from({length:t.sets}, () => ({ done:false })) } : { sets:Array.from({length:t.sets}, () => ({ kg, r:t.reps, done:false })) }; });
+  S.pact = PS; save();
+}
+V.psess = arg => {
+  const p = planInit(); if (!p) return V.plan();
+  const [w, k] = arg.split("-").map(Number), d = p.days[k]; if (!d) return V.plan();
+  if (!PS || PS.key !== arg) psInit(arg);
+  const items = d.list.filter(([id]) => EXMAP[id]);
+  setTop(pl3(d.name), "pday-" + arg, `${tr("الأسبوع","Week","هەفتەی")} ${w+1}`);
+  const all = items.reduce((a, [id]) => a + PS.v[id].sets.length, 0), done = items.reduce((a, [id]) => a + PS.v[id].sets.filter(x => x.done).length, 0);
+  const strip = `<div class="pprog"><div class="meter" style="height:8px"><span style="width:${Math.round(done / all * 100)}%"></span></div><span class="muted small">${done} / ${all} ${tr("سِت","sets","سێت")}</span></div>
+    <div class="exdots">${items.map(([id], j) => { const v = PS.v[id], f = v.sets.every(x => x.done); return `<button class="${j === PS.i ? "on" : ""} ${f ? "ok" : ""}" onclick="PS.i=${j};S.pact=PS;save();render()">${f ? svg("check",11,3) : j + 1}</button>`; }).join("")}</div>`;
+  if (PS.rest) {
+    const left = Math.max(0, Math.ceil((PS.rest.end - Date.now()) / 1000));
+    return `${strip}<section class="restbox"><span class="eyebrow">${tr("استراحة","Rest","پشوو")}</span>
+      <div class="rring">${ringBig(left / PS.rest.total)}<b id="rclock">${clock(left)}</b></div>
+      <span class="muted">${tr("الجاي","Next","داهاتوو")}: <b style="color:var(--ink)">${esc(PS.rest.next)}</b></span>
+      <div class="row" style="gap:10px;justify-content:center"><button class="btn ghost sm" onclick="PS.rest.end+=15000;PS.rest.total+=15;S.pact=PS;save();render()">+15 ${tr("ثانية","s","چ")}</button><button class="btn sm" onclick="endRest()">${tr("خلّي الراحة","Skip rest","پشوو بپەڕێنە")}</button></div></section>`;
+  }
+  const [id, sc] = items[PS.i], e = EXMAP[id], t = tgOf(p, id, sc), v = PS.v[id], cur = v.sets.findIndex(x => !x.done);
+  return `${strip}
+  <section class="card pcur"><span class="muted small">${tr("التمرين","Exercise","ڕاهێنان")} ${PS.i + 1} / ${items.length}</span>
+    <a class="h3" href="#ex-${id}" style="color:var(--ink);text-decoration:none;font-size:20px">${esc(X(e,"ar"))}</a>
+    <span class="cchips">${chips(t, w, e)}</span>
+    <div class="psets">${v.sets.map((x, j) => `<div class="pset ${x.done ? "done" : j === cur ? "cur" : ""}"><span class="n">${x.done ? svg("check",12,3) : j + 1}</span>${t.time ? `<label style="justify-content:center"><em>${esc(t.txt)}</em></label>` : `${t.bw ? "" : `<label><input type="number" inputmode="decimal" step="0.5" min="0" value="${x.kg}" onchange="PS.v[${id}].sets[${j}].kg=+this.value;S.pact=PS;save()"><em>${KG()}</em></label><span class="x">×</span>`}<label><input type="number" inputmode="numeric" min="0" value="${x.r}" onchange="PS.v[${id}].sets[${j}].r=+this.value;S.pact=PS;save()"><em>${tr("عدة","reps","دووبارە")}</em></label>`}</div>`).join("")}</div>
+    ${cur >= 0 ? `<button class="btn big" onclick="setDone()">${svg("check",20,2.5)} ${tr("خلصت السِت {n}","Done set {n}","سێتی {n} تەواو").replace("{n}", cur + 1)}</button>` : `<span class="muted small" style="text-align:center">${tr("خلصت هذا التمرين","This exercise is done","ئەم ڕاهێنانە تەواو بوو")} ✓</span>`}
+    <span class="note">${tr("غيّر الكيلو أو العدات قبل ما تضغط، إذا سوّيت أقل أو أكثر.","Change the kg or reps before you press, if you did less or more.","پێش داگرتن کیلۆ یان دووبارە بگۆڕە، ئەگەر کەمتر یان زیاترت کرد.")}</span></section>
+  <div class="row" style="gap:8px">${PS.i > 0 ? `<button class="btn ghost" style="flex:1" onclick="PS.i--;S.pact=PS;save();render()">${tr("السابق","Previous","پێشوو")}</button>` : ""}${PS.i < items.length - 1 ? `<button class="btn ghost" style="flex:1" onclick="PS.i++;S.pact=PS;save();render()">${tr("التمرين الجاي","Next exercise","ڕاهێنانی داهاتوو")}</button>` : ""}</div>
+  <button class="btn ghost" onclick="finishSess()">${tr("خلّص التمرين وشوف النتيجة","Finish workout and see the result","ڕاهێنان تەواو بکە و ئەنجام ببینە")}</button>`;
+};
+function ringBig(f){ const r = 92, c = 2 * Math.PI * r; return `<svg width="220" height="220" viewBox="0 0 220 220" aria-hidden="true"><circle cx="110" cy="110" r="${r}" fill="none" stroke="var(--raised)" stroke-width="12"/><circle id="rarc" cx="110" cy="110" r="${r}" fill="none" stroke="var(--teal)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${(c * Math.max(0, Math.min(1, f))).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 110 110)"/></svg>`; }
+function setDone(){
+  const p = planInit(), d = p.days[PS.k], items = d.list.filter(([id]) => EXMAP[id]), [id] = items[PS.i], e = EXMAP[id], v = PS.v[id];
+  const j = v.sets.findIndex(x => !x.done); if (j < 0) return;
+  v.sets[j].done = true; if (v.time && v.sets.every(x => x.done)) v.ok = true;
+  const moreSets = v.sets.some(x => !x.done);
+  let nextI = PS.i; if (!moreSets) { nextI = items.findIndex(([x], q) => q > PS.i && PS.v[x].sets.some(s => !s.done)); if (nextI < 0) nextI = items.findIndex(([x]) => PS.v[x].sets.some(s => !s.done)); }
+  if (!moreSets && nextI < 0) { S.pact = PS; save(); finishSess(); return; }
+  const secs = moreSets ? restSets(e) : restBetween();
+  const next = moreSets ? tr("السِت {n} من {m}","Set {n} of {m}","سێتی {n} لە {m}").replace("{n}", j + 2).replace("{m}", v.sets.length) : X(EXMAP[items[nextI][0]], "ar");
+  PS.i = nextI; PS.rest = { end: Date.now() + secs * 1000, total: secs, next }; S.pact = PS; save(); render(); restTick();
+}
+function endRest(){ if (!PS) return; PS.rest = null; S.pact = PS; save(); if (PT) { clearInterval(PT); PT = null; } render(); }
+function restTick(){
+  if (PT) clearInterval(PT);
+  PT = setInterval(() => {
+    if (!PS || !PS.rest || !/^#psess/.test(location.hash)) { clearInterval(PT); PT = null; return; }
+    const left = Math.ceil((PS.rest.end - Date.now()) / 1000), el = document.getElementById("rclock"), arc = document.getElementById("rarc");
+    if (el) el.textContent = clock(Math.max(0, left));
+    if (arc) { const c = 2 * Math.PI * 92; arc.setAttribute("stroke-dasharray", `${(c * Math.max(0, left) / PS.rest.total).toFixed(1)} ${c.toFixed(1)}`); }
+    if (left <= 0) { clearInterval(PT); PT = null; beep(); endRest(); }
+  }, 250);
+}
+const _finishSess = finishSess;
+finishSess = function(){ if (PT) { clearInterval(PT); PT = null; } if (PS) { PS.rest = null; Object.values(PS.v).forEach(v => { if (v.time) v.ok = v.sets.every(x => x.done) || v.ok; }); } S.pact = null; _finishSess(); };
+const _afterRenderC = typeof afterRender === "function" ? afterRender : null;
+afterRender = function(name, arg){ if (_afterRenderC) _afterRenderC(name, arg); if (name === "psess" && PS && PS.rest) restTick(); };
+document.body.insertAdjacentHTML("beforeend", `<style>
+.course{display:flex;flex-direction:column;gap:0}
+.crow{display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;background:var(--surface);border:1px solid var(--line);color:var(--ink);text-decoration:none}
+.crow .t{display:block;font-weight:700;font-size:15.5px;margin-bottom:6px}
+.cn{width:30px;height:30px;border-radius:50%;background:rgba(76,201,234,.16);color:var(--teal);display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;font-family:var(--display)}
+.cchips{display:flex;flex-wrap:wrap;gap:6px}
+.cc{font-size:12px;padding:4px 9px;border-radius:9px;background:var(--raised);color:var(--muted);white-space:nowrap;display:inline-flex;align-items:center;gap:4px}.cc b{color:var(--ink);font-family:var(--display);font-size:13px}
+.cc.rest{background:rgba(255,178,60,.12);color:var(--amber)}
+.cbreak{align-self:center;margin:8px 0;font-size:12px;font-weight:700;color:var(--amber);background:rgba(255,178,60,.1);border:1px dashed rgba(255,178,60,.4);padding:5px 12px;border-radius:20px;display:inline-flex;align-items:center;gap:6px}
+.pprog{display:flex;align-items:center;gap:10px}.pprog .meter{flex:1}
+.exdots{display:flex;gap:6px;flex-wrap:wrap}.exdots button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-weight:800;display:flex;align-items:center;justify-content:center}
+.exdots button.on{border-color:var(--teal);color:var(--teal);box-shadow:0 0 0 2px rgba(76,201,234,.25)}.exdots button.ok{background:rgba(76,201,234,.16);color:var(--teal)}
+.pcur{gap:12px!important}
+.pset.done{opacity:.55}.pset.cur label{border-color:var(--teal)}.pset.done .n{background:rgba(76,201,234,.2);color:var(--teal)}.pset.cur .n{background:var(--teal);color:#06222B}
+.btn.big{height:58px;font-size:17px}
+.restbox{display:flex;flex-direction:column;align-items:center;gap:14px;padding:22px 16px;border-radius:22px;background:var(--surface);border:1px solid var(--line);text-align:center}
+.rring{position:relative;width:220px;height:220px}.rring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:52px;font-weight:800;direction:ltr}
+</style>`);
+
 
 /* ---------- router ---------- */
 let lastRoute = "";
