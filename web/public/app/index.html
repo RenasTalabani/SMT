@@ -4589,6 +4589,25 @@ document.body.insertAdjacentHTML("beforeend", `<style>
 .sl.ok i{background:rgba(76,201,234,.18);color:var(--teal)}.sl.no i{background:rgba(255,107,107,.15);color:#FF8A8A}
 </style>`);
 
+/* ---- exercise page: short and easy (muscles, 3 steps, sets, one mistake) ---- */
+V.ex = id => {
+  const e = EXMAP[+id]; if (!e) return V.lib();
+  setTop(esc(X(e,"ar")), "lib");
+  const steps = String(X(e,"cue") || "").split(/(?<=[.!؟?])\s+|\s*[،؛;]\s*(?=\S{3})/).map(s => s.trim().replace(/[.،]$/, "")).filter(s => s.length > 2).slice(0, 4);
+  const mistake = String(X(e,"err") || "").split(/[،,]\s*/).filter(Boolean)[0] || "";
+  return `
+  <section class="card exh"><span class="exm">${svg("body",20)} ${esc(X(e,"m"))}</span>
+    <div class="row" style="gap:6px;flex-wrap:wrap"><span class="cc">${esc(X(e,"eq"))}</span><span class="cc">${esc(X(e,"lv"))}</span>${e.sets ? `<span class="cc"><b dir="ltr">${esc(X(e,"sets"))}</b></span>` : ""}</div></section>
+  <section class="card" style="gap:12px"><span class="h3">${tr("شلون تسويه","How to do it","چۆن بیکەیت")}</span>
+    ${steps.map((s, i) => `<div class="exs"><b>${i + 1}</b><span>${esc(s)}</span></div>`).join("")}</section>
+  ${mistake ? `<section class="card exavoid"><i>${svg("x",14,3)}</i><span><b>${tr("لا تسوي","Avoid","مەیکە")}:</b> ${esc(mistake)}</span></section>` : ""}`;
+};
+document.body.insertAdjacentHTML("beforeend", `<style>
+.exh{gap:10px!important}.exm{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;color:var(--teal)}
+.exs{display:flex;gap:12px;align-items:flex-start;font-size:16px;line-height:1.6}.exs b{width:28px;height:28px;border-radius:50%;background:rgba(76,201,234,.16);color:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--display)}
+.exavoid{flex-direction:row!important;align-items:flex-start;gap:10px;border-color:rgba(255,107,107,.35)!important;line-height:1.6}.exavoid i{width:26px;height:26px;border-radius:50%;background:rgba(255,107,107,.15);color:#FF8A8A;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+</style>`);
+
 
 /* ---------- router ---------- */
 let lastRoute = "";
