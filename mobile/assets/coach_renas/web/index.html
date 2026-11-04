@@ -4453,6 +4453,142 @@ document.body.insertAdjacentHTML("beforeend", `<style>
 .rring{position:relative;width:220px;height:220px}.rring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:52px;font-weight:800;direction:ltr}
 </style>`);
 
+/* =========================================================
+   SIMPLE MODE (Renas, Nov 4): fewer things, each easy to use
+   ========================================================= */
+/* bottom bar: Home · Body · [My plan] · Exercises · Food */
+TABS.length = 0;
+TABS.push(["home","الرئيسية","home"], ["body","الجسم","body"], ["plan","برنامجي","cal"], ["train","التمارين","db"], ["food","الأكل والمكملات","food"]);
+document.body.insertAdjacentHTML("beforeend", `<style>.nav-in{grid-template-columns:repeat(2,minmax(0,1fr)) 84px repeat(2,minmax(0,1fr))!important}</style>`);
+const soonPage = (title) => { setTop(title, "home", null, langBtn()); return `<section class="card" style="align-items:center;text-align:center;gap:10px;padding:32px 18px"><span style="color:var(--muted)">${svg("lock",30)}</span><span class="h3">${tr("قريباً","Coming soon","بەم زووانە")}</span><span class="muted">${tr("هذا القسم راح يفتح بالتحديث الجاي.","This part opens in a coming update.","ئەم بەشە لە نوێکردنەوەی داهاتوودا دەکرێتەوە.")}</span><a class="btn ghost" href="#home">${tr("رجوع للرئيسية","Back to home","گەڕانەوە بۆ سەرەکی")}</a></section>`; };
+if (!I.lock) I.lock = '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>';
+V.coach = () => soonPage(tr("المدرب الذكي","AI coach","ڕاهێنەری زیرەک"));
+V.shop = () => soonPage(tr("المتجر","Store","فرۆشگا"));
+V.checkout = V.shop;
+V.challenge = () => soonPage(T("تحدي 30 يوم"));
+TAB_OF.coach = "home"; TAB_OF.shop = "home"; TAB_OF.checkout = "home"; TAB_OF.challenge = "home"; TAB_OF.hormones = "food";
+
+/* ---- home: today's workout, today's numbers, the coach's tip ---- */
+V.home = () => {
+  const hr = new Date().getHours(), greet = hr < 12 ? tr("صباح الخير","Good morning","بەیانیت باش") : tr("مساء الخير","Good evening","ئێوارەت باش");
+  setTop(isEN() ? "Coach Renas" : isKU() ? "کۆچ ڕێناس" : "الكوتش ريناس", null, greet + (S.name ? "، " + esc(S.name) : ""), langBtn() + `<a class="icon-btn" href="#notif" aria-label="${T("الرسائل والتذكيرات")}">${svg("bell",20)}</a><a class="icon-btn" href="#me" aria-label="${T("حسابي")}">${svg("user",20)}</a>`);
+  const tg = targets(), eaten = logTotals(), td = todayPlanDay();
+  const hero = td ? `<a class="card hero" href="#plan" style="text-decoration:none"><div class="ring"></div><span class="eyebrow">${td.rest ? tr("اليوم راحة · التمرين الجاي","Rest day · next workout","ئەمڕۆ پشوو · ڕاهێنانی داهاتوو") : tr("تمرين اليوم","Today's workout","ڕاهێنانی ئەمڕۆ")}</span>
+      <h2 class="h2" style="font-size:24px">${esc(pl3(td.day.name))}</h2>
+      <div class="todayx"><span>${td.day.list.length} ${tr("تمارين","exercises","ڕاهێنان")}</span></div>
+      <span class="btn dark">${svg("play",16)} ${td.rest ? tr("شوف برنامجي","See my plan","پرۆگرامەکەم ببینە") : tr("ابدأ تمرين اليوم","Start today's workout","ڕاهێنانی ئەمڕۆ دەست پێبکە")}</span></a>`
+    : `<a class="card hero" href="#plan" style="text-decoration:none"><div class="ring"></div><span class="eyebrow">${tr("ابدأ من هنا","Start here","لێرەوە دەست پێبکە")}</span><h2 class="h2" style="font-size:24px">${tr("سوّيلي برنامج خاص بيّه","Make my own plan","پرۆگرامی تایبەتی خۆم دروست بکە")}</h2><span class="btn dark">${svg("play",16)} ${tr("ابدأ","Start","دەست پێبکە")}</span></a>`;
+  const kPct = tg.kcal ? eaten.kcal / tg.kcal : 0, pPct = tg.pLo ? eaten.p / tg.pLo : 0;
+  return `${hero}
+  <div class="rings">
+    <a href="#food">${ring(kPct, "var(--teal)", fmt(eaten.kcal))}<span class="k">${tr("سعرات اليوم","Calories today","کالۆری ئەمڕۆ")}</span><span class="muted small">${eaten.kcal ? "/ " + fmt(tg.kcal) : tr("ضيف أكلك","Add your food","خواردنەکەت زیاد بکە")}</span></a>
+    <a href="#food">${ring(pPct, "#5AA7F0", fmt(eaten.p) + tr("غ","g","گ"))}<span class="k">${tr("بروتين","Protein","پرۆتین")}</span><span class="muted small">/ ${tg.pLo}${tr("غ","g","گ")}</span></a>
+    <a href="#plan">${ring(Math.min(1, streak() / 7), "var(--amber)", String(streak()))}<span class="k">${tr("يوم ورا بعض","Day streak","ڕۆژ لە دوای یەک")}</span></a>
+  </div>
+  ${tipOfDay() ? `<div class="card" style="gap:6px;border-color:#4A3713"><span class="eyebrow" style="color:var(--amber)">${svg("ai",14)} ${T("نصيحة اليوم من الكوتش")}</span><span style="font-weight:600;line-height:1.6">${T(tipOfDay())}</span></div>` : ""}
+  <a class="card" href="#why" style="flex-direction:row;align-items:center;gap:12px;border-color:var(--teal)"><span style="width:44px;height:44px;border-radius:14px;background:rgba(76,201,234,.14);color:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg("search",22)}</span><span class="grow" style="min-width:0"><span class="h3" style="display:block">${tr("ليش جسمي ما يتغير؟","Why isn't my body changing?","بۆچی جەستەم ناگۆڕێت؟")}</span><span class="muted small">${tr("فحص سريع ويگلك السبب","A quick check that tells you why","پشکنینێکی خێرا و هۆکارەکەت پێدەڵێت")}</span></span><span class="chev">${svg("chev",16)}</span></a>
+  <div class="grid2">
+    <div class="card soon"><span>${svg("shield",22)}</span><span class="h3">${T("تحدي 30 يوم")}</span><span class="tag">${svg("lock",12)} ${tr("قريباً","Soon","بەم زووانە")}</span></div>
+    <div class="card soon"><span>${svg("ai",22)}</span><span class="h3">${tr("اسأل المدرب","Ask the coach","پرسیار لە ڕاهێنەر بکە")}</span><span class="tag">${svg("lock",12)} ${tr("قريباً","Soon","بەم زووانە")}</span></div>
+  </div>`;
+};
+
+/* ---- food & supplements: two parts only ---- */
+const foodSeg = on => `<div class="seg" role="tablist"><a role="tab" class="${on === "food" ? "on" : ""}" href="#food">${tr("الأكل","Food","خواردن")}</a><a role="tab" class="${on === "supps" ? "on" : ""}" href="#supps">${tr("المكملات","Supplements","تەواوکەرەکان")}</a></div>`;
+V.food = () => {
+  setTop(tr("الأكل","Food","خواردن"), null, null, langBtn());
+  const tg = targets(), eaten = logTotals(), b = S.body, q = foodQ.trim();
+  const found = q ? FOODS.filter(f => (f.n + " " + (f.ku || "") + " " + (f.en || "")).toLowerCase().includes(q.toLowerCase())).slice(0, 8) : [];
+  const ed = !!(S.profile && S.profile.ed);
+  return `${foodSeg("food")}
+  <section class="card hero" style="gap:8px"><div class="ring"></div><span class="eyebrow">${tr("أكلك اليوم","Your food today","خواردنی ئەمڕۆت")}</span>
+    ${ed ? `<span style="font-weight:600">${T("ركز على 3 وجبات فيها بروتين وخضار ونشويات.")}</span>` : `<div class="row" style="align-items:baseline;gap:8px"><span class="num" style="font-size:34px">${fmt(eaten.kcal)}</span><span style="font-weight:600;opacity:.8">/ ${fmt(tg.kcal)} ${T("سعرة")}</span></div>
+    <div class="meter"><span style="width:${Math.min(100, eaten.kcal / tg.kcal * 100)}%"></span></div>`}
+    <div class="row between small"><span>${T("بروتين")}</span><span style="font-weight:700">${fmt(eaten.p)} / ${tg.pLo} ${T("غ")}</span></div>
+    <div class="meter"><span style="width:${Math.min(100, eaten.p / tg.pLo * 100)}%;background:var(--blue)"></span></div></section>
+  <div class="card"><span class="h3">${tr("شنو أكلت؟","What did you eat?","چیت خوارد؟")}</span>
+    <input id="foodq" class="input" placeholder="${T("دوّر: صمون، تمن، دولمة، كبة…")}" value="${esc(foodQ)}" oninput="foodQ=this.value;renderKeep('foodq')" aria-label="${T("دوّر عالأكل")}">
+    ${found.length ? `<div class="list">${found.map(f => `<button class="li" onclick="S.log.push({f:'${f.k}',q:1});foodQ='';save();render();toast(T('انضاف'))"><span class="grow"><span class="t" style="display:block;font-size:14px">${esc(FN(f))}</span><span class="muted">${esc(FP(f))} · ${fmt(f.kcal)} ${T("سعرة")} · ${fmt(f.p)} ${T("غ بروتين")}</span></span><span class="tag t-strong">+</span></button>`).join("")}</div>` : q ? `<span class="muted">${tr("ما لقيناها. جرّب اسم ثاني.","Not found. Try another name.","نەدۆزرایەوە. ناوێکی تر تاقی بکەرەوە.")}</span>` : ""}
+    ${S.log.length ? `<div class="list" style="border:0;background:transparent">${S.log.map((it, i) => { const f = FMAP[it.f], name = f ? FN(f) : it.n, kc = f ? f.kcal * it.q : it.kcal, pr = f ? f.p * it.q : (it.p || 0);
+      return `<div class="li" style="padding:8px 0"><span class="grow"><span class="t" style="display:block;font-size:14px">${esc(name)}${it.q > 1 && f ? ` × ${it.q}` : ""}</span><span class="muted">${fmt(kc)} ${T("سعرة")} · ${fmt(pr)} ${T("غ بروتين")}</span></span><button class="icon-btn" aria-label="${tr("احذف","Remove","لابردن")}" onclick="S.log.splice(${i},1);save();render()">✕</button></div>`; }).join("")}</div>` : `<span class="muted small">${tr("دوّر على الأكلة واضغط + حتى تنحسب.","Search for a food and press + to count it.","بەدوای خواردنەکەدا بگەڕێ و + دابگرە.")}</span>`}
+  </div>
+  <a class="card" href="#fguide" style="flex-direction:row;align-items:center;gap:12px"><span class="pico amber">${svg("food",22)}</span><span class="grow"><span class="h3" style="display:block">${tr("دليل الأكل","Food guide","ڕێبەری خواردن")}</span><span class="muted small">${tr("النشويات والتمن، البروتين، الوجبات، والبدائل","Carbs and rice, protein, meals and swaps","کاربۆهیدرات و برنج، پرۆتین، ژەم و جێگرەوە")}</span></span><span class="chev">${svg("chev",16)}</span></a>
+  <details class="card"><summary><span class="grow h3">${tr("معلوماتك","Your info","زانیارییەکانت")}</span><span class="plus">+</span></summary>
+    <div class="seg"><button class="${b.sex === "m" ? "on" : ""}" onclick="S.body.sex='m';save();render()">${T("رجل")}</button><button class="${b.sex === "f" ? "on" : ""}" onclick="S.body.sex='f';save();render()">${T("امرأة")}</button></div>
+    <div class="grid3">
+      <div class="field"><label for="ba">${T("العمر")}</label><input id="ba" class="input" type="number" inputmode="numeric" value="${b.age}" onchange="S.body.age=+this.value||S.body.age;save();render()"></div>
+      <div class="field"><label for="bk">${T("الوزن (كغ)")}</label><input id="bk" class="input" type="number" inputmode="decimal" value="${b.kg}" onchange="S.body.kg=+this.value||S.body.kg;save();render()"></div>
+      <div class="field"><label for="bc">${T("الطول (سم)")}</label><input id="bc" class="input" type="number" inputmode="numeric" value="${b.cm}" onchange="S.body.cm=+this.value||S.body.cm;save();render()"></div>
+    </div>
+    <div class="seg">${[["cut","تنشيف"],["keep","تثبيت"],["gain","زيادة عضل"]].map(([k, l]) => `<button class="${b.aim === k ? "on" : ""}" onclick="S.body.aim='${k}';save();render()">${T(l)}</button>`).join("")}</div>
+  </details>`;
+};
+/* food guide + supplement list: same two tabs, no AI checker */
+const fixFoodTabs = (h, on) => h.replace(/<div class="seg" role="tablist">(?:(?!<\/div>)[\s\S])*?href="#hormones"[\s\S]*?<\/div>/, foodSeg(on));
+const _fguide = V.fguide; V.fguide = a => fixFoodTabs(_fguide(a), "food");
+const _supps = V.supps; V.supps = () => fixFoodTabs(_supps(), "supps").replace(/<div class="card" style="border-color:#3B4A63"><span class="h3" style="color:var\(--blue\)">[\s\S]*?<div id="supout"><\/div>[\s\S]*?<\/div>/, "");
+TAB_OF.fguide = "food";
+/* one supplement: simple cards, no questions, no weight calculator */
+V.supp = id => {
+  const x = SL()[SUPP_BY()[id]]; if (!x) { location.hash = "supps"; return ""; }
+  setTop(x.name, "supps", (x.aka || []).slice(0, 2).join(" · "), langBtn());
+  const d = x.dose || {}, med = ["hormone_medical", "dangerous"].includes(x.cat);
+  const list = (arr, ok) => (arr || []).map(s => `<div class="sl ${ok ? "ok" : "no"}"><i>${ok ? svg("check",12,3) : "✕"}</i><span>${esc(typeof s === "string" ? s : s.t)}</span></div>`).join("");
+  const box = (title, body, cls = "") => body ? `<section class="card ${cls}" style="gap:10px"><span class="h3">${title}</span>${body}</section>` : "";
+  const doseRows = [["daily", tr("كم","How much","چەند")], ["timing", tr("متى","When","کەی")], ["loading", tr("التحميل","Loading","بارکردن")], ["notes", tr("ملاحظة","Note","تێبینی")]].filter(([k]) => d[k]);
+  const more = [(x.myths || []).length ? `<span class="small" style="font-weight:700">${tr("خرافات وحقائق","Myths and facts","ئەفسانە و ڕاستی")}</span>${x.myths.map(m => `<span class="small">✕ ${esc(m.myth)}<br>✓ ${esc(m.fact)}</span>`).join("")}` : "",
+    (x.noBenefit || []).length ? `<span class="small" style="font-weight:700">${tr("شنو ما يسوي","What it does not do","چی ناکات")}</span>${ul(x.noBenefit)}` : "",
+    (x.buy || []).length ? `<span class="small" style="font-weight:700">${tr("شنو تشتري","What to buy","چی بکڕیت")}</span>${ul(x.buy)}${ul(x.avoid)}` : "",
+    (x.sources || []).length ? `<span class="small" style="font-weight:700">${tr("المصادر","Sources","سەرچاوەکان")}</span>${x.sources.map(s => `<a class="small" href="${esc(s.u)}" target="_blank" rel="noopener" dir="ltr" style="color:var(--blue);word-break:break-word">${esc(s.t)}</a>`).join("")}` : ""].filter(Boolean).join("");
+  return `
+  <section class="card hero" style="gap:8px"><div class="row" style="gap:6px;flex-wrap:wrap">${vTag(x.verdict)}</div><span style="font-weight:600;font-size:16px;line-height:1.6">${esc(x.summary || "")}</span></section>
+  ${med ? `<section class="card danger"><span>${tr("هذا دوا أو هرمون، مو مكمل. القرار بس للطبيب بعد فحص دم.","This is a drug or hormone, not a supplement. Only a doctor decides, after blood tests.","ئەمە دەرمان یان هۆرمۆنە، تەواوکەر نییە. تەنها دکتۆر بڕیار دەدات.")}</span></section>` : ""}
+  ${box(tr("شنو يسوي؟","What does it do?","چی دەکات؟"), `<span style="line-height:1.7">${esc(x.what || "")} ${esc(x.how || "")}</span>${list(x.benefits, true)}`)}
+  ${box(tr("منو يگدر يستخدمه","Who can use it","کێ دەتوانێت بەکاری بهێنێت"), list(x.who, true))}
+  ${box(tr("منو لا يستخدمه","Who should not use it","کێ نابێت بەکاری بهێنێت"), list(x.notFor, false), "warm")}
+  ${med ? "" : box(tr("شلون تاخذه","How to take it","چۆن وەریبگریت"), doseRows.map(([k, l]) => `<div class="row small" style="align-items:flex-start;gap:8px"><span class="tag t-prac" style="flex:none">${l}</span><span style="line-height:1.6">${esc(d[k])}</span></div>`).join("") + (x.expect ? `<span class="small muted" style="line-height:1.6">${esc(x.expect)}</span>` : ""))}
+  ${box(tr("وياه شنو؟","What goes with it?","لەگەڵ چی؟"), (x.interactions || []).map(it => `<div style="display:flex;flex-direction:column;gap:2px;padding:6px 0;border-bottom:1px solid var(--line)"><b>+ ${esc(it.with)}</b><span class="small" style="line-height:1.6">${esc(it.note)}</span></div>`).join("") + `<a class="btn sm ghost" href="#supmix" onclick="if(!SUPF.mix.includes('${x.id}'))SUPF.mix.push('${x.id}')">${tr("افحص خلطتك","Check your mix","تێکەڵەکەت بپشکنە")}</a>`)}
+  ${box(tr("الأعراض الجانبية","Side effects","کاریگەرییە لاوەکییەکان"), list(x.side, false))}
+  ${more ? `<details class="card"><summary><span class="grow h3">${tr("معلومات أكثر","More info","زانیاریی زیاتر")}</span><span class="plus">+</span></summary>${more}</details>` : ""}
+  <span class="note">${T("معلومات عامة للبالغين الأصحاء، مو نصيحة طبية. إذا عندك مرض أو تاخذ دوا أو حامل أو عمرك أقل من 18، اسأل طبيب قبل أي مكمل.")}</span>`;
+};
+
+/* ---- my plan: just the days, each with its course ---- */
+const DAY_W = () => planWeekNow(planInit());
+function dayMins(p, d){ const items = d.list.filter(([id]) => EXMAP[id]); return Math.round(items.reduce((a, [id, sc]) => { const t = tgOf(p, id, sc); return a + t.sets * (40 + restSets(EXMAP[id])); }, 0) / 60 + Math.max(0, items.length - 1) * restBetween() / 60); }
+V.plan = () => {
+  if (!S.myplan) { if (S.onboarded) setTimeout(makePlan); return ""; }
+  const p = planInit(); save(); const w = DAY_W();
+  setTop(tr("برنامجي","My plan","پرۆگرامەکەم"), null, null, langBtn());
+  return `<section class="card hero" style="gap:8px"><div class="ring"></div><span class="eyebrow">${tr("كورسك","Your course","کۆرسەکەت")}</span>
+    <h2 class="h2" style="font-size:22px">${esc(pl3(p.goal))} · ${p.nDays} ${tr("أيام بالأسبوع","days a week","ڕۆژ لە هەفتەدا")}</h2>
+    <span style="font-weight:600;opacity:.85">${esc(pl3(p.place))}${S.body?.sex === "f" ? " · " + tr("كورس نسائي","Women's course","کۆرسی ئافرەتان") : ""}</span></section>
+  <div class="pdays">${p.days.map((d, k) => { const s = sessState(p, w, k), n = d.list.filter(([id]) => EXMAP[id]).length;
+    return `<a class="pdc ${s}" href="#pday-${w}-${k}"><span class="cn" style="width:40px;height:40px;font-size:15px">${k + 1}</span><span class="grow"><span class="muted small">${tr("اليوم","Day","ڕۆژی")} ${k + 1}</span><span class="t">${esc(pl3(d.name))}</span><span class="muted small">${n} ${tr("تمارين","exercises","ڕاهێنان")} · ~${dayMins(p, d)} ${tr("دقيقة","min","خولەک")}</span></span>${s === "done" ? stTag("done") : s === "today" ? stTag("today") : ""}<span class="chev">${svg("chev",16)}</span></a>`; }).join("")}</div>
+  <span class="note">${tr("اضغط على اليوم تشوف التمارين والسِتات والعدات والراحة، وبعدين ابدأ.","Tap a day to see its exercises, sets, reps and rest, then start.","دەست لە ڕۆژێک بدە بۆ بینینی ڕاهێنان، سێت، دووبارە و پشوو، پاشان دەست پێبکە.")}</span>
+  <button class="btn ghost" onclick="if(confirmNew())makePlan()">${svg("ai",18)} ${tr("سوّيلي برنامج جديد","Make me a new plan","پرۆگرامێکی نوێم بۆ دروست بکە")}</button>`;
+};
+const _pday2 = V.pday; V.pday = arg => { const h = _pday2(arg), p = S.myplan, k = +arg.split("-")[1], d = p && p.days[k]; if (d) setTop(pl3(d.name), "plan", `${tr("اليوم","Day","ڕۆژی")} ${k + 1}`); return h; };
+const _psess2 = V.psess; V.psess = arg => { const h = _psess2(arg), p = S.myplan, k = +arg.split("-")[1], d = p && p.days[k]; if (d) setTop(pl3(d.name), "pday-" + arg, `${tr("اليوم","Day","ڕۆژی")} ${k + 1}`); return h; };
+confirmNew = function(){ return true; };
+
+/* ---- a different course for women ---- */
+Object.assign(DAY_TYPES, { lowerG:["hinge","legs","single","hinge","single","core","iso"], lowerG2:["legs","single","hinge","single","core","iso"], upperF:["row","shoulder","chest","pull","iso","core"] });
+Object.assign(DAY_NAME, { lowerG:["أرداف وأرجل أ","Glutes & legs A","سمت و قاچ أ"], lowerG2:["أرداف وأرجل ب","Glutes & legs B","سمت و قاچ ب"], upperF:["الجزء العلوي","Upper body","بەشی سەرەوە"] });
+const SPLITS_F = { 2:["full","lowerG"], 3:["lowerG","upperF","lowerG2"], 4:["lowerG","upperF","lowerG2","upperF"], 5:["lowerG","upperF","lowerG2","upperF","full"], 6:["lowerG","upperF","lowerG2","upperF","lowerG","full"] };
+const _genF = genPlan;
+genPlan = function(pf, body, seed){
+  if (!body || body.sex !== "f") return _genF(pf, body, seed);
+  const keep = { ...SPLITS }; Object.assign(SPLITS, SPLITS_F);
+  try { return _genF(pf, body, seed); } finally { Object.assign(SPLITS, keep); }
+};
+document.body.insertAdjacentHTML("beforeend", `<style>
+.card.soon{opacity:.55;pointer-events:none}.card.soon .tag{align-self:flex-start;display:inline-flex;gap:4px;align-items:center}
+.rings a{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sl{display:flex;gap:8px;align-items:flex-start;line-height:1.6}.sl i{font-style:normal;width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;margin-top:3px}
+.sl.ok i{background:rgba(76,201,234,.18);color:var(--teal)}.sl.no i{background:rgba(255,107,107,.15);color:#FF8A8A}
+</style>`);
+
 
 /* ---------- router ---------- */
 let lastRoute = "";
