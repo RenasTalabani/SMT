@@ -4608,6 +4608,54 @@ document.body.insertAdjacentHTML("beforeend", `<style>
 .exavoid{flex-direction:row!important;align-items:flex-start;gap:10px;border-color:rgba(255,107,107,.35)!important;line-height:1.6}.exavoid i{width:26px;height:26px;border-radius:50%;background:rgba(255,107,107,.15);color:#FF8A8A;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 </style>`);
 
+/* ---- day page as a logbook: Set | Weight | Reps per exercise (Renas's design, Nov 5) ---- */
+let PDC = false; // compact (names only)
+V.pday = arg => {
+  const p = planInit(); if (!p) return V.plan();
+  const [w, k] = arg.split("-").map(Number), d = p.days[k]; if (!d) return V.plan();
+  if (!PS || PS.key !== arg) psInit(arg);
+  const s = sessState(p, w, k), items = d.list.filter(([id]) => EXMAP[id]);
+  setTop(pl3(d.name), "plan", `${tr("اليوم","Day","ڕۆژی")} ${k + 1}`);
+  const totalSets = items.reduce((a, [id, sc]) => a + tgOf(p, id, sc).sets, 0);
+  const upd = (id, j, f, goal) => `oninput="const q=PS.v[${id}].sets[${j}];if(this.value===''){q.${f}=${goal};}else{q.${f}=+this.value;q.typed=1;}S.pact=PS;save()"`;
+  const card = ([id, sc], i) => {
+    const e = EXMAP[id], t = tgOf(p, id, sc), v = PS.v[id], kg = tgKg(t, w), range = t.time ? t.txt : `${t.reps}${t.hi > t.reps ? "-" + t.hi : ""}`;
+    return `<div class="lbk"><a class="lbh" href="#ex-${id}"><span class="lbn">${i + 1}</span><span class="grow">${esc(X(e,"ar"))}</span><span class="chev">${svg("chev",14)}</span></a>
+    ${PDC ? "" : `<div class="lbt"><div class="lbr hd"><span>${tr("سِت","Set","سێت")}</span><span>${tr("الوزن","Weight","کێش")}</span><span>${tr("عدة","Reps","دووبارە")}</span></div>
+      ${v.sets.map((x, j) => `<div class="lbr ${x.done ? "done" : ""}"><span>${x.done ? svg("check",13,3) : j + 1}</span>
+        <span>${t.time ? "—" : `<label class="lbin"><input type="number" inputmode="decimal" step="0.5" min="0" placeholder="${kg || "---"}" value="${x.typed && x.kg != null && (x.kg || !t.bw) ? x.kg : ""}" ${upd(id, j, "kg", kg || 0)} aria-label="${tr("الوزن","Weight","کێش")} ${j + 1}"><em>${KG()}</em></label>`}</span>
+        <span>${t.time ? `<span class="lbbox">${esc(range)}</span>` : `<label class="lbin box"><input type="number" inputmode="numeric" min="0" placeholder="${esc(range)}" value="${x.typed && x.r != null ? x.r : ""}" ${upd(id, j, "r", t.reps || 0)} aria-label="${tr("عدة","Reps","دووبارە")} ${j + 1}"></label>`}</span></div>`).join("")}</div>
+      <span class="lbrest">${svg("clock",12)} ${tr("راحة بين السِتات","Rest between sets","پشوو نێوان سێتەکان")} ${fmtRest(restSets(e))}</span>`}
+    </div>`;
+  };
+  return `<div class="row between"><button class="icon-btn" aria-label="${PDC ? tr("وسّع","Expand","فراوانکردن") : tr("صغّر","Collapse","بچووککردنەوە")}" onclick="PDC=!PDC;render()" style="font-size:20px;font-weight:800">${PDC ? "+" : "−"}</button><span class="muted small">${items.length} ${tr("تمارين","exercises","ڕاهێنان")} · ${totalSets} ${tr("سِت","sets","سێت")} · ~${dayMins(p, d)} ${tr("دقيقة","min","خولەک")}</span></div>
+  ${s === "done" ? stTag("done") : ""}
+  <div class="lbks">${items.map((it, i) => (i ? `<div class="cbreak">${svg("clock",13)} ${tr("راحة {t} قبل التمرين الجاي","Rest {t} before the next exercise","پشوو {t} پێش ڕاهێنانی داهاتوو").replace("{t}", fmtRest(restBetween()))}</div>` : "") + card(it, i)).join("")}</div>
+  ${s === "done" ? "" : `<a class="btn" href="#psess-${w}-${k}">${svg("play",18)} ${S.pact && S.pact.key === arg && Object.values(PS.v).some(v => v.sets.some(x => x.done)) ? tr("كمّل التمرين","Continue workout","ڕاهێنان بەردەوام بکە") : tr("ابدأ التمرين بالعداد","Start workout with timer","ڕاهێنان بە کاتژمێر دەستپێبکە")}</a>`}`;
+};
+/* the player shows the numbers typed here; untouched cells keep the goal */
+document.body.insertAdjacentHTML("beforeend", `<style>
+.lbks{display:flex;flex-direction:column}
+.lbk{background:linear-gradient(180deg,rgba(52,64,76,.55),rgba(30,38,46,.6));border:1px solid var(--line);border-radius:22px;padding:14px 14px 10px;display:flex;flex-direction:column;gap:8px}
+.lbh{display:flex;align-items:center;gap:12px;color:var(--ink);text-decoration:none;font-weight:700;font-size:16.5px}
+.lbn{color:var(--teal);font-family:var(--display);font-size:20px;font-weight:800;width:22px;text-align:center;flex-shrink:0}
+.lbt{display:flex;flex-direction:column;margin-inline-start:34px}
+.lbr{display:grid;grid-template-columns:52px 1fr 1fr;align-items:center;min-height:46px}
+.lbr>span{display:flex;align-items:center;justify-content:center;height:100%}
+.lbr>span:nth-child(2){border-inline:1px solid var(--line)}
+.lbr.hd{min-height:34px;color:var(--muted);font-size:13.5px}
+.lbr:not(.hd)>span:first-child{font-weight:700;font-size:15px}
+.lbr.done{opacity:.6}.lbr.done>span:first-child{color:var(--teal)}
+.lbin{display:flex;align-items:center;gap:4px;color:var(--muted)}
+.lbin input{width:62px;height:36px;background:transparent;border:0;color:var(--ink);font:700 16px var(--display);text-align:center;direction:ltr;outline:none;border-radius:9px}
+.lbin input::placeholder{color:var(--muted);font-weight:600}
+.lbin input:focus{background:var(--raised)}
+.lbin em{font-style:normal;font-size:13px}
+.lbin.box input,.lbbox{width:84px;border:1px solid var(--line);background:rgba(10,16,20,.35);border-radius:10px;height:38px;display:flex;align-items:center;justify-content:center;font:700 15px var(--display);color:var(--ink)}
+.lbin.box input::placeholder{color:var(--soft)}
+.lbrest{align-self:flex-end;font-size:11.5px;color:var(--amber);display:inline-flex;gap:5px;align-items:center;padding:2px 4px}
+</style>`);
+
 
 /* ---------- router ---------- */
 let lastRoute = "";
