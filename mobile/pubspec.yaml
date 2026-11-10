@@ -1,6 +1,6 @@
 name: citygym
 description: City GYM - It's a Life Style
-version: 2.0.1+21
+version: 2.0.2+22
 publish_to: 'none'
 
 environment:

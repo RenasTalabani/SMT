@@ -4882,6 +4882,17 @@ button.wplay{border:0}
 .pcal i.on{background:linear-gradient(160deg,#3A9AA6,#2B7C86);color:#fff}.pcal i.now{outline:2px solid var(--teal)}.pcal i.fut{opacity:.35}
 </style>`);
 
+/* ---- welcome screen instead of the demo login (no account, no password) ---- */
+V.login = () => {
+  $("#top").innerHTML = "";
+  return `<div class="lghero" style="margin-top:24px"><img src="media/logo.png" alt="Coach Renas"></div>
+  <h2 class="h2" style="font-size:32px;line-height:1.35;text-align:center">${tr("تمرّن صح. صير أقوى.","Train right. Get stronger.","بە دروستی ڕاهێنان بکە. بەهێزتر بە.")}</h2>
+  <div class="card" style="gap:12px">${[[tr("برنامج على قياسك، للجيم أو البيت","A plan made for you, gym or home","پرۆگرامێک بە قەبارەی خۆت، جیم یان ماڵ"),"cal"],[tr("سِتات وعدات ووزن وعداد راحة","Sets, reps, weight and a rest timer","سێت، دووبارە، کێش و کاتژمێری پشوو"),"clock"],[tr("أكل عراقي ودليل مكملات صادق","Iraqi food and an honest supplement guide","خواردنی عێراقی و ڕێبەری ڕاستگۆی تەواوکەر"),"food"]].map(([t, ic]) => `<div class="row" style="gap:12px;align-items:center"><span class="pico" style="width:40px;height:40px;border-radius:12px">${svg(ic,20)}</span><span style="font-weight:600">${t}</span></div>`).join("")}</div>
+  <button class="btn big" onclick="S.entered=true;save();location.hash=S.onboarded?'home':'start'">${tr("يلا نبدي","Let's start","با دەست پێبکەین")}</button>
+  <span class="note" style="text-align:center">${tr("بدون حساب وبدون كلمة سر. كل بياناتك تبقى على تلفونك بس.","No account and no password. All your data stays on your phone only.","بێ هەژمار و بێ وشەی نهێنی. هەموو زانیارییەکانت تەنها لەسەر مۆبایلەکەت دەمێننەوە.")}</span>
+  <button class="btn ghost" onclick="switchLang()">${svg("globe",16)} ${tr("غيّر اللغة","Change language","گۆڕینی زمان")}</button>`;
+};
+
 
 /* ---------- router ---------- */
 let lastRoute = "";
