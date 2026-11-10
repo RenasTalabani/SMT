@@ -4803,6 +4803,85 @@ document.body.insertAdjacentHTML("beforeend", `<style>
 .mtools a svg{color:var(--teal)}
 </style>`);
 
+/* =========================================================
+   WHAT LIFTERS ASK FOR MOST (Nov 10): last time, records,
+   swap exercise, my progress (calendar, weight, records)
+   ========================================================= */
+S.pr = S.pr || {}; S.wlog = S.wlog || [];
+if (!I.swap) I.swap = '<path d="M4 8h13l-3-3M20 16H7l3 3"/>';
+if (!I.trophy) I.trophy = '<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8"/>';
+if (!I.chart) I.chart = '<path d="M4 19V5M4 19h16M8 15l3-4 3 2 4-6"/>';
+function lastTime(id){ let best = null; for (const [k, L] of Object.entries(S.plog || {})) { if (PS && k === PS.key) continue; const r = L.res && L.res[id]; if (r && r.sets && (!best || L.date > best.date)) best = { date:L.date, sets:r.sets }; } return best; }
+const setScore = x => (x.kg || 0) * 1000 + (x.r || 0);
+function curIds(){ const p = planInit(), d = p.days[PS.k]; return d.list.filter(([id]) => EXMAP[id]); }
+const _psessG = V.psess;
+V.psess = arg => {
+  let h = _psessG(arg); if (!PS) return h;
+  const it = curIds()[PS.i]; if (!it) return h; const id = it[0], lt = lastTime(id), pr = S.pr[id];
+  const line = `<div class="wlast">${lt ? `<span>${svg("clock",12)} ${tr("آخر مرة","Last time","دوایین جار")}: <b dir="ltr">${lt.sets.map(x => (x.kg ? x.kg + "×" : "") + x.r).join(" · ")}</b></span>` : `<span>${tr("أول مرة تسوي هذا التمرين","First time doing this exercise","یەکەم جارە ئەم ڕاهێنانە دەکەیت")}</span>`}${pr ? `<span class="wpr">${svg("trophy",12)} <b dir="ltr">${pr.kg ? pr.kg + " " + KG() + " × " : ""}${pr.r}</b></span>` : ""}</div>`;
+  h = h.replace('<div class="wdots">', line + '<div class="wdots">');
+  h = h.replace('<a class="wplay"', `<button class="wplay" onclick="swapSheet()" aria-label="${tr("بدّل التمرين","Swap exercise","گۆڕینی ڕاهێنان")}">${svg("swap",18)}</button><a class="wplay"`);
+  return h;
+};
+/* swap: same muscle group, fits the place and level */
+function swapSheet(){
+  const it = curIds()[PS.i], e = EXMAP[it[0]], pf = S.profile || {}, kit = KIT_OK[pf.place] || KIT_OK.gym, lvl = pf.level === "adv" ? 2 : pf.level === "mid" ? 1 : 0;
+  const inDay = new Set(curIds().map(x => x[0]));
+  const c = LIB.ex.filter(x => x.g === e.g && !inDay.has(x.id) && kit.includes(exKit(x)) && lvRank(x) <= Math.max(lvl, lvRank(e)))
+    .sort((a, b) => ((b.pm || [])[0] === (e.pm || [])[0]) - ((a.pm || [])[0] === (e.pm || [])[0]) || (exKit(b) === exKit(e)) - (exKit(a) === exKit(e))).slice(0, 6);
+  openSheet(`<span class="h3">${tr("بدّل التمرين","Swap exercise","گۆڕینی ڕاهێنان")}</span><span class="muted small">${tr("الجهاز مشغول أو ما يعجبك؟ اختار تمرين يشغل نفس العضلة.","Machine busy or you don't like it? Pick one that works the same muscle.","ئامێرەکە گیراوە یان حەزت لێی نییە؟ یەکێک هەڵبژێرە هەمان ماسولکە کار پێبکات.")}</span>
+    <div class="list">${c.map(x => `<button class="li" onclick="doSwap(${x.id})"><span class="grow"><span class="t" style="display:block">${esc(X(x,"ar"))}</span><span class="muted">${esc(X(x,"m"))} · ${esc(X(x,"eq"))}</span></span><span class="chev">${svg("chev",14)}</span></button>`).join("") || `<span class="muted" style="padding:12px">${tr("ماكو بديل مناسب.","No good swap found.","جێگرەوەی گونجاو نییە.")}</span>`}</div>`);
+}
+function doSwap(nid){
+  const p = planInit(), d = p.days[PS.k], cur = curIds()[PS.i], idx = d.list.findIndex(x => x[0] === cur[0]); if (idx < 0) return;
+  const sc = d.list[idx][1], old = PS.v[cur[0]]; d.list[idx] = [nid, sc]; delete PS.v[cur[0]];
+  const t = tgOf(p, nid, sc), kg = tgKg(t, PS.w);
+  PS.v[nid] = t.time ? { time:true, ok:false, sets:Array.from({length:t.sets}, () => ({ done:false })) } : { sets:Array.from({length:t.sets}, () => ({ kg, r:t.reps, done:false })) };
+  PS.rest = null; S.pact = PS; save(); if (typeof syncMyPlan === "function") syncMyPlan(); closeSheet(); render(); toast(tr("تبدّل التمرين","Exercise swapped","ڕاهێنان گۆڕدرا"));
+}
+/* personal records */
+const _setDoneG = setDone;
+setDone = function(){
+  let id = null, x = null;
+  try { const it = curIds()[PS.i], v = PS.v[it[0]], j = v.sets.findIndex(s => !s.done); if (j >= 0 && !v.time) { id = it[0]; x = { kg:+v.sets[j].kg || 0, r:+v.sets[j].r || 0 }; } } catch (e) {}
+  if (id && x.r > 0) { const old = S.pr[id]; if (!old || setScore(x) > setScore(old)) { const first = !old; S.pr[id] = { kg:x.kg, r:x.r, date:iso(new Date()) }; save(); if (!first) setTimeout(() => { toast("🏆 " + tr("رقم قياسي جديد!","New personal record!","ڕیکۆردی نوێ!")); try { navigator.vibrate && navigator.vibrate(200); } catch (e) {} }, 300); } }
+  _setDoneG();
+};
+const _finG = finishSess; finishSess = function(){ try { logActivity(); } catch (e) {} _finG(); };
+/* my progress */
+TAB_OF.progress = "home";
+function logWeight(){ const v = +document.getElementById("wkg").value; if (!v || v < 25 || v > 300) return toast(tr("اكتب وزنك بالكيلو","Type your weight in kg","کێشت بە کیلۆ بنووسە")); const d = iso(new Date()); S.wlog = S.wlog.filter(x => x.d !== d); S.wlog.push({ d, kg:v }); S.wlog = S.wlog.slice(-120); S.body.kg = v; save(); render(); toast(tr("انحفظ","Saved","پاشەکەوت کرا")); }
+function wChart(){ const a = S.wlog.slice(-30); if (a.length < 2) return ""; const lo = Math.min(...a.map(x => x.kg)), hi = Math.max(...a.map(x => x.kg)), sp = Math.max(1, hi - lo), W = 320, H = 110, px = i => 10 + i * (W - 20) / (a.length - 1), py = v => 12 + (H - 30) * (1 - (v - lo) / sp);
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;direction:ltr" aria-hidden="true"><polyline fill="none" stroke="var(--teal)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="${a.map((x, i) => px(i).toFixed(1) + "," + py(x.kg).toFixed(1)).join(" ")}"/>${a.map((x, i) => i === 0 || i === a.length - 1 ? `<circle cx="${px(i)}" cy="${py(x.kg)}" r="4" fill="var(--teal)"/><text x="${px(i)}" y="${H - 2}" text-anchor="${i ? "end" : "start"}" font-size="11" fill="var(--muted)">${x.kg} ${KG()}</text>` : "").join("")}</svg>`; }
+V.progress = () => {
+  setTop(tr("تقدمي","My progress","پێشکەوتنم"), "home", null, langBtn());
+  const logs = Object.values(S.plog || {}), days = new Set([...logs.map(l => l.date), ...(S.activity || [])]), t = new Date(), t0 = iso(t);
+  const wk0 = addD(t, -wd7(t)), thisWeek = logs.filter(l => l.date >= iso(wk0)).length, goal = S.myplan ? S.myplan.nDays : 3;
+  const cal = Array.from({ length: 35 }, (_, i) => { const d = addD(wk0, i - 28), s = iso(d); return `<i class="${days.has(s) ? "on" : ""} ${s === t0 ? "now" : ""} ${s > t0 ? "fut" : ""}">${d.getDate()}</i>`; }).join("");
+  const prs = Object.entries(S.pr).filter(([id]) => EXMAP[id]).sort((a, b) => (b[1].date || "").localeCompare(a[1].date || "")).slice(0, 12);
+  const w = S.wlog, diff = w.length > 1 ? +(w[w.length - 1].kg - w[0].kg).toFixed(1) : 0;
+  return `<div class="pnums" style="grid-template-columns:repeat(3,1fr)"><div class="pgn"><b>${streak()}</b><span>${tr("يوم ورا بعض","day streak","ڕۆژ لە دوای یەک")}</span></div><div class="pgn"><b>${thisWeek}/${goal}</b><span>${tr("هذا الأسبوع","this week","ئەم هەفتەیە")}</span></div><div class="pgn"><b>${logs.length}</b><span>${tr("كل التمارين","all workouts","هەموو ڕاهێنانەکان")}</span></div></div>
+  <section class="card" style="gap:10px"><span class="h3">${tr("أيام تمرينك","Your training days","ڕۆژەکانی ڕاهێنانت")}</span><div class="pcal">${[0,1,2,3,4,5,6].map(i => `<em>${T(DAYN7[i]).slice(0, isEN() ? 2 : 3)}</em>`).join("")}${cal}</div>
+    <span class="muted small">${thisWeek >= goal ? tr("كملت هدف الأسبوع. الراحة جزء من التقدم.","Weekly goal done. Rest is part of progress.","ئامانجی هەفتەت تەواو کرد. پشوو بەشێکە لە پێشکەوتن.") : tr("باقي {n} تمرين لهدف هذا الأسبوع.","{n} more workouts to hit this week's goal.","{n} ڕاهێنانی تر ماوە بۆ ئامانجی ئەم هەفتەیە.").replace("{n}", goal - thisWeek)}</span></section>
+  <section class="card" style="gap:10px"><span class="h3">${tr("وزني","My weight","کێشم")}</span>
+    <div class="row" style="gap:8px"><input id="wkg" class="input" type="number" inputmode="decimal" step="0.1" placeholder="${S.body.kg || 75}" aria-label="${tr("وزني","My weight","کێشم")}" style="flex:1"><button class="btn sm" onclick="logWeight()">${tr("سجّل وزن اليوم","Log today","تۆمارکردن")}</button></div>
+    ${wChart() || `<span class="muted small">${tr("سجّل وزنك مرة بالأسبوع وتشوف الخط يتحرك.","Log your weight once a week and watch the line move.","هەفتەی جارێک کێشت تۆمار بکە و هێڵەکە ببینە.")}</span>`}
+    ${w.length > 1 ? `<span class="small" style="font-weight:700">${diff > 0 ? "+" : ""}${diff} ${KG()} ${tr("من أول تسجيل","since your first log","لە یەکەم تۆمارەوە")}</span>` : ""}</section>
+  <section class="card" style="gap:8px"><span class="h3">${svg("trophy",18)} ${tr("أرقامي القياسية","My records","ڕیکۆردەکانم")}</span>
+    ${prs.length ? prs.map(([id, r]) => `<a class="row between" href="#ex-${id}" style="color:var(--ink);text-decoration:none;padding:6px 0;border-bottom:1px solid var(--line)"><span style="font-weight:600">${esc(X(EXMAP[id],"ar"))}</span><b dir="ltr" style="color:var(--teal);font-family:var(--display)">${r.kg ? r.kg + " " + KG() + " × " : ""}${r.r}</b></a>`).join("") : `<span class="muted small">${tr("أول تمرين تسويه يتسجل هنا، وكل ما تعديه يجيك 🏆.","Your first workout shows up here, and every time you beat it you get a 🏆.","یەکەم ڕاهێنانت لێرە تۆمار دەبێت، هەر جارێک تێیپەڕێنیت 🏆 وەردەگریت.")}</span>`}</section>`;
+};
+const _homeG = V.home;
+V.home = () => _homeG().replace(/<a href="#plan">(\$?[^<]*<svg[\s\S]*?<\/a>)(\s*<\/div>)/, '<a href="#progress">$1$2')
+  .replace('<a class="card" href="#why"', `<a class="card" href="#progress" style="flex-direction:row;align-items:center;gap:12px"><span class="pico">${svg("chart",22)}</span><span class="grow" style="min-width:0"><span class="h3" style="display:block">${tr("تقدمي","My progress","پێشکەوتنم")}</span><span class="muted small">${tr("أيام تمرينك، وزنك، وأرقامك القياسية","Training days, weight and records","ڕۆژەکانی ڕاهێنان، کێش و ڕیکۆردەکانت")}</span></span><span class="chev">${svg("chev",16)}</span></a><a class="card" href="#why"`);
+document.body.insertAdjacentHTML("beforeend", `<style>
+.wlast{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}.wlast span{display:inline-flex;align-items:center;gap:5px}.wlast b{color:var(--ink)}.wpr{color:var(--amber)!important}.wpr b{color:var(--amber)!important}
+button.wplay{border:0}
+.pgn{background:linear-gradient(180deg,rgba(52,64,76,.55),rgba(30,38,46,.6))!important;border:1px solid var(--line);border-radius:16px;padding:14px 4px!important}.pgn b{font-size:24px!important;color:var(--teal)}
+.pcal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}.pcal em{font-style:normal;font-size:10.5px;color:var(--muted)}
+.pcal i{font-style:normal;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;background:var(--raised);color:var(--muted)}
+.pcal i.on{background:linear-gradient(160deg,#3A9AA6,#2B7C86);color:#fff}.pcal i.now{outline:2px solid var(--teal)}.pcal i.fut{opacity:.35}
+</style>`);
+
 
 /* ---------- router ---------- */
 let lastRoute = "";
