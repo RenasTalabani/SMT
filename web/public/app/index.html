@@ -4729,6 +4729,43 @@ html[dir=rtl] .wrbar{inset:0 0 0 auto}
 .wchev{display:flex;color:var(--muted);transform:rotate(-90deg)}.wchev.up{transform:rotate(90deg)}html[dir=ltr] .wchev{transform:rotate(90deg)}html[dir=ltr] .wchev.up{transform:rotate(-90deg)}
 </style>`);
 
+/* ---- exercise library: level tabs, one row of groups, big clear cards (Nov 10) ---- */
+const GCOL = { legs:"#3FB6C9", single:"#3FB6C9", hinge:"#8B7BE8", chest:"#E8875A", shoulder:"#E8B04A", row:"#5A9BE8", pull:"#5A9BE8", core:"#4FC68A", iso:"#D877B4", calisthenics:"#4CC9EA", cardio:"#E86A6A", mobility:"#6BC7A8", olympic:"#D9B45A", strongman:"#D9B45A" };
+V.lib = () => {
+  setTop(T("مكتبة التمارين"), "train");
+  const q = libQ.trim().toLowerCase();
+  const lvk = e => /^مبتدئ/.test(e.lv) ? "beg" : /متقدم|^م \/ ق/.test(e.lv) && !/^متوسط –/.test(e.lv) ? "adv" : "mid";
+  const items = LIB.ex.filter(e => (libG === "all" || e.g === libG) && (libLv === "all" || lvk(e) === libLv) && (!q || (e.ar + " " + e.en + " " + e.m + " " + X(e,"ar") + " " + X(e,"m")).toLowerCase().includes(q)));
+  const shown = items.slice(0, libMore ? 9999 : 40);
+  return `
+  <div class="b3search"><span style="color:var(--muted)">${svg("search",18)}</span><input id="libq" class="input" style="border:0;background:transparent;padding:0" placeholder="${T("ابحث: بنچ، Squat، ترايسبس…")}" value="${esc(libQ)}" oninput="libQ=this.value;libMore=false;renderKeep('libq')" aria-label="${T("ابحث")}"></div>
+  <div class="lvtabs">${[["all","الكل","All","هەموو"],["beg","مبتدئ","Beginner","سەرەتایی"],["mid","متوسط","Medium","مامناوەند"],["adv","متقدم","Advanced","پێشکەوتوو"]].map(([k,a,b,c]) => `<button class="${libLv===k?"on":""}" onclick="libLv='${k}';libMore=false;render()">${tr(a,b,c)}</button>`).join("")}</div>
+  <div class="grow1">${[["all",T("الكل")],...Object.keys(LIB.groups).map(k=>[k,G(k)])].map(([k,v]) => `<button class="${libG===k?"on":""}" onclick="libG='${k}';libMore=false;render()">${esc(v)}</button>`).join("")}</div>
+  <div class="xcards">${shown.map(e => { const c = GCOL[e.g] || "#4CC9EA";
+    return `<a class="xcard" href="#ex-${e.id}" style="--gc:${c}"><span class="xbig">${exIcon(e).replace(/width="24" height="24"/, 'width="96" height="96"')}</span>
+      <span class="xname">${esc(X(e,"ar"))}</span><span class="xsub">${esc(X(e,"m"))}</span>
+      <span class="xlv">${esc(String(X(e,"lv")).split(/[–\-(]/)[0].trim())}</span><span class="xplay">${svg("play",14)}</span></a>`; }).join("") || `<p class="muted">${T("ما لقينا تمرين بهالاسم. جرّب كلمة ثانية.")}</p>`}</div>
+  ${items.length > shown.length ? `<button class="btn ghost" onclick="libMore=true;render()">${tr("شوف الكل","Show all","هەمووی ببینە")} (${items.length})</button>` : ""}`;
+};
+document.body.insertAdjacentHTML("beforeend", `<style>
+.lvtabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.lvtabs::-webkit-scrollbar{display:none}
+.b3search input,.b3search input:focus{background:none!important;border:0!important;box-shadow:none!important;outline:none!important}
+.lvtabs button{flex:1 1 0;min-width:0;height:40px;padding:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:12px;border:1px solid var(--line);background:rgba(40,50,60,.55);color:var(--soft);font-weight:700;font-size:13px}
+.lvtabs button.on{background:#3A9AA6;border-color:#3A9AA6;color:#fff}
+.grow1{display:flex;gap:16px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:2px 16px 6px;border-bottom:1px solid var(--line)}.grow1::-webkit-scrollbar{display:none}
+.grow1 button{flex-shrink:0;background:none;border:0;padding:6px 0;color:var(--muted);font-weight:700;font-size:14px;white-space:nowrap;border-bottom:2px solid transparent}
+.grow1 button.on{color:var(--ink);border-bottom-color:var(--teal)}
+.xcards{display:flex;flex-direction:column;gap:12px}
+.xcard{position:relative;overflow:hidden;min-height:112px;border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;justify-content:flex-end;gap:3px;text-decoration:none;color:#fff;
+  background:radial-gradient(120% 140% at 85% 20%,color-mix(in srgb,var(--gc) 45%,transparent),transparent 60%),linear-gradient(135deg,color-mix(in srgb,var(--gc) 30%,#151C22),#11171C);border:1px solid color-mix(in srgb,var(--gc) 30%,transparent)}
+.xbig{position:absolute;inset-inline-end:18px;top:50%;transform:translateY(-50%);opacity:.22;color:var(--gc);display:flex}
+.xname{position:relative;font-weight:800;font-size:18px;line-height:1.3;max-width:80%}
+.xsub{position:relative;font-size:13px;opacity:.8;max-width:80%}
+.xlv{position:absolute;top:12px;inset-inline-start:14px;font-size:11px;font-weight:800;padding:3px 9px;border-radius:9px;background:rgba(0,0,0,.35);color:#fff}
+.xplay{position:absolute;bottom:14px;inset-inline-end:14px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:#fff}
+.xcard .xname{margin-top:26px}
+</style>`);
+
 
 /* ---------- router ---------- */
 let lastRoute = "";
