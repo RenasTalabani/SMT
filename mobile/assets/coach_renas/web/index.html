@@ -4766,6 +4766,43 @@ document.body.insertAdjacentHTML("beforeend", `<style>
 .xcard .xname{margin-top:26px}
 </style>`);
 
+/* ---- the Exercises tab IS the library now: one page, tabs + big cards (Nov 10) ---- */
+let libCat = "all";
+const LIBCATS = [["all","الكل","All","هەموو"],["gym","جيم","Gym","جیم"],["home","بالبيت","Home","ماڵەوە"],["cali","كاليسثنكس","Calisthenics","کالیستێنیکس"],["cardio","كارديو","Cardio","کاردیۆ"]];
+const libList = () => {
+  const q = libQ.trim().toLowerCase();
+  const lvk = e => /^مبتدئ/.test(e.lv) ? "beg" : /متقدم|^م \/ ق/.test(e.lv) && !/^متوسط –/.test(e.lv) ? "adv" : "mid";
+  const cf = libCat !== "all" && CAT_DEF[libCat] ? CAT_DEF[libCat].f : () => true;
+  return LIB.ex.filter(e => cf(e) && (libG === "all" || e.g === libG) && (libLv === "all" || lvk(e) === libLv) && (!q || (e.ar + " " + e.en + " " + e.m + " " + X(e,"ar") + " " + X(e,"m")).toLowerCase().includes(q)));
+};
+V.train = () => {
+  setTop(tr("التمارين","Exercises","ڕاهێنانەکان"), null, null, langBtn());
+  const items = libList(), shown = items.slice(0, libMore ? 9999 : 40);
+  const groups = Object.keys(LIB.groups).filter(k => libCat === "all" || LIB.ex.some(e => e.g === k && (!CAT_DEF[libCat] || CAT_DEF[libCat].f(e))));
+  return `
+  <div class="cattop">${LIBCATS.map(([k,a,b,c]) => `<button class="${libCat===k?"on":""}" onclick="libCat='${k}';libG='all';libMore=false;render()">${tr(a,b,c)}</button>`).join("")}</div>
+  <div class="b3search"><span style="color:var(--muted)">${svg("search",18)}</span><input id="libq" class="input" placeholder="${tr("دوّر على تمرين…","Search exercises…","بەدوای ڕاهێناندا بگەڕێ…")}" value="${esc(libQ)}" oninput="libQ=this.value;libMore=false;renderKeep('libq')" aria-label="${T("ابحث")}"></div>
+  <div class="lvtabs">${[["all","الكل","All levels","هەموو"],["beg","مبتدئ","Beginner","سەرەتایی"],["mid","متوسط","Medium","مامناوەند"],["adv","متقدم","Advanced","پێشکەوتوو"]].map(([k,a,b,c]) => `<button class="${libLv===k?"on":""}" onclick="libLv='${k}';libMore=false;render()">${tr(a,b,c)}</button>`).join("")}</div>
+  <div class="grow1">${[["all",tr("كل العضلات","All muscles","هەموو ماسولکەکان")],...groups.map(k=>[k,G(k)])].map(([k,v]) => `<button class="${libG===k?"on":""}" onclick="libG='${k}';libMore=false;render()">${esc(v)}</button>`).join("")}</div>
+  <span class="muted small">${items.length} ${tr("تمرين","exercises","ڕاهێنان")}</span>
+  <div class="xcards">${shown.map(e => { const c = GCOL[e.g] || "#4CC9EA";
+    return `<a class="xcard" href="#ex-${e.id}" style="--gc:${c}"><span class="xbig">${exIcon(e).replace(/width="24" height="24"/, 'width="96" height="96"')}</span>
+      <span class="xlv">${esc(String(X(e,"lv")).split(/[–\-(]/)[0].trim())}</span><span class="xname">${esc(X(e,"ar"))}</span><span class="xsub">${esc(X(e,"m"))}</span><span class="xplay">${svg("play",14)}</span></a>`; }).join("") || `<p class="muted">${T("ما لقينا تمرين بهالاسم. جرّب كلمة ثانية.")}</p>`}</div>
+  ${items.length > shown.length ? `<button class="btn ghost" onclick="libMore=true;render()">${tr("شوف الكل","Show all","هەمووی ببینە")} (${items.length})</button>` : ""}
+  <span class="h3" style="margin-top:8px">${tr("أدوات ثانية","More tools","ئامرازی تر")}</span>
+  <div class="mtools"><a href="#tguide">${svg("book",20)}<span>${tr("دليل التمرين","Training guide","ڕێبەری ڕاهێنان")}</span></a><a href="#methods">${svg("db",20)}<span>${tr("طرق القوة","Strength methods","ڕێگاکانی هێز")}</span></a><a href="#reps">${svg("cam",20)}<span>${tr("عداد العدات","Rep counter","ژمێرەری دووبارە")}</span></a></div>`;
+};
+V.lib = V.train; TAB_OF.lib = "train";
+V.cat = id => { libCat = CAT_DEF[id] ? id : "all"; libG = "all"; setTimeout(() => { location.replace("#train"); }); return ""; };
+document.body.insertAdjacentHTML("beforeend", `<style>
+.cattop{display:flex;gap:22px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px}.cattop::-webkit-scrollbar{display:none}
+.cattop button{flex-shrink:0;background:none;border:0;padding:4px 0 8px;color:var(--muted);font:800 17px var(--display);white-space:nowrap;border-bottom:3px solid transparent}
+.cattop button.on{color:var(--ink);border-bottom-color:#3A9AA6}
+.mtools{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mtools a{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 6px;border-radius:16px;background:rgba(40,50,60,.55);border:1px solid var(--line);color:var(--soft);text-decoration:none;font-size:12.5px;font-weight:700;text-align:center}
+.mtools a svg{color:var(--teal)}
+</style>`);
+
 
 /* ---------- router ---------- */
 let lastRoute = "";
