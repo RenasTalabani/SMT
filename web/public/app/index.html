@@ -4656,6 +4656,79 @@ document.body.insertAdjacentHTML("beforeend", `<style>
 .lbrest{align-self:flex-end;font-size:11.5px;color:var(--amber);display:inline-flex;gap:5px;align-items:center;padding:2px 4px}
 </style>`);
 
+/* ---- workout page (Renas's design, Nov 10): current exercise with Set | Weight | Reps | Check,
+        a rest bar under it, the other exercises as small cards ---- */
+const PSX = {}; // expanded small cards
+const exIcon = e => svg({ pull:"db", row:"db", chest:"db", shoulder:"db", legs:"body", hinge:"body", single:"body", core:"body", calisthenics:"body", cardio:"heart", mobility:"body", iso:"db" }[e.g] || "db", 24, 1.8);
+V.psess = arg => {
+  const p = planInit(); if (!p) return V.plan();
+  const [w, k] = arg.split("-").map(Number), d = p.days[k]; if (!d) return V.plan();
+  if (!PS || PS.key !== arg) psInit(arg);
+  const items = d.list.filter(([id]) => EXMAP[id]);
+  setTop(`${pl3(d.name)}`, "pday-" + arg, `${tr("اليوم","Day","ڕۆژی")} ${k + 1}`, `<button class="finbtn" onclick="finishSess()">${svg("check",14,2.5)} ${tr("خلّص التمرين","Finish workout","تەواوکردن")}</button>`);
+  const all = items.reduce((a, [id]) => a + PS.v[id].sets.length, 0), done = items.reduce((a, [id]) => a + PS.v[id].sets.filter(x => x.done).length, 0);
+  const restBar = () => { if (!PS.rest) return ""; const left = Math.max(0, Math.ceil((PS.rest.end - Date.now()) / 1000));
+    return `<div class="wrest"><div class="wrbar" id="rbar" style="width:${(left / PS.rest.total * 100).toFixed(1)}%"></div><button class="wrplus" onclick="PS.rest.end+=15000;PS.rest.total+=15;S.pact=PS;save();render()" aria-label="+15">+15</button><b id="rclock">${clock(left)}</b><button class="wrskip" onclick="endRest()">${tr("تخطي","Skip","تێپەڕاندن")}</button></div>
+      <span class="wrnext">${tr("الجاي","Next","داهاتوو")}: ${esc(PS.rest.next)}</span>`; };
+  const active = ([id, sc], i) => { const e = EXMAP[id], t = tgOf(p, id, sc), v = PS.v[id], j = v.sets.findIndex(x => !x.done), x = v.sets[Math.max(0, j)];
+    return `<section class="wcard on"><div class="whd"><span class="wic">${exIcon(e)}</span><span class="grow"><span class="wno">#${i + 1}</span><span class="wname">${esc(X(e,"ar"))}</span></span><a class="wplay" href="#ex-${id}" aria-label="${tr("شلون تسويه","How to do it","چۆن بیکەیت")}">${svg("play",16)}</a></div>
+      ${j < 0 ? `<div class="wdone">${svg("check",16,3)} ${tr("خلصت هذا التمرين","Exercise done","ئەم ڕاهێنانە تەواو بوو")}</div>` : `<div class="wrow"><div class="wcol"><span>${tr("سِت","Set","سێت")}</span><b class="wset">${j + 1}</b></div>
+        <div class="wcol"><span>${tr("الوزن","Weight","کێش")}</span>${t.time ? `<div class="wbox"><b>—</b></div>` : `<label class="wbox"><input type="number" inputmode="decimal" step="0.5" min="0" value="${x.kg || 0}" onchange="PS.v[${id}].sets[${j}].kg=+this.value;S.pact=PS;save()"><em>${KG()}</em></label>`}</div>
+        <div class="wcol"><span>${tr("عدة","Reps","دووبارە")}</span>${t.time ? `<div class="wbox"><b style="font-size:16px">${esc(t.txt)}</b></div>` : `<label class="wbox"><input type="number" inputmode="numeric" min="0" value="${x.r}" onchange="PS.v[${id}].sets[${j}].r=+this.value;S.pact=PS;save()"></label>`}</div>
+        <button class="wcheck" onclick="setDone()">${svg("check",26,2.5)}<span>${tr("تم","Check","تەواو")}</span></button></div>`}
+      <div class="wdots">${v.sets.map((s, q) => `<span class="${s.done ? "ok" : q === j ? "cur" : ""}">${s.done ? (t.time ? "✓" : `${s.kg ? s.kg + "×" : ""}${s.r}`) : q + 1}</span>`).join("")}<span class="wgoal">${tr("الهدف","Goal","ئامانج")}: ${esc(tgShow(t, w))}</span></div>
+      ${restBar()}</section>`; };
+  const small = ([id, sc], i) => { const e = EXMAP[id], t = tgOf(p, id, sc), v = PS.v[id], f = v.sets.every(x => x.done), open = PSX[i];
+    return `<section class="wcard ${f ? "fin" : ""}"><button class="whd" onclick="PSX[${i}]=!PSX[${i}];render()"><span class="wic sm">${f ? svg("check",18,3) : exIcon(e)}</span><span class="grow wname">${esc(X(e,"ar"))}</span><span class="muted small">${v.sets.filter(x => x.done).length}/${v.sets.length}</span><span class="wchev ${open ? "up" : ""}">${svg("chev",14)}</span></button>
+      ${open ? `<div class="lbt" style="margin:0"><div class="lbr hd"><span>${tr("سِت","Set","سێت")}</span><span>${tr("الوزن","Weight","کێش")}</span><span>${tr("عدة","Reps","دووبارە")}</span></div>${v.sets.map((s, q) => `<div class="lbr ${s.done ? "done" : ""}"><span>${s.done ? svg("check",13,3) : q + 1}</span><span>${t.time ? "—" : (s.kg || "---") + " " + KG()}</span><span>${t.time ? esc(t.txt) : s.r}</span></div>`).join("")}</div>
+        ${f ? "" : `<button class="btn ghost sm" onclick="PS.i=${i};PSX[${i}]=false;S.pact=PS;save();render()">${tr("سوّيه هسه","Do this one now","ئێستا ئەمە بکە")}</button>`}` : ""}</section>`; };
+  return `<div class="pprog"><div class="meter" style="height:6px"><span style="width:${Math.round(done / all * 100)}%"></span></div><span class="muted small">${done}/${all}</span></div>
+  ${items.map((it, i) => i === PS.i ? active(it, i) : small(it, i)).join("")}`;
+};
+restTick = function(){
+  if (PT) clearInterval(PT);
+  PT = setInterval(() => {
+    if (!PS || !PS.rest || !/^#psess/.test(location.hash)) { clearInterval(PT); PT = null; return; }
+    const left = Math.ceil((PS.rest.end - Date.now()) / 1000), el = document.getElementById("rclock"), bar = document.getElementById("rbar");
+    if (el) el.textContent = clock(Math.max(0, left));
+    if (bar) bar.style.width = (Math.max(0, left) / PS.rest.total * 100).toFixed(1) + "%";
+    if (left <= 0) { clearInterval(PT); PT = null; beep(); endRest(); }
+  }, 250);
+};
+document.body.insertAdjacentHTML("beforeend", `<style>
+.finbtn{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:rgba(40,50,60,.55);color:var(--ink);font:800 12px var(--display);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.wcard{background:linear-gradient(180deg,rgba(52,64,76,.55),rgba(30,38,46,.6));border:1px solid var(--line);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.wcard.on{border-color:rgba(76,201,234,.35);box-shadow:0 0 24px rgba(76,201,234,.1)}
+.wcard.fin{opacity:.6}
+.whd{display:flex;align-items:center;gap:12px;background:none;border:0;padding:0;color:var(--ink);text-align:start;width:100%}
+.wic{width:54px;height:54px;border-radius:14px;background:rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;color:#E3C49B;flex-shrink:0}
+.wic.sm{width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.28)}
+.wno{display:block;font-size:12px;color:var(--muted);font-weight:700}
+.wname{display:block;font-weight:800;font-size:17px;line-height:1.3}
+.wplay{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.1);color:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.wrow{display:grid;grid-template-columns:44px 1fr 1fr 1.05fr;gap:8px;align-items:end}
+.wcol{display:flex;flex-direction:column;align-items:center;gap:6px}.wcol>span{font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.wset{font:800 30px var(--display);height:96px;display:flex;align-items:center}
+.wbox{width:100%;height:96px;border-radius:14px;background:rgba(5,10,14,.55);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.wbox input{width:100%;background:transparent;border:0;color:var(--ink);font:800 30px var(--display);text-align:center;direction:ltr;outline:none;padding:0}
+.wbox em{font-style:normal;font-size:11.5px;color:var(--muted);font-weight:700;text-transform:uppercase}
+.wbox:focus-within{border-color:var(--teal)}
+.wcheck{height:120px;border:0;border-radius:14px;background:linear-gradient(160deg,#3A9AA6,#2B7C86);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font:800 15px var(--display);box-shadow:0 8px 20px rgba(43,124,134,.35)}
+.wcheck:active{transform:scale(.97)}
+.wdone{display:flex;align-items:center;gap:8px;color:var(--teal);font-weight:700}
+.wdots{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.wdots span{min-width:30px;height:26px;padding:0 8px;border-radius:13px;background:var(--raised);color:var(--muted);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;direction:ltr}
+.wdots span.ok{background:rgba(76,201,234,.16);color:var(--teal)}.wdots span.cur{outline:1.5px solid var(--teal);color:var(--ink)}
+.wdots .wgoal{background:none!important;outline:0!important;margin-inline-start:auto;color:var(--muted);direction:inherit}
+.wrest{position:relative;height:56px;border-radius:14px;background:rgba(5,10,14,.55);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.wrbar{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#2B7C86,#3A9AA6);transition:width .25s linear}
+html[dir=rtl] .wrbar{inset:0 0 0 auto}
+.wrest b{position:relative;font:800 24px var(--display);direction:ltr;color:#fff}
+.wrskip,.wrplus{position:absolute;background:none;border:0;color:var(--teal);font:800 13px var(--display);letter-spacing:.06em;text-transform:uppercase;height:100%;padding:0 16px}
+.wrskip{inset-inline-end:0}.wrplus{inset-inline-start:0;color:#fff;opacity:.85}
+.wrnext{font-size:12.5px;color:var(--muted);text-align:center;margin-top:-4px}
+.wchev{display:flex;color:var(--muted);transform:rotate(-90deg)}.wchev.up{transform:rotate(90deg)}html[dir=ltr] .wchev{transform:rotate(90deg)}html[dir=ltr] .wchev.up{transform:rotate(-90deg)}
+</style>`);
+
 
 /* ---------- router ---------- */
 let lastRoute = "";
