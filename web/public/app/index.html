@@ -9,8 +9,8 @@
 <body>
 <title>مع الكوتش ريناس</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap">
+
+
 <style>
 /* Layout: one phone-width column, sticky top bar, fixed 5-tab bottom bar. Single dark athletic look. */
 :root{
@@ -4891,6 +4891,281 @@ V.login = () => {
   <button class="btn big" onclick="S.entered=true;save();location.hash=S.onboarded?'home':'start'">${tr("يلا نبدي","Let's start","با دەست پێبکەین")}</button>
   <span class="note" style="text-align:center">${tr("بدون حساب وبدون كلمة سر. كل بياناتك تبقى على تلفونك بس.","No account and no password. All your data stays on your phone only.","بێ هەژمار و بێ وشەی نهێنی. هەموو زانیارییەکانت تەنها لەسەر مۆبایلەکەت دەمێننەوە.")}</span>
   <button class="btn ghost" onclick="switchLang()">${svg("globe",16)} ${tr("غيّر اللغة","Change language","گۆڕینی زمان")}</button>`;
+};
+
+/* ===== 2.1.0 — honest short tour (3 steps, matches the app as it is today) ===== */
+const TOUR3 = [
+  ["db", ["برنامجك إنت","Your own plan","پڕۆگرامی خۆت"],
+    ["جاوب على كم سؤال، وياخذلك برنامج: جيم أو بيت، ومن يومين لحد 6 أيام.","Answer a few questions and get your plan: gym or home, 2 to 6 days a week.","وەڵامی چەند پرسیارێک بدەوە و پڕۆگرامەکەت وەربگرە: جیم یان ماڵەوە، لە ٢ تا ٦ ڕۆژ."],
+    [["كل يوم: تمارينه ويه السِتات والعدات والوزن","Every day: its exercises with sets, reps and weight","هەموو ڕۆژێک: ڕاهێنانەکانی لەگەڵ سێت و ژمارە و کێش"],
+     ["اضغط «تم» بعد كل سِت وعداد الراحة يشتغل وحده","Press Done after each set and the rest timer starts by itself","دوای هەر سێتێک «تەواو» دابگرە و کاتژمێری پشوو خۆی دەست پێدەکات"],
+     ["كورس خاص للنساء","A separate course for women","کۆرسی تایبەت بۆ ژنان"]]],
+  ["fire", ["513 تمرين","513 exercises","٥١٣ ڕاهێنان"],
+    ["جيم، بيت، كاليسثنكس وكارديو — من المبتدئ للمتقدم.","Gym, home, calisthenics and cardio, from beginner to advanced.","جیم، ماڵەوە، کالیسثێنیکس و کاردیۆ، لە سەرەتایی تا پێشکەوتوو."],
+    [["العضلات اللي يشغلها، وشلون تسويه بخطوات قصيرة","The muscles it works and how to do it in short steps","ئەو ماسولکانەی کاری تێدا دەکات و چۆن بیکەیت"],
+     ["الجهاز مشغول؟ بدّله بتمرين يشغل نفس العضلة","Machine busy? Swap it for one that works the same muscle","ئامێر داگیرکراوە؟ بیگۆڕە بە یەکێکی هاوشێوە"],
+     ["جسم 3D تشوف بيه كل عضلة","A 3D body to explore every muscle","جەستەیەکی 3D بۆ هەموو ماسولکەیەک"]]],
+  ["food", ["أكلك وتقدمك","Your food and progress","خواردن و پێشکەوتنت"],
+    ["احسب سعراتك بأكلنا العراقي، وشوف تقدمك بالأرقام.","Count your calories with Iraqi food, and see your progress in numbers.","کالۆری بژمێرە بە خواردنی عێراقی و پێشکەوتنت ببینە."],
+    [["صمون، تمن، دولمة، كبة… وأكثر","Samoon, timman, dolma, kubba and more","سەموون، برنج، دۆڵمە، کوبە و زیاتر"],
+     ["دليل مكملات صادق: شنو يسوي ومنو يگدر يستخدمه","An honest supplement guide: what it does and who can use it","ڕێنمایی ڕاستگۆی پێکهاتەکان"],
+     ["تقويم تمرينك، سجل وزنك، وأرقامك القياسية","Your training calendar, weight log and personal records","ڕۆژژمێر، تۆماری کێش و ژمارە باشەکانت"]]]
+];
+V.tour = () => {
+  if (TOURI >= TOUR3.length) TOURI = 0;
+  const [ic, t, d, pts] = TOUR3[TOURI], last = TOURI === TOUR3.length - 1;
+  $("#nav").innerHTML = ""; setTop(T("شلون يشتغل التطبيق"), S.onboarded ? "me" : null, T("خطوة {n} من {m}", { n:TOURI + 1, m:TOUR3.length }));
+  return `<div class="dots" aria-hidden="true">${TOUR3.map((_, i) => `<span class="${i===TOURI?"on":""}"></span>`).join("")}</div>
+  <section class="card hero" style="min-height:200px;justify-content:flex-end"><div class="ring"></div><span style="width:64px;height:64px;border-radius:20px;background:var(--teal-ink);color:var(--teal);display:flex;align-items:center;justify-content:center">${svg(ic, 34)}</span><h2 class="h2">${tr(...t)}</h2><span style="font-weight:500">${tr(...d)}</span></section>
+  <div class="list">${pts.map((p, i) => `<div class="li" style="align-items:flex-start"><span class="num" style="width:26px;color:var(--teal)">${i + 1}</span><span class="grow">${tr(...p)}</span></div>`).join("")}</div>
+  <div class="grid2">${TOURI ? `<button class="btn ghost" onclick="TOURI--;render()">${T("رجوع")}</button>` : `<button class="btn ghost" onclick="tourDone()">${T("تخطّي")}</button>`}<button class="btn" onclick="${last ? "tourDone()" : "TOURI++;render()"}">${last ? T("يلا نبدي") : T("التالي")}</button></div>`;
+};
+
+/* ===== 2.1.0 — plan builder: no crash if you leave the screen while it builds ===== */
+let MAKE_T = null;
+const makeStop = () => { if (MAKE_T) { clearInterval(MAKE_T); MAKE_T = null; } };
+V.planmake = () => {
+  $("#nav").innerHTML = ""; setTop(tr("نبني برنامجك","Building your plan","پرۆگرامەکەت دروست دەکەین"), null);
+  if (!MAKE) { makeStop(); setTimeout(makePlan); return ""; }
+  const steps = [tr("نقرا هدفك ومستواك","Reading your goal and level","ئامانج و ئاستەکەت دەخوێنینەوە"), tr("نختار تمارين تناسب أدواتك","Choosing exercises for your equipment","ڕاهێنانی گونجاو بۆ ئامرازەکانت هەڵدەبژێرین"), tr("نبعد التمارين اللي تأذي إصابتك","Avoiding moves that hurt your injury","ئەو جووڵانە لادەبەین کە زیان بە برینەکەت دەگەیەنن"), tr("نوزع الأيام والعضلات","Spreading days and muscles","ڕۆژ و ماسولکەکان دابەش دەکەین"), tr("نحسب السِتات والعدات والراحة","Setting sets, reps and rest","سێت و دووبارە و پشوو دیاری دەکەین")];
+  const el = Math.max(0, Date.now() - MAKE.t0), k = Math.min(steps.length, Math.floor(el / (MAKE.dur / steps.length)));
+  if (!MAKE_T) MAKE_T = setInterval(() => {
+    if (!MAKE || !/^#planmake/.test(location.hash)) { makeStop(); MAKE = null; return; }
+    if (Date.now() - MAKE.t0 >= MAKE.dur) {
+      const m = MAKE; makeStop(); MAKE = null;
+      try { S.myplan = genPlan(m.pf, S.body, m.seed); S.plan = "mine"; syncMyPlan(); save(); } catch (e) { toast(T("صار خطأ، جرب مرة ثانية")); location.replace("#home"); return; }
+      location.replace("#plan"); return;
+    }
+    render();
+  }, 400);
+  return `<div class="think"><div class="orb"><span>${svg("ai",44)}</span></div><h2 class="h2" style="font-size:22px">${tr("التطبيق يفكر ببرنامجك…","The app is thinking about your plan…","ئەپەکە بیر لە پرۆگرامەکەت دەکاتەوە…")}</h2><span class="muted">${tr("برنامج خاص بيك إنت، مو برنامج جاهز للكل.","A plan made for you, not a ready plan for everyone.","پرۆگرامێک تەنها بۆ تۆ، نەک پرۆگرامێکی ئامادە بۆ هەمووان.")}</span>
+    <div class="tsteps">${steps.map((s, i) => `<div class="${i < k ? "ok" : i === k ? "on" : ""}"><span class="b">${i < k ? svg("check",12,3) : ""}</span>${s}</div>`).join("")}</div></div>`;
+};
+
+/* ===== 2.1.0 — only count what you really did ===== */
+const _finHonest = finishSess;
+finishSess = function(){
+  if (PS && PS.v) {
+    let done = 0;
+    Object.keys(PS.v).forEach(id => {
+      const v = PS.v[id];
+      const any = (v.sets || []).some(x => x.done) || v.ok;
+      if (any) { v.sets = (v.sets || []).filter(x => x.done); done++; }
+      else delete PS.v[id];                       // never trained → not logged, no progression
+    });
+    if (!done) {                                  // nothing at all was logged
+      try { if (typeof PT !== "undefined" && PT) { clearInterval(PT); PT = null; } } catch (e) {}
+      PS = null; S.pact = null; save();
+      toast(tr("ما سجّلت ولا سِت، فما حسبناها تمرين.","No set was logged, so we didn't count it as a workout.","هیچ سێتێک تۆمار نەکرا، بۆیە بە ڕاهێنان دانەنرا."));
+      location.hash = "plan"; return;
+    }
+  }
+  return _finHonest.apply(this, arguments);
+};
+
+/* ===== 2.1.0 — honest headline when you did only part of the day ===== */
+const _finHead = finishSess;
+finishSess = function(){
+  let total = 0;
+  try { const p = planInit(); if (p && PS) total = p.days[PS.k].list.filter(([id]) => EXMAP[id]).length; } catch (e) {}
+  const did = PS && PS.v ? Object.keys(PS.v).filter(id => (PS.v[id].sets || []).some(x => x.done) || PS.v[id].ok).length : 0;
+  const r = _finHead.apply(this, arguments);
+  if (total && did && did < total && S.plast) {
+    S.plast.head = tr("سوّيت {d} من {n} تمارين. شي أحسن من ولا شي — كمّل المرة الجاية.",
+                      "You did {d} of {n} exercises. Better than nothing — finish it next time.",
+                      "{d} لە {n} ڕاهێنانت کرد. لە هیچ باشترە — جاری داهاتوو تەواوی بکە.")
+                      .replace("{d}", did).replace("{n}", total);
+    save(); if (/^#presult/.test(location.hash)) render();
+  }
+  return r;
+};
+
+/* ===== 2.1.0 — never show NaN if a saved profile is missing a field ===== */
+(function(){
+  const _t = targets;
+  targets = function(){
+    const b = S.body = S.body || {};
+    if (!(+b.kg > 0)) b.kg = 78; if (!(+b.cm > 0)) b.cm = 176; if (!(+b.age > 0)) b.age = 25;
+    if (!(+b.act > 0)) b.act = 1.45; if (!b.sex) b.sex = "m";
+    if (!b.aim) b.aim = S.profile && S.profile.goal === "fat" ? "cut" : S.profile && S.profile.goal === "muscle" ? "gain" : "keep";
+    const r = _t.apply(this, arguments);
+    ["bmr","tdee","kcal","pLo","pHi","fat"].forEach(k => { if (!Number.isFinite(r[k])) r[k] = 0; });
+    return r;
+  };
+})();
+
+/* ===== 2.1.0 — NEW: plate calculator (which plates go on the bar) ===== */
+S.bar = S.bar || 20;
+const PLATES = [25, 20, 15, 10, 5, 2.5, 1.25];
+function platesFor(total, bar){
+  const perSide = (total - bar) / 2, out = [];
+  if (!(perSide > 0)) return { perSide:0, out:[], left:0 };
+  let left = Math.round(perSide * 100) / 100;
+  PLATES.forEach(pl => { let n = Math.floor((left + 0.001) / pl); if (n > 0) { out.push([pl, n]); left = Math.round((left - n * pl) * 100) / 100; } });
+  return { perSide, out, left };
+}
+const plateLine = (total, bar) => {
+  const r = platesFor(total, bar);
+  if (!r.out.length) return tr("بالحديدة بس","Just the bar","تەنها بارەکە");
+  return r.out.map(([p, n]) => `${n}×${p}`).join(" + ") + (r.left > 0.01 ? " + " + tr("باقي","left","ماوە") + " " + r.left : "");
+};
+function barSheet(total){
+  const bars = [20, 15, 10, 7, 0];
+  openSheet(`<span class="h3">${tr("شلون أركب الوزن","How to load the bar","چۆن بارەکە بار بکەم")}</span>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="card" style="gap:6px;align-items:center;padding:16px">
+        <span class="muted small">${tr("الوزن الكلي","Total weight","کێشی گشتی")}</span>
+        <b style="font:800 32px var(--display);direction:ltr">${total} ${KG()}</b>
+        <span style="font-weight:700;color:var(--teal);direction:ltr;text-align:center">${plateLine(total, S.bar)}</span>
+        <span class="muted small">${tr("لكل جهة","per side","بۆ هەر لایەک")}</span>
+      </div>
+      <span class="muted small">${tr("وزن الحديدة","Bar weight","کێشی بار")}</span>
+      <div class="row" style="gap:8px;flex-wrap:wrap">${bars.map(b => `<button class="btn ghost sm ${S.bar === b ? "on" : ""}" style="${S.bar === b ? "border-color:var(--teal);color:var(--teal)" : ""}" onclick="S.bar=${b};save();closeSheet();barSheet(${total})">${b ? b + " " + KG() : tr("بدون","None","بێ")}</button>`).join("")}</div>
+      <p class="note">${tr("الأرقام لكل جهة من الحديدة. لو ما عندك نفس الأقراص، قرّب للأقرب.","The numbers are per side of the bar. If you don't have these plates, go to the nearest.","ژمارەکان بۆ هەر لایەکی بارەکەن.")}</p>
+    </div>`);
+}
+
+/* plate line inside the workout card + resume banner on home */
+(function(){
+  const _ps = V.psess;
+  V.psess = arg => {
+    const html = _ps(arg);
+    return html;
+  };
+  // inject the plate hint right after each render of the session screen
+  const _after = typeof afterRender === "function" ? afterRender : null;
+  afterRender = function(name, arg){
+    if (_after) try { _after(name, arg); } catch (e) {}
+    if (name !== "psess" || !PS) return;
+    try {
+      const p = planInit(), d = p.days[PS.k], items = d.list.filter(([id]) => EXMAP[id]);
+      const [id, sc] = items[PS.i] || []; if (!id) return;
+      const e = EXMAP[id], t = tgOf(p, id, sc);
+      if (t.time || t.bw || eqKind(e) !== "barbell") return;
+      const card = document.querySelector(".wcard.on"); if (!card || card.querySelector(".wplate")) return;
+      const inp = card.querySelector(".wbox input"); const kg = inp ? +inp.value || t.kg : t.kg;
+      if (!(kg > 0)) return;
+      const row = card.querySelector(".wrow"); if (!row) return;
+      row.insertAdjacentHTML("afterend", `<button class="wplate" onclick="barSheet(${kg})">${svg("db",14)} <b>${esc(plateLine(kg, S.bar))}</b> <span>${tr("لكل جهة","per side","بۆ هەر لایەک")}</span></button>`);
+    } catch (e) {}
+  };
+})();
+document.body.insertAdjacentHTML("beforeend", `<style>
+.wplate{display:flex;align-items:center;gap:8px;width:100%;border:1px dashed var(--line);background:rgba(5,10,14,.35);color:var(--muted);border-radius:12px;padding:9px 12px;font-size:12.5px;font-weight:700}
+.wplate b{color:var(--teal);direction:ltr;font-size:13.5px}
+.wplate span{margin-inline-start:auto;font-size:11px}
+.rsum{display:flex;align-items:center;gap:12px;border:1px solid var(--teal);border-radius:18px;padding:14px;background:rgba(76,201,234,.08);text-decoration:none;color:var(--ink)}
+.rsum .ic{width:44px;height:44px;border-radius:14px;background:rgba(76,201,234,.16);color:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+</style>`);
+
+/* ===== 2.1.0 — NEW: pick up an unfinished workout from the home screen ===== */
+(function(){
+  const _home = V.home;
+  V.home = () => {
+    const html = _home();
+    const a = S.pact;
+    if (!a || !a.key) return html;
+    let nm = "", done = 0, all = 0;
+    try {
+      const p = planInit(), d = p.days[a.k], items = d.list.filter(([id]) => EXMAP[id]);
+      nm = pl3(d.name);
+      items.forEach(([id]) => { const v = a.v[id]; if (v) { all += v.sets.length; done += v.sets.filter(x => x.done).length; } });
+    } catch (e) { return html; }
+    if (!nm || !done) return html;
+    const card = `<a class="rsum" href="#psess-${a.key}"><span class="ic">${svg("db",22)}</span><span class="grow" style="min-width:0">
+      <span class="h3" style="display:block">${tr("كمّل تمرينك","Finish your workout","ڕاهێنانەکەت تەواو بکە")}</span>
+      <span class="muted small">${esc(nm)} · ${done}/${all} ${tr("سِت","sets","سێت")}</span></span><span class="chev">${svg("chev",16)}</span></a>`;
+    return card + html;
+  };
+})();
+
+/* plate calculator from the exercise page too (barbell lifts) */
+(function(){
+  const _ex = V.ex;
+  V.ex = id => {
+    const html = _ex(id), e = EXMAP[+id];
+    if (!e || eqKind(e) !== "barbell") return html;
+    const last = (S.pr && S.pr[+id] && S.pr[+id].kg) || 60;
+    return html + `<button class="card" style="flex-direction:row;align-items:center;gap:12px;text-align:start" onclick="barSheet(${last})">
+      <span style="width:44px;height:44px;border-radius:14px;background:rgba(76,201,234,.14);color:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0">${svg("db",22)}</span>
+      <span class="grow" style="min-width:0"><span class="h3" style="display:block">${tr("شلون أركب الوزن","How to load the bar","چۆن بارەکە بار بکەم")}</span>
+      <span class="muted small">${tr("يوريك الأقراص لكل جهة","Shows the plates per side","قورسایی هەر لایەک پیشان دەدات")}</span></span><span class="chev">${svg("chev",16)}</span></button>`;
+  };
+})();
+
+/* ===== 2.1.0 — NEW: back up / restore your data (no account, nothing leaves the phone) ===== */
+function backupText(){ try { return JSON.stringify({ v:1, at:new Date().toISOString(), s:S }); } catch (e) { return ""; } }
+function backupSheet(){
+  const t = backupText(), kb = Math.max(1, Math.round(t.length / 1024));
+  openSheet(`<span class="h3">${tr("نسخة احتياطية","Backup","پاشەکەوت")}</span>
+  <span class="muted small">${tr("كل بياناتك على تلفونك بس. انسخ هذا النص وخزّنه بمكان آمن (ملاحظات أو تلگرام إلك). إذا غيّرت تلفون، الصقه هنا وترجع كل شي.","All your data is on your phone only. Copy this text and keep it somewhere safe. On a new phone, paste it back here and everything returns.","هەموو داتاکانت تەنها لەسەر مۆبایلەکەتن. ئەم دەقە کۆپی بکە و بیپارێزە.")}</span>
+  <textarea id="bkout" readonly class="input" style="height:110px;font-size:11px;direction:ltr" onclick="this.select()">${esc(t)}</textarea>
+  <div class="row" style="gap:8px"><button class="btn" style="flex:1" onclick="bkCopy()">${svg("check",16,2.5)} ${tr("انسخ النسخة","Copy backup","کۆپی بکە")} <span class="muted small">(${kb}KB)</span></button></div>
+  <div style="height:1px;background:var(--line);margin:4px 0"></div>
+  <span class="h3">${tr("رجّع نسختك","Restore","گەڕاندنەوە")}</span>
+  <textarea id="bkin" class="input" style="height:80px;font-size:11px;direction:ltr" placeholder="${tr("الصق النص هنا","Paste the text here","دەقەکە لێرە بلکێنە")}"></textarea>
+  <button class="btn ghost" onclick="bkRestore()">${tr("رجّع بياناتي","Restore my data","داتاکانم بگەڕێنەوە")}</button>
+  <p class="note">${tr("الاسترجاع يمسح اللي موجود هسه ويحط النسخة مكانه.","Restoring replaces what is on this phone now.","گەڕاندنەوە ئەوەی ئێستا هەیە دەگۆڕێت.")}</p>`);
+}
+function bkCopy(){
+  const el = document.getElementById("bkout"); if (!el) return;
+  el.select(); el.setSelectionRange(0, 999999);
+  const done = () => toast(tr("انتسخت! خزّنها بمكان آمن.","Copied! Keep it somewhere safe.","کۆپی کرا!"));
+  try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(el.value).then(done, () => { document.execCommand("copy"); done(); }); return; } } catch (e) {}
+  try { document.execCommand("copy"); done(); } catch (e) { toast(tr("اضغط مطوّل على النص وانسخه","Long-press the text and copy","دەست بگرە لەسەر دەقەکە")); }
+}
+let bkArm = false;
+function bkRestore(){
+  const el = document.getElementById("bkin"); if (!el) return;
+  let d; try { d = JSON.parse(el.value.trim()); } catch (e) { toast(tr("النص مو صحيح","That text isn't a valid backup","دەقەکە دروست نییە")); return; }
+  if (!d || !d.s || typeof d.s !== "object" || !d.s.lang) { toast(tr("النص مو نسخة احتياطية","That isn't a backup","ئەمە پاشەکەوت نییە")); return; }
+  if (!bkArm) { bkArm = true; toast(tr("دوس مرة ثانية حتى تأكد الاسترجاع","Press again to confirm the restore","دووبارە دابگرە بۆ دڵنیایی")); setTimeout(() => bkArm = false, 4000); return; }
+  try {
+    S = Object.assign(structuredClone(SEED), d.s); save();
+    bkArm = false; closeSheet(); applyLang(); if (typeof syncMyPlan === "function") syncMyPlan();
+    toast(tr("رجعت بياناتك ✓","Your data is back ✓","داتاکانت گەڕانەوە ✓")); location.hash = "home"; render();
+  } catch (e) { toast(tr("ما گدرنا نرجعها","Couldn't restore","نەتوانرا بگەڕێنرێتەوە")); }
+}
+
+/* ===== 2.1.0 — My account: only what the app really does ===== */
+V.me = () => {
+  setTop(T("حسابي"), "home", null, langBtn());
+  const p = S.myplan || PROGRAMS.find(x => x.id === S.plan) || PROGRAMS[0];
+  const done = Object.keys(S.plog || {}).length;
+  const prs = Object.keys(S.pr || {}).length;
+  const row = (href, ic, col, label, right = "") => `<${href.startsWith("#") ? `a href="${href}"` : `button onclick="${href}"`} class="li"><span class="ic" style="color:${col}">${svg(ic,18)}</span><span class="grow t">${label}</span>${right ? `<span class="muted small">${right}</span>` : ""}<span class="chev">${svg("chev",16)}</span></${href.startsWith("#") ? "a" : "button"}>`;
+  return `<div class="prof"><span class="av">${esc((S.name || "C").slice(0,1))}</span><span class="grow" style="min-width:0"><span style="font-weight:800;font-size:19px;display:block">${esc(S.name || tr("حسابي","My account","هەژمارەکەم"))}</span><span class="muted small" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(pl3(p.t))}</span></span><a class="chip" href="#plan">${tr("برنامجي","My plan","پرۆگرامەکەم")}</a></div>
+  <div class="mini3"><div><span class="v" style="color:var(--amber)">${streak()}</span><span class="k">${tr("يوم ورا بعض","Day streak","ڕۆژ لە دوای یەک")}</span></div><a href="#progress"><span class="v">${done}</span><span class="k">${tr("تمرين","Workouts","ڕاهێنان")}</span></a><a href="#progress"><span class="v" style="color:var(--teal)">${prs}</span><span class="k">${tr("رقم قياسي","Records","ژمارە باشەکان")}</span></a></div>
+  <span class="sec-h">${tr("تمريني","My training","ڕاهێنانەکەم")}</span>
+  <div class="list">${row("#plan","book","var(--teal)",tr("برنامجي","My plan","پرۆگرامەکەم"))}${row("#progress","chart","var(--teal)",tr("تقدمي","My progress","پێشکەوتنم"))}${row("#train","db","var(--teal)",tr("مكتبة التمارين","Exercise library","کتێبخانەی ڕاهێنان"))}</div>
+  <span class="sec-h">${tr("الإعدادات","Settings","ڕێکخستنەکان")}</span>
+  <div class="list">${row("switchLang()","globe","var(--teal)",tr("اللغة","Language","زمان"),langName(S.lang))}${row("#notif","bell","var(--teal)",tr("التذكيرات","Reminders","بیرخستنەوەکان"))}${row("backupSheet()","shield","var(--teal)",tr("نسخة احتياطية","Backup my data","پاشەکەوتی داتا"))}${row("#privacy","user","var(--teal)",tr("الخصوصية","Privacy","تایبەتمەندی"))}${row("#safety","shield","var(--teal)",T("الأمان، رمضان والصيف"))}</div>
+  <span class="sec-h">${tr("مساعدة","Help","یارمەتی")}</span>
+  <div class="list">${row("#tour","play","var(--teal)",tr("شلون يشتغل التطبيق","How the app works","ئەپەکە چۆن کاردەکات"))}</div>
+  <details class="card" style="padding:12px 14px"><summary style="font-weight:700;color:var(--muted);cursor:pointer">${tr("بياناتي","My data","داتاکانم")}</summary>
+    <div class="list" style="margin-top:10px">${row("backupSheet()","shield","var(--teal)",tr("نسخة احتياطية","Backup my data","پاشەکەوتی داتا"))}${row("confirmReset()","x","var(--red)",`<span style="color:var(--red)">${tr("امسح كل بياناتي","Erase all my data","سڕینەوەی هەموو داتاکانم")}</span>`)}</div>
+    <p class="note" style="margin-top:8px">${tr("بياناتك محفوظة على تلفونك بس، وما ترسل لأي مكان.","Your data is saved on your phone only and is never sent anywhere.","داتاکانت تەنها لەسەر مۆبایلەکەتن و بۆ هیچ شوێنێک نانێردرێن.")}</p></details>`;
+};
+
+/* ===== 2.1.0 — privacy page that matches the app: nothing leaves the phone ===== */
+V.privacy = () => {
+  setTop(tr("الخصوصية","Privacy","تایبەتمەندی"), S.onboarded ? "me" : "login");
+  const sec = [
+    [tr("كلشي يبقى على تلفونك","Everything stays on your phone","هەمووی لەسەر مۆبایلەکەت دەمێنێتەوە"),
+     tr("ما أكو حساب وما أكو كلمة سر. كل اللي تكتبه يتخزن داخل تلفونك بس، وما نرسله لأي سيرفر ولا نشوفه إحنا.","There is no account and no password. Everything you enter is stored inside your phone only. It is not sent to any server and we never see it.","هیچ هەژمارێک و وشەی نهێنی نییە. هەرچی دەینووسیت تەنها لەناو مۆبایلەکەتدا پاشەکەوت دەبێت.")],
+    [tr("شنو ينحفظ","What is saved","چی پاشەکەوت دەکرێت"),
+     tr("عمرك ووزنك وطولك وهدفك، برنامجك، السِتات والأوزان اللي تسجلها، أكلك، وسجل وزنك. هذي كلها على جهازك.","Your age, weight, height and goal, your plan, the sets and weights you log, your food and your weight log. All of it on your device.","تەمەن و کێش و باڵا و ئامانجت، پڕۆگرامەکەت، سێت و کێشەکان، خواردن و تۆماری کێشت.")],
+    [tr("بدون إنترنت","No internet needed","بێ ئینتەرنێت"),
+     tr("التطبيق يشتغل كامل بدون نت. ما يرفع ولا يحمّل أي شي، وما بيه إعلانات ولا متابعة.","The app works fully offline. It uploads and downloads nothing, and it has no ads and no tracking.","ئەپەکە بە تەواوی بێ ئینتەرنێت کاردەکات. هیچ ناناردرێت و ڕیکلام و بەدواداچوون نییە.")],
+    [tr("التذكيرات","Reminders","بیرخستنەوەکان"),
+     tr("التذكيرات تطلع من تلفونك نفسه بالأوقات اللي تختارها. تگدر تطفيها من التذكيرات.","Reminders come from your own phone at the times you choose. You can turn them off in Reminders.","بیرخستنەوەکان لە مۆبایلەکەی خۆتەوە دێن.")],
+    [tr("بياناتك بإيدك","Your data is yours","داتاکان هی تۆن"),
+     tr("تگدر تاخذ نسخة احتياطية أو تمسح كل شي من حسابي ← بياناتي. وإذا حذفت التطبيق، تنمسح وياه.","You can back everything up or erase it from My account → My data. Deleting the app deletes it too.","دەتوانیت پاشەکەوت بکەیت یان بیسڕیتەوە لە هەژمارەکەم.")],
+    [tr("ملاحظة طبية","Health note","تێبینی تەندروستی"),
+     tr("هذا تطبيق لياقة عامة، مو أداة طبية وما يشخّص ولا يعالج. إذا عندك مرض أو ألم، راجع طبيب قبل التمرين أو أي مكمل.","This is a general fitness app, not a medical tool; it does not diagnose or treat. If you have a condition or pain, see a doctor before training or taking any supplement.","ئەمە ئەپێکی لەشجوانی گشتییە، ئامرازی پزیشکی نییە.")]
+  ];
+  return sec.map(([h, b]) => `<div class="card"><span class="h3">${h}</span><span>${b}</span></div>`).join("")
+    + (S.onboarded ? `<button class="btn ghost" onclick="backupSheet()">${tr("نسخة احتياطية لبياناتي","Back up my data","پاشەکەوتی داتاکانم")}</button>` : "");
 };
 
 
